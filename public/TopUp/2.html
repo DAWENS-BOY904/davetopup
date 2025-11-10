@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PUBG Mobile TopUp - Dave TopUp</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<style>
+body {font-family:"Poppins",sans-serif;margin:0;background:#f9fafb;color:#222;}
+header{background:white;padding:10px 20px;box-shadow:0 1px 5px rgba(0,0,0,0.1);position:fixed;width:100%;top:0;z-index:5;display:flex;align-items:center;justify-content:space-between;}
+header img{height:40px;}
+.currency-toggle{background:#2f855a;color:#fff;border:none;border-radius:6px;padding:6px 10px;font-size:13px;cursor:pointer;}
+.currency-toggle:hover{background:#276749;}
+main{margin-top:90px;padding:20px;text-align:center;}
+input,select{padding:10px;border:1px solid #ccc;border-radius:6px;width:80%;margin:10px auto;display:block;font-size:14px;}
+button,.btn{background:#2f855a;color:white;padding:10px 15px;border:none;border-radius:6px;cursor:pointer;font-size:15px;transition:0.3s;}
+button:hover,.btn:hover{background:#276749;}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:20px;margin-top:25px;}
+.card{background:white;border-radius:10px;padding:15px;box-shadow:0 2px 5px rgba(0,0,0,0.1);position:relative;transition:transform 0.2s ease,box-shadow 0.2s ease;}
+.card:hover{transform:translateY(-5px);box-shadow:0 5px 12px rgba(0,0,0,0.1);}
+.card img{width:100%;border-radius:8px;height:120px;object-fit:cover;}
+.card h3{margin:8px 0;font-size:16px;}
+.card p{font-size:13px;color:gray;}
+.card .info-icon{position:absolute;top:8px;right:8px;font-size:18px;color:#2f855a;cursor:pointer;}
+.price-display{margin-top:5px;font-weight:bold;color:#2f855a;}
+.comment-section{max-width:700px;margin:40px auto;text-align:left;}
+.comment-section h3{color:#2f855a;}
+.comment-form input, .comment-form textarea{width:100%;margin:5px 0;padding:8px;border-radius:6px;border:1px solid #ccc;}
+.comment-form button{width:100%;margin-top:10px;}
+.owner-info{background:#2f855a;color:white;text-align:center;padding:30px 10px;margin-top:40px;}
+.owner-info h3{margin-bottom:10px;}
+</style>
+</head>
+<body>
+
+<header>
+  <a href="../index.html"><img src="https://files.catbox.moe/pubg_logo.png" alt="Dave TopUp"></a>
+  <div style="display:flex;gap:10px;align-items:center;">
+    <button class="currency-toggle" id="currencyToggle">USD</button>
+    <a href="../cart.html" class="btn"><i class="fa-solid fa-cart-shopping"></i></a>
+  </div>
+</header>
+
+<main>
+  <h2>PUBG Mobile TopUp</h2>
+  <p>Rechargez votre compte PUBG Mobile rapidement avec Dave TopUp.</p>
+
+  <img src="https://files.catbox.moe/cmns4z.jpeg" alt="PUBG Mobile" style="width:300px;border-radius:10px;margin:20px 0;">
+
+  <input type="text" id="uid" placeholder="UID du joueur">
+  <input type="text" id="pseudo" placeholder="Pseudo du joueur">
+
+  <select id="ucSelect"></select>
+  <p class="price-display" id="selectedPrice">Prix: $0.00 / 0 G</p>
+
+  <input type="number" id="quantity" placeholder="Quantité">
+  <button id="checkBtn">🔍 Vérifier le compte</button>
+  <p id="playerInfo"></p>
+
+  <h3>Produits similaires</h3>
+  <div class="grid" id="similarGrid"></div>
+
+  <h3>Commentaires</h3>
+  <div class="comment-section" id="commentsSection"></div>
+
+  <div class="comment-form">
+    <input type="text" id="commentName" placeholder="Nom">
+    <input type="email" id="commentEmail" placeholder="Email">
+    <textarea id="commentText" placeholder="Commentaire"></textarea>
+    <button onclick="submitComment()">Envoyer Commentaire</button>
+  </div>
+</main>
+
+<section class="owner-info">
+  <h3>Informations sur le propriétaire</h3>
+  <div class="grid" id="ownerGrid"></div>
+</section>
+
+<!-- Modal -->
+<div id="modal" class="modal" style="display:none;position:fixed;z-index:10;left:0;top:0;width:100%;height:100%;overflow:auto;background-color:rgba(0,0,0,0.5);">
+  <div class="modal-content" style="background:#fff;margin:10% auto;padding:20px;border-radius:10px;max-width:400px;text-align:center;position:relative;">
+    <span class="close-btn" onclick="closeModal()" style="position:absolute;top:10px;right:15px;font-size:20px;cursor:pointer;color:#555;">&times;</span>
+    <h3 id="modalTitle">Titre</h3>
+    <p id="modalDesc">Description</p>
+  </div>
+</div>
+
+<script>
+// ===== CONFIG API =====
+const API_URL = "https://your-api-endpoint.com/pubg"; 
+const API_KEY = "YOUR_API_KEY";
+const rate = 132; // USD to HTG
+let isUSD = true;
+
+// ===== UC OPTIONS =====
+const ucOptions=[
+  {name:"60 UC",price:0.99},
+  {name:"120 UC",price:1.99},
+  {name:"300 UC",price:4.99},
+  {name:"500 UC",price:7.99},
+  {name:"1000 UC",price:14.99},
+  {name:"2000 UC",price:29.99},
+  {name:"6000 UC",price:79.99},
+{name:"PRIME",price:0.99},
+{name:"PRIME PLUS",price:79.99}
+];
+const select = document.getElementById("ucSelect");
+ucOptions.forEach((opt,i)=>{
+  const option=document.createElement("option");
+  option.value=i;
+  option.textContent=opt.name;
+  select.appendChild(option);
+});
+
+// ===== SHOW PRICE =====
+function updatePrice(){
+  const selected=ucOptions[select.value];
+  const priceUSD=selected.price.toFixed(2);
+  const priceHTG=Math.round(selected.price*rate);
+  document.getElementById("selectedPrice").textContent=`Prix: ${isUSD?"$"+priceUSD:priceHTG+" G"} / ${isUSD?"$"+priceUSD:priceHTG+" G"}`;
+}
+select.addEventListener("change",updatePrice);
+updatePrice();
+
+// ===== Vérification compte =====
+document.getElementById("checkBtn").addEventListener("click", async()=>{
+  const uid=document.getElementById("uid").value.trim();
+  const pseudo=document.getElementById("pseudo").value.trim();
+  if(!uid||!pseudo) return alert("Entrez UID et Pseudo");
+
+  document.getElementById("playerInfo").textContent="Recherche du compte...";
+  try{
+    const res=await fetch(`${API_URL}/check?uid=${uid}&pseudo=${pseudo}&key=${API_KEY}`);
+    const data=await res.json();
+    if(data.success){
+      document.getElementById("playerInfo").innerHTML=`Pseudo: <b>${data.pseudo}</b> | Niveau: ${data.level}`;
+    }else{
+      document.getElementById("playerInfo").textContent="Compte introuvable";
+    }
+  }catch(e){
+    console.error(e);
+    document.getElementById("playerInfo").textContent="Erreur réseau";
+  }
+});
+
+// ===== CURRENCY TOGGLE =====
+document.getElementById("currencyToggle").addEventListener("click",()=>{
+  isUSD = !isUSD;
+  document.getElementById("currencyToggle").textContent = isUSD ? "USD" : "HTG";
+  updatePrice();
+});
+
+// ===== Produits similaires =====
+const similarProducts=[
+  {name:"UC Pack 100",img:"https://files.catbox.moe/pubg_uc100.webp",desc:"Pack 100 UC",fb:"#",wa:"#",ig:"#"},
+  {name:"UC Pack 500",img:"https://files.catbox.moe/pubg_uc500.webp",desc:"Pack 500 UC",fb:"#",wa:"#",ig:"#"},
+  {name:"UC Pack 1000",img:"https://files.catbox.moe/pubg_uc1000.webp",desc:"Pack 1000 UC",fb:"#",wa:"#",ig:"#"}
+];
+const similarGrid=document.getElementById("similarGrid");
+similarProducts.forEach(p=>{
+  const div=document.createElement("div");
+  div.className="card";
+  div.innerHTML=`<img src="${p.img}" alt="${p.name}"><p>${p.name}</p>
+  <i class="fa-solid fa-circle-info info-icon" onclick="openModal('${p.name}','${p.desc}')"></i>
+  <div class="social-links">
+    <a href="${p.fb}" target="_blank"><i class="fa-brands fa-facebook"></i></a>
+    <a href="${p.wa}" target="_blank"><i class="fa-brands fa-whatsapp"></i></a>
+    <a href="${p.ig}" target="_blank"><i class="fa-brands fa-instagram"></i></a>
+  </div>`;
+  similarGrid.appendChild(div);
+});
+
+// ===== COMMENTS API =====
+async function loadComments(){
+  try{
+    const res=await fetch(`${API_URL}/comments?key=${API_KEY}`);
+    const data=await res.json();
+    const section=document.getElementById("commentsSection");
+    section.innerHTML="";
+    data.comments.forEach(c=>{
+      const div=document.createElement("div");
+      div.innerHTML=`<b>${c.name}</b> (${c.email}):<p>${c.comment}</p>`;
+      section.appendChild(div);
+    });
+  }catch(e){console.error(e);}
+}
+async function submitComment(){
+  const name=document.getElementById("commentName").value.trim();
+  const email=document.getElementById("commentEmail").value.trim();
+  const comment=document.getElementById("commentText").value.trim();
+  if(!name||!email||!comment) return alert("Remplissez tous les champs");
+  try{
+    await fetch(`${API_URL}/comments`,{
+      method:"POST",
+      headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({name,email,comment,key:API_KEY})
+    });
+    document.getElementById("commentName").value="";
+    document.getElementById("commentEmail").value="";
+    document.getElementById("commentText").value="";
+    loadComments();
+  }catch(e){console.error(e);}
+}
+loadComments();
+
+// ===== OWNER INFO =====
+const owners=[{name:"KING",img:"https://files.catbox.moe/alice.webp",desc:"Expert PUBG Mobile"}];
+const ownerGrid=document.getElementById("ownerGrid");
+owners.forEach(o=>{
+  const div=document.createElement("div");
+  div.className="card";
+  div.innerHTML=`<img src="${o.img}" alt="${o.name}"><p>${o.name}</p><i class="fa-solid fa-circle-info info-icon" onclick="openModal('${o.name}','${o.desc}')"></i>`;
+  ownerGrid.appendChild(div);
+});
+
+// ===== MODAL =====
+function openModal(title,desc){document.getElementById("modalTitle").textContent=title;document.getElementById("modalDesc").textContent=desc;document.getElementById("modal").style.display="block";}
+function closeModal(){document.getElementById("modal").style.display="none";}
+</script>
+</body>
+</html>

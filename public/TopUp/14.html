@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Fluorite Key — Dave Services</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<style>
+:root{
+  --green:#2f855a;
+  --green-dark:#276749;
+  --muted:#6b7280;
+  --bg:#f8fafc;
+  --card:#fff;
+  --shadow: 0 8px 30px rgba(2,6,23,0.06);
+  --radius:12px;
+}
+*{box-sizing:border-box}
+body{margin:0;font-family:"Poppins",system-ui, -apple-system, "Segoe UI", Roboto, Arial;background:var(--bg);color:#0f172a;}
+header{position:fixed;left:0;right:0;top:0;height:72px;background:#fff;display:flex;align-items:center;gap:12px;padding:12px 20px;box-shadow:0 2px 8px rgba(15,23,42,0.06);z-index:40}
+.logo img{height:40px}
+.title{font-weight:700;color:var(--green);font-size:16px}
+.container{max-width:1100px;margin:96px auto 40px;padding:0 18px}
+.layout{display:grid;grid-template-columns: 1fr 360px; gap:20px}
+@media(max-width:980px){ .layout{grid-template-columns:1fr} }
+
+.product-card{background:var(--card);border-radius:var(--radius);padding:18px;box-shadow:var(--shadow);overflow:hidden}
+.product-media{border-radius:30px;overflow:hidden}
+
+/* container background image style */
+.product-media {
+  width: 100%;
+  height: 320px;                
+  border-radius: 10px;
+  background-image: url('https://files.catbox.moe/2e7hpb.jpeg');
+  background-size: cover;       
+  background-position: center 20%; 
+  background-repeat: no-repeat;
+  box-shadow: 0 8px 24px rgba(2,6,23,0.08);
+  position: relative;
+  overflow: hidden;
+}
+
+/* overlay si vle, pou fè text li plis lizib */
+.product-media::after{
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(0,0,0,0.08), rgba(0,0,0,0.18));
+  pointer-events: none;
+}
+
+.product-header{display:flex;align-items:flex-start;gap:12px;margin-bottom:8px}
+.badge{background:linear-gradient(90deg,#e6fff2,#f0fff9);color:var(--green);padding:6px 8px;border-radius:8px;font-weight:700;font-size:13px;border:1px solid #e6f7ef}
+.h1{font-size:20px;margin:0;color:#071123}
+.lead{color:var(--muted);margin-top:6px;margin-bottom:14px}
+
+.selector{display:flex;gap:8px;margin:12px 0;flex-wrap:wrap}
+.select-btn{
+  padding:8px 12px;border-radius:10px;border:1px solid #e6eef0;background:#fff;cursor:pointer;font-weight:600;color:#0f172a;
+  transition:transform .12s ease, box-shadow .12s ease;
+}
+.select-btn:hover{transform:translateY(-3px)}
+.select-btn.active{
+  background:linear-gradient(180deg,var(--green),var(--green-dark));color:#fff;border:none;box-shadow:0 8px 20px rgba(47,133,90,0.18);
+}
+
+.price-block{display:flex;align-items:center;gap:12px;margin:8px 0}
+.price{font-size:20px;font-weight:800;color:var(--green)}
+.old{color:#9ca3af;text-decoration:line-through;font-size:13px}
+.info-row{display:flex;gap:12px;color:var(--muted);font-size:13px;margin-top:10px}
+
+.actions{display:flex;gap:10px;margin-top:16px}
+.btn{
+  padding:10px 14px;border-radius:10px;border:0;cursor:pointer;font-weight:700;font-size:14px;
+}
+.btn-primary{background:var(--green);color:#fff}
+.btn-outline{background:#fff;border:1px solid #e6eef0;color:#0f172a}
+
+.note{margin-top:10px;color:#6b7280;font-size:13px}
+
+/* right column */
+.side-card{background:var(--card);border-radius:var(--radius);padding:16px;box-shadow:var(--shadow)}
+.side-card h4{margin:0 0 10px;font-size:16px;color:#0f172a}
+.info-list{list-style:none;padding:0;margin:0;font-size:14px;color:var(--muted)}
+.info-list li{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px dashed #f1f5f9}
+.owner{display:flex;gap:12px;align-items:center;margin-top:12px}
+.owner img{width:56px;height:56px;border-radius:10px;object-fit:cover}
+.similar-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}
+.similar-item{display:flex;gap:10px;align-items:center;padding:8px;border-radius:10px;background:#fff;border:1px solid #f3f6f8}
+.similar-item img{width:56px;height:40px;object-fit:cover;border-radius:6px}
+.footer{margin-top:26px;color:var(--muted);font-size:13px;text-align:center;padding:12px}
+
+/* small helpers */
+.kv{font-weight:700;color:#111827}
+.alert{background:#fff3cd;border:1px solid #f1e5a9;padding:10px;border-radius:8px;color:#856404;margin-top:10px}
+
+/* mobile adjustments */
+@media(max-width:640px){
+  .product-media img{height:220px}
+  .price{font-size:18px}
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div style="display:flex;align-items:center;gap:10px">
+    <div class="logo"><a href="./index.html"><img src="https://files.catbox.moe/iatbhv.png" alt="logo"></a></div>
+    <div>
+      <div class="title">Dave Services</div>
+      <div style="font-size:12px;color:var(--muted)">Fluorite Key</div>
+    </div>
+  </div>
+</header>
+
+<div class="container">
+  <div class="layout">
+    <!-- left: product -->
+    <div>
+      <div class="product-card">
+        <div class="product-header">
+          <div class="badge"><i class="fa-solid fa-key"></i> Fluorite Key</div>
+          <div style="flex:1">
+            <h2 class="h1">Fluorite Access Key</h2>
+            <div class="lead">Accès sécurisé — clé numérique pou fonctionnalités premium (API, accès VIP, backups).</div>
+          </div>
+        </div>
+
+        <div class="product-media">
+          <img src="https://files.catbox.moe/2e7hpb.jpeg" alt="Fluorite Key">
+        </div>
+
+        <div style="margin-top:12px;">
+          <div style="font-size:13px;color:var(--muted)">Choisissez la durée de la clé <span style="color:#ef4444">*</span></div>
+          <div class="selector" id="durationSelector">
+            <button class="select-btn" data-type="day" data-price="0.99" data-old="1.29">Day (1j)</button>
+            <button class="select-btn" data-type="week" data-price="4.99" data-old="5.99">Semaine (7j)</button>
+            <button class="select-btn" data-type="month" data-price="14.99" data-old="19.99">Mois (30j)</button>
+          </div>
+
+          <div class="price-block">
+            <div>
+              <div class="price" id="priceDisplay">$0.00</div>
+              <div class="old" id="oldPrice"></div>
+            </div>
+            <div style="margin-left:auto">
+              <div class="info-row"><div><i class="fa-solid fa-shield-halved"></i> Sécurité</div><div style="color:var(--muted)">256-bit</div></div>
+              <div class="info-row"><div><i class="fa-solid fa-rocket"></i> Latence</div><div style="color:var(--muted)">Low</div></div>
+            </div>
+          </div>
+
+          <div class="actions">
+            <button class="btn btn-primary" id="addCartBtn"><i class="fa-solid fa-cart-plus"></i> Add to Cart</button>
+            <button class="btn btn-outline" id="selectBtn"><i class="fa-solid fa-check"></i> Select</button>
+          </div>
+
+          <div class="note">Fòk ou <b>chwazi yon opsyon</b> (Day / Semaine / Mois) avan ou fè "Add to Cart" oswa "Select".</div>
+
+          <div class="alert" id="mustSelect" style="display:none">
+            Tanpri chwazi yon peryòd pou Fluorite Key anvan ou kontinye.
+          </div>
+
+          <div style="margin-top:16px;">
+            <h3 style="margin:0 0 8px">Description</h3>
+            <p style="color:var(--muted)">Fluorite Key se yon lisans dijital ki pèmèt ou jwenn aksè sou karakteristik premium: API rapid, sync cloud, priyorite support, ak mekanis backup. Klé a delivre imedyatman apre peman epi li konfòme avèk règleman sekirite endistri a.</p>
+          </div>
+
+          <div style="margin-top:12px;">
+            <h3 style="margin:0 0 8px">Info Teknik</h3>
+            <ul style="color:var(--muted);line-height:1.7">
+              <li>Format: Clé alfanumérique 32 chars</li>
+              <li>Activation: Imedyat sou dashboard</li>
+              <li>Garanti: Refund 24h si pa resevwa</li>
+            </ul>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- similar products -->
+      <div style="margin-top:16px" class="product-card">
+        <h3 style="margin:0 0 10px">Produits similaires</h3>
+        <div class="similar-grid" id="similarGrid">
+          <!-- JS will populate -->
+        </div>
+      </div>
+    </div>
+
+    <!-- right: sidebar -->
+    <aside>
+      <div class="side-card">
+        <h4>Résumé de la clé</h4>
+        <ul class="info-list">
+          <li><span>Type:</span> <span id="kvType">—</span></li>
+          <li><span>Durée:</span> <span id="kvDuration">—</span></li>
+          <li><span>Prix:</span> <span id="kvPrice">—</span></li>
+          <li><span>Livraison:</span> <span>Automatique</span></li>
+        </ul>
+
+        <div style="margin-top:12px">
+          <h4 style="margin-bottom:8px">Propriétaire</h4>
+          <div class="owner">
+            <img src="https://files.catbox.moe/alice.webp" alt="owner">
+            <div>
+              <div style="font-weight:800">Dave</div>
+              <div style="color:var(--muted);font-size:13px">Support & Administration</div>
+              <div style="margin-top:8px;font-size:13px">
+                <a href="#" style="color:var(--green);text-decoration:none;margin-right:8px"><i class="fa-brands fa-facebook"></i></a>
+                <a href="#" style="color:var(--green);text-decoration:none;margin-right:8px"><i class="fa-brands fa-whatsapp"></i></a>
+                <a href="#" style="color:var(--green);text-decoration:none"><i class="fa-brands fa-instagram"></i></a>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div style="margin-top:14px">
+          <h4 style="margin-bottom:8px">Actions rapides</h4>
+          <button class="btn btn-primary" id="quickBuyBtn" style="width:100%;margin-bottom:8px"><i class="fa-solid fa-bolt"></i> Buy Now</button>
+          <button class="btn btn-outline" id="addWishlist" style="width:100%"><i class="fa-solid fa-heart"></i> Add to Wishlist</button>
+        </div>
+
+      </div>
+
+      <div class="side-card" style="margin-top:14px">
+        <h4>Support & Copyright</h4>
+        <p style="color:var(--muted);font-size:14px;margin:6px 0">© <span id="year"></span> Dave TopUp. Tous droits réservés. Les clés sont délivrées électroniquement. Politique de remboursement: 24h.</p>
+      </div>
+    </aside>
+
+  </div>
+
+  <div class="footer">Need help? Contact support@davetopup.example</div>
+</div>
+
+<script>
+/* Data for selected durations */
+const durations = {
+  day: { label: 'Day', days: 1, price: 0.99, old: 1.29 },
+  week: { label: 'Semaine', days: 7, price: 4.99, old: 5.99 },
+  month: { label: 'Mois', days: 30, price: 14.99, old: 19.99 }
+};
+
+const selector = document.getElementById('durationSelector');
+const priceDisplay = document.getElementById('priceDisplay');
+const oldPriceEl = document.getElementById('oldPrice');
+const kvType = document.getElementById('kvType');
+const kvDuration = document.getElementById('kvDuration');
+const kvPrice = document.getElementById('kvPrice');
+const mustSelect = document.getElementById('mustSelect');
+const addCartBtn = document.getElementById('addCartBtn');
+const selectBtn = document.getElementById('selectBtn');
+const quickBuyBtn = document.getElementById('quickBuyBtn');
+
+let selected = null;
+
+/* init price to zero */
+priceDisplay.textContent = '$0.00';
+
+/* handle selection */
+selector.addEventListener('click', (e) => {
+  const btn = e.target.closest('.select-btn');
+  if (!btn) return;
+  // remove active from others
+  document.querySelectorAll('.select-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  const type = btn.dataset.type;
+  const info = durations[type];
+  selected = { type, ...info };
+  priceDisplay.textContent = `$${info.price.toFixed(2)}`;
+  oldPriceEl.textContent = info.old ? `$${info.old.toFixed(2)}` : '';
+  kvType.textContent = 'Fluorite Key';
+  kvDuration.textContent = `${info.label} (${info.days} j)`;
+  kvPrice.textContent = `$${info.price.toFixed(2)}`;
+  mustSelect.style.display = 'none';
+});
+
+/* Add to Cart (localStorage) */
+function getCart(){ return JSON.parse(localStorage.getItem('fluoriteCart') || '[]'); }
+function setCart(c){ localStorage.setItem('fluoriteCart', JSON.stringify(c)); }
+
+addCartBtn.addEventListener('click', () => {
+  if(!selected){
+    mustSelect.style.display = 'block';
+    mustSelect.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    return;
+  }
+  const cart = getCart();
+  cart.push({
+    sku: 'fluorite-'+selected.type,
+    title: 'Fluorite Key - ' + selected.label,
+    durationDays: selected.days,
+    price: selected.price,
+    qty: 1
+  });
+  setCart(cart);
+  alert('Fluorite Key ajoute nan panier ✅');
+});
+
+/* Select button: mark as selected and store a selection (but not add to cart) */
+selectBtn.addEventListener('click', () => {
+  if(!selected){
+    mustSelect.style.display = 'block';
+    return;
+  }
+  // store choice for later
+  localStorage.setItem('fluoriteSelected', JSON.stringify(selected));
+  selectBtn.textContent = 'Selected ✓';
+  selectBtn.style.background = 'linear-gradient(180deg,var(--green),var(--green-dark))';
+  selectBtn.style.color = '#fff';
+});
+
+/* Quick buy: require selection, then redirect to checkout (simulate) */
+quickBuyBtn.addEventListener('click', () => {
+  if(!selected){
+    mustSelect.style.display = 'block';
+    return;
+  }
+  // simulate immediate purchase flow
+  const order = {
+    item: 'Fluorite Key - ' + selected.label,
+    price: selected.price,
+    purchasedAt: new Date().toISOString()
+  };
+  localStorage.setItem('lastOrder', JSON.stringify(order));
+  alert('Achat effectué (simulate) — ou ap redirije sou Checkout.');
+  // you can replace with: window.location.href = 'checkout.html';
+});
+
+/* populate similar products */
+const similar = [
+  {img:'https://picsum.photos/120/80?random=21', name:'Quartz Key', price:'$2.99'},
+  {img:'https://picsum.photos/120/80?random=22', name:'Obsidian Token', price:'$3.99'},
+  {img:'https://picsum.photos/120/80?random=23', name:'Sapphire Access', price:'$9.99'},
+  {img:'https://picsum.photos/120/80?random=24', name:'Onyx License', price:'$7.49'}
+];
+const simGrid = document.getElementById('similarGrid');
+similar.forEach(s=>{
+  const div = document.createElement('div'); div.className='similar-item';
+  div.innerHTML = `<img src="${s.img}" alt="${s.name}"><div><div style="font-weight:700">${s.name}</div><div style="color:var(--muted);font-size:13px">${s.price}</div></div>`;
+  simGrid.appendChild(div);
+});
+
+/* set year in footer */
+document.getElementById('year').textContent = new Date().getFullYear();
+
+/* accessibility: close any alert on click */
+mustSelect.addEventListener('click', ()=> mustSelect.style.display='none');
+
+</script>
+<!-- ✅ CRISP CHATBOT INTEGRATION -->
+<script type="text/javascript">
+  window.$crisp = [];
+  window.CRISP_WEBSITE_ID = "b19a6195-116b-4079-b2de-41c533f929f9";
+  (function(){
+    d = document;
+    s = d.createElement("script");
+    s.src = "https://client.crisp.chat/l.js";
+    s.async = 1;
+    d.getElementsByTagName("head")[0].appendChild(s);
+  })();
+</script>
+
+</body>
+</html>
