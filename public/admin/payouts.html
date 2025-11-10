@@ -1,1 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Admin Dashboard — Payouts</title>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet"/>
+<style>
+:root{--accent:#2563eb;--muted:#666;}
+body{font-family:Inter,Arial,Helvetica,sans-serif;background:#f4f6fb;margin:0;color:#111;}
+.topbar{background:var(--accent);color:#fff;padding:14px 20px;display:flex;align-items:center;justify-content:space-between;}
+.container{max-width:1100px;margin:20px auto;padding:16px;background:#fff;border-radius:10px;box-shadow:0 6px 18px rgba(20,20,40,0.06);}
+h1{margin:0;font-size:20px;}
+.controls{display:flex;gap:12px;align-items:center;margin:12px 0;}
+.btn{background:var(--accent);color:#fff;padding:8px 12px;border-radius:8px;border:none;cursor:pointer;}
+.btn.ghost{background:transparent;color:var(--accent);border:1px solid var(--accent);}
+table{width:100%;border-collapse:collapse;margin-top:10px;}
+th,td{padding:10px;border-bottom:1px solid #eee;text-align:left;font-size:14px;}
+th{background:#fafbff;font-weight:600;color:var(--muted);}
+.right{margin-left:auto;}
+.sum-card{display:flex;gap:14px;align-items:center;padding:12px;border-radius:8px;background:#fbfdff;border:1px solid #eef2ff;}
+.small{font-size:12px;color:var(--muted);}
+.pill{display:inline-block;padding:6px 10px;border-radius:999px;background:#f0f9ff;color:var(--accent);font-weight:600;}
+input[type="text"], select, textarea{padding:8px 10px;border-radius:8px;border:1px solid #e6e9f0;outline:none;}
+.actions button{margin-right:6px;}
+.modal-backdrop{position:fixed;inset:0;background:rgba(0,0,0,0.5);display:none;align-items:center;justify-content:center;}
+.modal{background:#fff;padding:18px;border-radius:8px;max-width:520px;width:100%;}
+.tx-row img{width:40px;height:40px;border-radius:50%;object-fit:cover;margin-right:10px;}
+.flex{display:flex;align-items:center;}
+.muted{color:#6b7280;}
+.danger{background:#ffe9e9;color:#b91c1c;border:1px solid #ffcccc;}
+.success{background:#e6ffef;color:#047857;border:1px solid #c9f7e0;}
+</style>
+</head>
+<body>
+<div class="topbar">
+  <h1>Admin • Da-Chatbot — Finance</h1>
+  <div class="flex">
+    <div class="small" style="margin-right:14px">Logged in as <strong>Admin</strong></div>
+    <button class="btn" id="refreshBtn"><i class="fa fa-sync"></i> Refresh</button>
+  </div>
+</div>
 
+<main class="container">
+  <div style="display:flex;gap:12px;align-items:center;margin-bottom:12px;">
+    <div class="sum-card">
+      <div>
+        <div class="small">Total Balance</div>
+        <div style="font-size:20px;font-weight:700">$<span id="totalBalance">0.00</span></div>
+      </div>
+      <div style="margin-left:20px">
+        <div class="small">Pending Payouts</div>
+        <div class="pill" id="pendingCount">0</div>
+      </div>
+    </div>
+    <div class="right" style="margin-left:auto;display:flex;gap:8px;">
+      <input type="text" id="searchInput" placeholder="Search by user, email, tx id..." />
+      <select id="statusFilter">
+        <option value="">All statuses</option>
+        <option value="completed">Completed</option>
+        <option value="pending">Pending</option>
+        <option value="failed">Failed</option>
+      </select>
+      <button class="btn ghost" id="exportCsv">Export CSV</button>
+    </div>
+  </div>
+
+  <div class="controls">
+    <button class="btn" id="bulkPayoutBtn"><i class="fa fa-credit-card"></i> Bulk Payout</button>
+    <button class="btn ghost" id="markSettledBtn">Mark Settled</button>
+    <div style="margin-left:auto" class="muted small">Tip: Use server-side payout provider for real payouts</div>
+  </div>
+
+  <table id="txTable">
+    <thead>
+      <tr>
+        <th>User</th>
+        <th>Amount</th>
+        <th>Payment Method</th>
+        <th>Status</th>
+        <th>Date</th>
+        <th>Tx ID</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody id="txBody">
+    </tbody>
+  </table>
+</main>
+
+<div class="modal-backdrop" id="modalBackdrop">
+  <div class="modal" role="dialog" aria-modal="true">
+    <h3 id="modalTitle">Confirm Payout</h3>
+    <div id="modalContent" style="margin-top:10px;"></div>
+    <div style="display:flex;gap:10px;margin-top:14px;justify-content:flex-end;">
+      <button class="btn ghost" id="modalCancel">Cancel</button>
+      <button class="btn" id="modalConfirm">Confirm Payout</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const el = q=>document.querySelector(q);
+let transactions = [];
+let jwtToken = localStorage.getItem('adminToken');
+if(!jwtToken){
+  alert('You are not logged in. Please login first.');
+  window.location.href = 'login.html';
+}
+
+// --- Helpers ---
+function createRow(tx){
+  const tr = document.createElement('tr');
+  tr.dataset.txid = tx._id;
+  tr.innerHTML = `
+    <td class="flex tx-row">
+      <img src="${tx.avatar || 'https://i.pravatar.cc/40'}" alt="avatar"/>
+      <div>
+        <div><strong>${escapeHtml(tx.name||tx.user)}</strong></div>
+        <div class="muted small">${escapeHtml(tx.email||'—')}</div>
+      </div>
+    </td>
+    <td>$${Number(tx.amount).toFixed(2)}</td>
+    <td>${escapeHtml(tx.method||'wallet')}</td>
+    <td><span class="${tx.status==='completed'?'success':tx.status==='failed'?'danger':''}">${escapeHtml(tx.status)}</span></td>
+    <td>${new Date(tx.createdAt).toLocaleString()}</td>
+    <td>${escapeHtml(tx._id)}</td>
+    <td class="actions">
+      <button class="btn ghost viewBtn">View</button>
+      <button class="btn payoutBtn" data-tx="${tx._id}" data-amount="${tx.amount}">Payout</button>
+    </td>
+  `;
+  return tr;
+}
+function escapeHtml(s){ if(!s) return ''; return String(s).replace(/[&<>"']/g, c=>({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c])); }
+
+// --- Fetch transactions ---
+async function loadTransactions(){
+  try{
+    const res = await fetch('/api/admin/transactions', {
+      headers:{ 'Authorization': 'Bearer ' + jwtToken }
+    });
+    if(!res.ok) throw new Error('Failed to load transactions');
+    const data = await res.json();
+    transactions = data;
+    renderTable(transactions);
+    updateSummary();
+  }catch(e){
+    console.error(e);
+    alert('Error loading transactions: '+e.message);
+  }
+}
+
+function renderTable(list){
+  const tbody = el('#txBody');
+  tbody.innerHTML='';
+  list.forEach(tx=>tbody.appendChild(createRow(tx)));
+  attachRowEvents();
+}
+
+function updateSummary(){
+  const total = transactions.reduce((s,t)=>s+Number(t.amount||0),0);
+  const pending = transactions.filter(t=>t.status==='pending').length;
+  el('#totalBalance').textContent = total.toFixed(2);
+  el('#pendingCount').textContent = pending;
+}
+
+// --- Events ---
+function attachRowEvents(){
+  document.querySelectorAll('button.payoutBtn').forEach(btn=>{
+    btn.onclick=()=>openPayoutModal(btn.dataset.tx, btn.dataset.amount);
+  });
+  document.querySelectorAll('.viewBtn').forEach(btn=>{
+    btn.onclick=()=>{
+      const row = btn.closest('tr');
+      const tx = transactions.find(x=>x._id===row.dataset.txid);
+      if(tx) alert(JSON.stringify(tx,null,2));
+    }
+  });
+}
+
+// --- Modal ---
+const modalBackdrop = el('#modalBackdrop');
+const modalTitle = el('#modalTitle');
+const modalContent = el('#modalContent');
+const modalConfirm = el('#modalConfirm');
+const modalCancel = el('#modalCancel');
+let modalCurrentTx = null;
+
+function openPayoutModal(txId, amount){
+  const tx = transactions.find(t=>t._id===txId);
+  modalCurrentTx = tx;
+  modalTitle.textContent = `Payout • ${txId}`;
+  modalContent.innerHTML = `
+    <div><strong>User:</strong> ${escapeHtml(tx.name||tx.user)} (${escapeHtml(tx.email||'—')})</div>
+    <div style="margin-top:8px"><strong>Amount:</strong> $${Number(amount).toFixed(2)}</div>
+    <div style="margin-top:8px" class="small muted">Payment method: ${escapeHtml(tx.method||'wallet')}</div>
+    <div style="margin-top:12px">Enter payout note (optional):</div>
+    <textarea id="payoutNote" rows="3" style="width:100%;padding:8px;border:1px solid #e6e9f0;border-radius:8px;"></textarea>
+  `;
+  modalBackdrop.style.display='flex';
+}
+modalCancel.onclick=()=>{ modalBackdrop.style.display='none'; modalCurrentTx=null; };
+modalConfirm.onclick=async()=>{
+  if(!modalCurrentTx) return;
+  modalConfirm.disabled=true;
+  modalConfirm.textContent='Processing...';
+  try{
+    const note = el('#payoutNote').value;
+    const res = await fetch('/api/admin/payout',{
+      method:'POST',
+      headers:{'Content-Type':'application/json','Authorization':'Bearer '+jwtToken},
+      body: JSON.stringify({ txId: modalCurrentTx._id, note })
+    });
+    const data = await res.json();
+    if(res.ok){ alert('Payout successful'); modalBackdrop.style.display='none'; await loadTransactions(); }
+    else alert('Payout failed: '+(data.error||res.statusText));
+  }catch(e){ console.error(e); alert('Network error'); }
+  finally{ modalConfirm.disabled=false; modalConfirm.textContent='Confirm Payout'; modalCurrentTx=null; }
+};
+
+// --- Search / filter / export ---
+el('#searchInput').addEventListener('input', e=>{
+  const q = e.target.value.trim().toLowerCase();
+  const filtered = transactions.filter(t=>{
+    return (t.name||'').toLowerCase().includes(q) ||
+           (t.email||'').toLowerCase().includes(q) ||
+           (t._id||'').toLowerCase().includes(q);
+  });
+  renderTable(filtered);
+});
+el('#statusFilter').addEventListener('change', e=>{
+  const v = e.target.value;
+  const filtered = v ? transactions.filter(t=>t.status===v) : transactions;
+  renderTable(filtered);
+});
+el('#exportCsv').addEventListener('click', ()=>{
+  const rows=[['id','name','email','amount','status','method','createdAt']];
+  transactions.forEach(t=>rows.push([t._id,t.name||'',t.email||'',t.amount,t.status,t.method,t.createdAt]));
+  const csv = rows.map(r=>r.map(c=>'"'+String(c).replace(/"/g,'""')+'"').join(',')).join('\n');
+  const blob = new Blob([csv],{type:'text/csv;charset=utf-8;'});
+  const url = URL.createObjectURL(blob);
+  const a=document.createElement('a'); a.href=url; a.download='transactions.csv'; a.click();
+  URL.revokeObjectURL(url);
+});
+
+// --- Bulk payout ---
+el('#bulkPayoutBtn').addEventListener('click', async()=>{
+  if(!confirm('Perform bulk payout for all pending transactions?')) return;
+  try{
+    const pending = transactions.filter(t=>t.status==='pending');
+    if(!pending.length){ alert('No pending transactions'); return; }
+    const res = await fetch('/api/admin/payout-bulk',{
+      method:'POST',
+      headers:{'Content-Type':'application/json','Authorization':'Bearer '+jwtToken},
+      body: JSON.stringify({ txIds: pending.map(t=>t._id) })
+    });
+    const data = await res.json();
+    if(res.ok){ alert('Bulk payout done'); await loadTransactions(); }
+    else alert('Bulk payout failed: '+(data.error||res.statusText));
+  }catch(e){ console.error(e); alert('Network error'); }
+});
+
+// --- Refresh ---
+el('#refreshBtn').addEventListener('click', loadTransactions);
+
+// Init
+loadTransactions();
+</script>
+</body>
+</html>
