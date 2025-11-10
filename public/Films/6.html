@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Disney | Top-up — Dave</title>
+  <title>HBO Max | Top-up — Dave</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
   <style>
     /* CSS from your provided code (unchanged) */
@@ -234,12 +234,12 @@
 </header>
 
   <main class="container">
-    <h2 class="product-title">Netflix</h2>
+    <h2 class="product-title">HBO Max</h2>
 
     <div class="product-card">
       <div class="media-wrap" id="mediaWrap">
         <div class="promo-badge">Promo !</div>
-        <img src="https://files.catbox.moe/luzeoi.jpeg" alt="Netflix" id="productImage">
+        <img src="https://files.catbox.moe/s53ll5.jpeg" alt="HBO Max" id="productImage">
         <button class="zoom-btn" title="Voir l'image"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M21 21l-4.35-4.35" stroke="#111" stroke-width="2" stroke-linecap="round"/></svg></button>
       </div>
 
@@ -250,7 +250,7 @@
         </div>
       </div>
 
-      <p class="desc">Carte Cadeau Netflix — Le Cadeau Parfait pour les Amateurs de Divertissement. Offrez un accès illimité au divertissement via une carte cadeau Netflix.</p>
+      <p class="desc">Carte Cadeau HBO Max — Le Cadeau Parfait pour les Amateurs de Divertissement. Offrez un accès illimité au divertissement via une carte cadeau HBO Max.</p>
 
       <form id="productForm" onsubmit="return false;">
         <div class="form-row">
@@ -473,7 +473,7 @@
         const g = Number(sel.dataset.g);
 
         const payload = {
-          product: 'netflix',
+          product: 'HBO Max',
           duration: duration.value,
           unitPriceUSD: usd,
           unitPriceG: g,
@@ -528,7 +528,7 @@
         commentStatus.textContent = 'Sending...';
         sendCommentBtn.disabled = true;
         try{
-          const payload = { product: 'netflix', name, text, date: new Date().toISOString() };
+          const payload = { product: 'HBO Max', name, text, date: new Date().toISOString() };
           const r = await fetch(`${API_BASE}/comments`, {
             method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(payload)
           });
