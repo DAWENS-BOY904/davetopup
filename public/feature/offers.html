@@ -1,0 +1,542 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Dave TopUp — Menu Food & Offres</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<style>
+  :root{
+    --green:#2f855a;
+    --green-dark:#276749;
+    --muted:#6b7280;
+    --card-bg: #ffffff;
+    --page-bg: #f8fafc;
+    --shadow: 0 6px 18px rgba(15,23,42,0.06);
+    --radius: 12px;
+  }
+
+  *{box-sizing:border-box}
+  body{
+    margin:0;
+    font-family: "Poppins", system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+    background:var(--page-bg);
+    color:#111827;
+    -webkit-font-smoothing:antialiased;
+    -moz-osx-font-smoothing:grayscale;
+  }
+
+  /* Header */
+  header{
+    position:fixed;
+    top:0;
+    left:0;
+    right:0;
+    height:72px;
+    background: #fff;
+    display:flex;
+    align-items:center;
+    gap:16px;
+    padding:12px 20px;
+    box-shadow: 0 2px 8px rgba(15,23,42,0.06);
+    z-index:30;
+  }
+  .logo img{ height:44px; display:block; }
+  .title { font-weight:700; color:var(--green); margin-left:6px; font-size:18px; }
+  .header-right{ margin-left:auto; display:flex; align-items:center; gap:12px; }
+
+  .search {
+    background:#f3f4f6;
+    padding:6px 8px;
+    border-radius:999px;
+    display:flex;
+    align-items:center;
+    gap:8px;
+    min-width:210px;
+  }
+  .search input{
+    border:0; background:transparent; outline:none; font-size:14px; color:#111827;
+  }
+
+  .promo-offers {
+    display:flex;
+    gap:8px;
+    align-items:center;
+  }
+  .chip {
+    display:inline-flex;
+    align-items:center;
+    gap:8px;
+    padding:8px 10px;
+    border-radius:999px;
+    background:#fff;
+    border:1px solid #eef2f7;
+    font-size:13px;
+    color:var(--muted);
+    box-shadow: var(--shadow);
+  }
+  .chip i { color:var(--green); font-size:14px; }
+
+  /* Main layout */
+  main{
+    padding: 92px 20px 40px;
+    max-width:1200px;
+    margin:0 auto;
+  }
+
+  h1{ margin:0 0 6px; font-size:22px; color:#0f172a; }
+  p.lead{ margin:0 0 18px; color:var(--muted); }
+
+  /* Grid */
+  .grid{
+    display:grid;
+    grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+    gap:18px;
+  }
+
+  .card{
+    background:var(--card-bg);
+    border-radius:var(--radius);
+    padding:12px;
+    box-shadow: var(--shadow);
+    position:relative;
+    overflow:hidden;
+    transition:transform .18s ease, box-shadow .18s ease;
+  }
+  .card:hover{ transform:translateY(-6px); box-shadow:0 12px 30px rgba(15,23,42,0.08); }
+
+  .promo-badge{
+    position:absolute;
+    top:12px;
+    left:12px;
+    background: linear-gradient(180deg,#fff 0%, #f9fafb 100%);
+    border-radius:8px;
+    padding:6px 8px;
+    border:1px solid #e6eef0;
+    display:flex;
+    gap:8px;
+    align-items:center;
+    font-size:12px;
+    color:var(--green);
+    font-weight:600;
+    backdrop-filter: blur(4px);
+  }
+  .promo-badge i{ color:var(--green); font-size:14px; }
+
+  .card img{ width:100%; height:130px; object-fit:cover; border-radius:10px; display:block; }
+  .card .meta{ margin-top:10px; display:flex; align-items:center; justify-content:space-between; gap:10px; }
+  .card h3{ margin:0; font-size:16px; color:#0f172a; }
+  .card p.desc{ margin:6px 0 8px; color:var(--muted); font-size:13px; min-height:36px; }
+  .price-row{ display:flex; align-items:center; gap:8px; }
+  .price{ color:var(--green); font-weight:700; font-size:15px; }
+  .old-price{ color:#9ca3af; text-decoration:line-through; font-size:13px; }
+
+  .card .actions{ display:flex; gap:8px; margin-top:8px; }
+  .btn{
+    padding:8px 10px;
+    border-radius:9px;
+    border:0;
+    cursor:pointer;
+    font-weight:600;
+    font-size:14px;
+  }
+  .btn-primary{ background:var(--green); color:#fff; }
+  .btn-outline{ background:transparent; border:1px solid #e6eef0; color:#0f172a; }
+
+  /* Social icons */
+  .social{ display:flex; gap:10px; margin-top:10px; justify-content:center; }
+  .social a{ color:var(--green); font-size:16px; transition:transform .12s; }
+  .social a:hover{ transform:translateY(-3px); color:var(--green-dark); }
+
+  /* Cart panel */
+  .cart-btn{
+    position:relative;
+    background:var(--green);
+    color:#fff;
+    border-radius:10px;
+    padding:8px 10px;
+    display:inline-flex;
+    gap:8px;
+    align-items:center;
+    border:0;
+    cursor:pointer;
+    box-shadow: 0 6px 18px rgba(47,133,90,0.18);
+  }
+  .cart-count{
+    background:#ef4444;
+    color:#fff;
+    width:20px;height:20px;
+    border-radius:50%;
+    display:inline-flex;align-items:center;justify-content:center;
+    font-size:12px; font-weight:700; position:absolute; top:-8px; right:-8px; box-shadow:0 4px 8px rgba(0,0,0,0.08);
+  }
+
+  .cart-panel{
+    position:fixed;
+    right:-420px;
+    top:72px;
+    width:380px;
+    max-width:95%;
+    height:calc(100vh - 90px);
+    background:#fff;
+    border-radius:12px 0 0 12px;
+    box-shadow: 0 30px 80px rgba(2,6,23,0.12);
+    transition:right .28s cubic-bezier(.2,.9,.2,1);
+    z-index:60;
+    display:flex;
+    flex-direction:column;
+    overflow:hidden;
+  }
+  .cart-panel.open{ right:0; }
+
+  .cart-header{ padding:16px; border-bottom:1px solid #eef2f7; display:flex; align-items:center; justify-content:space-between; }
+  .cart-items{ padding:12px; overflow:auto; flex:1; }
+  .cart-item{ display:flex; gap:10px; align-items:center; padding:10px; border-radius:10px; border:1px solid #f3f4f6; margin-bottom:10px; }
+  .cart-item img{ width:68px; height:68px; object-fit:cover; border-radius:8px; }
+  .cart-item .info{ flex:1; }
+  .cart-item .info b{ display:block; }
+  .cart-item .remove{ background:transparent; border:0; color:#ef4444; cursor:pointer; font-size:16px; }
+
+  .cart-footer{ padding:12px; border-top:1px solid #eef2f7; display:flex; gap:8px; align-items:center; justify-content:space-between; }
+  .checkout-btn{ background:var(--green); color:#fff; border-radius:10px; padding:10px 12px; border:0; font-weight:700; cursor:pointer; }
+
+  /* Modal (profile) */
+  .modal{
+    position:fixed; inset:0; display:none; align-items:center; justify-content:center; z-index:80;
+    background:rgba(2,6,23,0.45);
+  }
+  .modal.open{ display:flex; }
+  .modal-card{
+    width:100%; max-width:760px; background:#fff; border-radius:14px; padding:18px; box-shadow:0 30px 80px rgba(2,6,23,0.12);
+    display:grid; grid-template-columns: 1fr 1fr; gap:16px; align-items:center;
+  }
+  .modal-card img{ width:100%; height:300px; object-fit:cover; border-radius:10px; }
+  .modal-card .m-info h3{ margin:0 0 8px; }
+  .modal-card .m-info p{ color:var(--muted); line-height:1.5; }
+
+  .close-modal{ position:absolute; top:24px; right:24px; background:#fff; border-radius:999px; border:0; padding:8px; cursor:pointer; box-shadow:var(--shadow); }
+
+  /* Tiny animation when adding */
+  .fly {
+    position:fixed;
+    width:40px; height:40px;
+    border-radius:10px;
+    z-index:120;
+    pointer-events:none;
+    transition: transform .8s cubic-bezier(.2,.9,.2,1), opacity .6s;
+  }
+
+  /* Responsive */
+  @media (max-width:820px){
+    .modal-card{ grid-template-columns: 1fr; }
+    .header-right{ gap:8px; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div style="display:flex;align-items:center;gap:10px;">
+    <div class="logo"><a href="./index.html"><img src="https://files.catbox.moe/iatbhv.png" alt="logo"></a></div>
+    <div>
+      <div class="title">Dave TopUp</div>
+      <div style="font-size:12px;color:var(--muted);margin-top:2px;">Food & Offres</div>
+    </div>
+  </div>
+
+  <div class="header-right">
+    <div class="search">
+      <i class="fa-solid fa-magnifying-glass" style="color:#9ca3af"></i>
+      <input id="searchInput" placeholder="Rechercher un plat, ex: burger..." />
+    </div>
+
+    <div class="promo-offers" style="margin-left:6px">
+      <div class="chip"><i class="fa-solid fa-tag"></i> Promo</div>
+      <div class="chip"><i class="fa-solid fa-star"></i> Offers</div>
+    </div>
+
+    <button class="cart-btn" id="openCartBtn" title="Voir le panier">
+      <i class="fa-solid fa-cart-shopping"></i>
+      <span style="font-size:13px;">Panier</span>
+      <span class="cart-count" id="cartCount">0</span>
+    </button>
+  </div>
+</header>
+
+<main>
+  <h1>Nos Délices — Offres du jour</h1>
+  <p class="lead">Sélection spéciale — plats populaires, promos limitées. Cliquez sur un produit pour voir le profil détaillé.</p>
+
+  <div class="grid" id="foodGrid">
+    <!-- JS va remplir 10 cartes -->
+  </div>
+</main>
+
+<!-- Cart Panel -->
+<div class="cart-panel" id="cartPanel" aria-hidden="true">
+  <div class="cart-header">
+    <div style="display:flex;flex-direction:column;">
+      <strong>Votre Panier</strong>
+      <small style="color:var(--muted)">Vérifiez vos articles avant le paiement</small>
+    </div>
+    <button class="close-modal" onclick="toggleCart()" title="Fermer"><i class="fa-solid fa-xmark"></i></button>
+  </div>
+
+  <div class="cart-items" id="cartItems">
+    <!-- items -->
+  </div>
+
+  <div style="padding:12px;border-top:1px solid #eef2f7;">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+      <div><strong>Total:</strong> <span id="cartTotal">$0.00</span></div>
+      <div style="display:flex;gap:8px;">
+        <button class="btn btn-outline" onclick="clearCart()">Vider le panier</button>
+        <button class="checkout-btn" onclick="goCheckout()">Go to Checkout</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Profile Modal -->
+<div class="modal" id="profileModal" aria-hidden="true">
+  <div class="modal-card" role="dialog" aria-modal="true">
+    <img id="modalImg" src="" alt="product image">
+    <div class="m-info">
+      <h3 id="modalTitle">Nom du plat</h3>
+      <p id="modalDesc">Description complète du plat...</p>
+      <p style="margin-top:12px;"><strong>Prix: </strong> <span id="modalPrice">$0.00</span></p>
+      <div style="display:flex;gap:10px;margin-top:16px;">
+        <button class="btn btn-primary" id="modalAddBtn">Ajouter au panier</button>
+        <button class="btn btn-outline" onclick="closeProfile()">Fermer</button>
+      </div>
+    </div>
+
+    <button class="close-modal" onclick="closeProfile()" aria-label="close profile"><i class="fa-solid fa-xmark"></i></button>
+  </div>
+</div>
+
+<!-- small floating element used for animation -->
+<img id="flyImg" class="fly" src="" style="opacity:0;">
+
+<script>
+/* ---------- Data: 10 food items ---------- */
+const foods = [
+  { id:1, name:"Burger Signature", price:6.99, old:8.49, img:"https://images.unsplash.com/photo-1550547660-d9450f859349?q=80&w=1200&auto=format&fit=crop&ixlib=rb-4.0.3&s=2a5d1d0c8628d3f6a2a1f3e2f9541c17", desc:"Burger artisanal avec viande juteuse, fromage fondant, salade fraîche et sauce maison.", promo:true },
+  { id:2, name:"Poulet Frit XXL", price:7.49, old:9.00, img:"https://images.unsplash.com/photo-1604908177522-5f0d60a8f1e9?q=80&w=1200&auto=format&fit=crop&ixlib=rb-4.0.3&s=2c8b1914e76f6b3f9b0e9a7f6c8b72d4", desc:"Croustillant à l'extérieur, tendre à l'intérieur. Servi avec frites maison.", promo:true },
+  { id:3, name:"Pizza Margherita", price:5.99, old:7.49, img:"https://images.unsplash.com/photo-1601924582971-7b3d8f1e6f63?q=80&w=1200&auto=format&fit=crop&ixlib=rb-4.0.3&s=6bfe3f3b2b2f8a1f22bf8a6ef8f6b3bb", desc:"Base tomate, mozzarella buffala, basilic frais — classique et délicieux.", promo:false },
+  { id:4, name:"Tacos Mexicain", price:4.99, old:6.59, img:"https://images.unsplash.com/photo-1604908176966-0a1f9cfb8f6a?q=80&w=1200&auto=format&fit=crop&ixlib=rb-4.0.3&s=5c1b3b0e8d8f9f8b7a6a5d4c3b2e1f0a", desc:"Tacos garni de viande marinée, pico de gallo et sauce crémeuse.", promo:false },
+  { id:5, name:"Salade César", price:3.99, old:4.99, img:"https://images.unsplash.com/photo-1551183053-bf91a1d81141?q=80&w=1200&auto=format&fit=crop&ixlib=rb-4.0.3&s=ccf2a3b1c4d5f6a7e8b9c0d1e2f3a4b5", desc:"Laitue croquante, poulet grillé, parmesan et croûtons dorés.", promo:false },
+  { id:6, name:"Sushi Box (12)", price:12.49, old:15.99, img:"https://images.unsplash.com/photo-1542736667-069246bdbc76?q=80&w=1200&auto=format&fit=crop&ixlib=rb-4.0.3&s=9d8a7b6c5e4f3a2b1c0d9e8f7a6b5c4d", desc:"Assortiment frais: nigiri, maki et sashimi, servi avec wasabi et gingembre.", promo:true },
+  { id:7, name:"Pâtes Carbonara", price:6.49, old:8.00, img:"https://images.unsplash.com/photo-1601050691193-2b7c7f98a2f9?q=80&w=1200&auto=format&fit=crop&ixlib=rb-4.0.3&s=b1a2c3d4e5f67890123456789abcdef0", desc:"Pâtes al dente, sauce crémeuse aux œufs et pancetta croustillante.", promo:false },
+  { id:8, name:"Wrap Végétarien", price:4.29, old:5.49, img:"https://images.unsplash.com/photo-1546069901-ba9599a7e63c?q=80&w=1200&auto=format&fit=crop&ixlib=rb-4.0.3&s=1a2b3c4d5e6f7081920a1b2c3d4e5f6a", desc:"Wrap garni de légumes frais, houmous et vinaigrette légère.", promo:false },
+  { id:9, name:"Dessert Fondant", price:2.99, old:4.00, img:"https://images.unsplash.com/photo-1544025162-d76694265947?q=80&w=1200&auto=format&fit=crop&ixlib=rb-4.0.3&s=a9b8c7d6e5f40123456789abcdef0123", desc:"Gâteau fondant au chocolat servi chaud — parfait pour finir en beauté.", promo:true },
+  { id:10, name:"Boisson Fraîche", price:1.99, old:2.49, img:"https://images.unsplash.com/photo-1542444459-db3f9a1d9a1f?q=80&w=1200&auto=format&fit=crop&ixlib=rb-4.0.3&s=0f1e2d3c4b5a69788796a5b4c3d2e1f0", desc:"Sélection de boissons fraîches: soda, jus naturel, eau pétillante.", promo:false }
+];
+
+/* ---------- Utility & Render ---------- */
+const grid = document.getElementById('foodGrid');
+const cartCountEl = document.getElementById('cartCount');
+const cartPanel = document.getElementById('cartPanel');
+const cartItemsEl = document.getElementById('cartItems');
+const cartTotalEl = document.getElementById('cartTotal');
+const flyImg = document.getElementById('flyImg');
+
+/* Load and render foods */
+function renderFoods(list){
+  grid.innerHTML = "";
+  list.forEach(f => {
+    const card = document.createElement('div');
+    card.className = 'card';
+    card.innerHTML = `
+      ${f.promo ? `<div class="promo-badge"><i class="fa-solid fa-tag"></i> PROMO</div>` : ''}
+      <img src="${f.img}" alt="${f.name}" loading="lazy" />
+      <div class="meta">
+        <div style="flex:1">
+          <h3>${f.name}</h3>
+          <p class="desc">${f.desc.substring(0,80)}${f.desc.length>80?'...':''}</p>
+        </div>
+      </div>
+      <div class="price-row">
+        <div>
+          <div class="price">$${f.price.toFixed(2)}</div>
+          ${f.old ? `<div class="old-price">$${f.old.toFixed(2)}</div>` : ''}
+        </div>
+        <div style="margin-left:auto;display:flex;flex-direction:column;align-items:flex-end;gap:8px">
+          <div class="actions">
+            <button class="btn btn-outline" onclick="openProfile(${f.id})"><i class="fa-solid fa-eye"></i> Voir</button>
+            <button class="btn btn-primary" onclick="addToCartAnim(${f.id}, this)">Ajouter</button>
+          </div>
+          <div class="social">
+            <a href="#" title="Facebook"><i class="fa-brands fa-facebook-f"></i></a>
+            <a href="#" title="WhatsApp"><i class="fa-brands fa-whatsapp"></i></a>
+            <a href="#" title="Instagram"><i class="fa-brands fa-instagram"></i></a>
+          </div>
+        </div>
+      </div>
+    `;
+    grid.appendChild(card);
+  });
+}
+renderFoods(foods);
+
+/* ---------- Search ---------- */
+document.getElementById('searchInput').addEventListener('input', (e)=>{
+  const q = e.target.value.trim().toLowerCase();
+  if(!q) return renderFoods(foods);
+  const filtered = foods.filter(x => x.name.toLowerCase().includes(q) || x.desc.toLowerCase().includes(q));
+  renderFoods(filtered);
+});
+
+/* ---------- Profile modal ---------- */
+const profileModal = document.getElementById('profileModal');
+function openProfile(id){
+  const item = foods.find(f => f.id === id);
+  if(!item) return;
+  document.getElementById('modalImg').src = item.img;
+  document.getElementById('modalTitle').textContent = item.name;
+  document.getElementById('modalDesc').textContent = item.desc;
+  document.getElementById('modalPrice').textContent = `$${item.price.toFixed(2)}`;
+  document.getElementById('modalAddBtn').onclick = () => { addToCart(item.id, item.price, item.img); closeProfile(); };
+  profileModal.classList.add('open');
+  profileModal.removeAttribute('aria-hidden');
+}
+function closeProfile(){
+  profileModal.classList.remove('open');
+  profileModal.setAttribute('aria-hidden','true');
+}
+
+/* ---------- Cart logic (localStorage) ---------- */
+function getCart(){ return JSON.parse(localStorage.getItem('foodCart') || '[]'); }
+function setCart(c){ localStorage.setItem('foodCart', JSON.stringify(c)); }
+
+function updateCartUI(){
+  const cart = getCart();
+  cartCountEl.textContent = cart.length;
+  if(cart.length === 0){
+    cartItemsEl.innerHTML = `<div style="padding:18px;color:${'#6b7280'}">Votre panier est vide.</div>`;
+    cartTotalEl.textContent = '$0.00';
+    return;
+  }
+  cartItemsEl.innerHTML = "";
+  let total = 0;
+  cart.forEach((c, idx)=>{
+    const div = document.createElement('div');
+    div.className = 'cart-item';
+    div.innerHTML = `
+      <img src="${c.img}" alt="${c.item}">
+      <div class="info">
+        <b>${c.item}</b>
+        <small style="color:${'#6b7280'}">Qty: ${c.qty} • $${(c.price*c.qty).toFixed(2)}</small>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:8px;align-items:flex-end">
+        <button class="btn btn-outline" onclick="changeQty(${idx}, 1)">+</button>
+        <button class="btn btn-outline" onclick="changeQty(${idx}, -1)">-</button>
+        <button class="remove" title="Supprimer" onclick="removeCartItem(${idx})"><i class="fa-solid fa-trash"></i></button>
+      </div>
+    `;
+    cartItemsEl.appendChild(div);
+    total += c.price * c.qty;
+  });
+  cartTotalEl.textContent = `$${total.toFixed(2)}`;
+}
+
+/* addToCart with animation helper */
+function addToCartAnim(id, btnEl){
+  const item = foods.find(f=>f.id===id);
+  if(!item) return;
+  // animate image flying to cart
+  const img = document.createElement('img');
+  img.src = item.img;
+  img.style.width = '48px';
+  img.style.height = '48px';
+  img.style.borderRadius = '8px';
+  img.className = 'fly';
+  document.body.appendChild(img);
+  const rect = btnEl.getBoundingClientRect();
+  img.style.left = rect.left + 'px';
+  img.style.top = rect.top + 'px';
+  img.style.opacity = 1;
+  // target (cart icon)
+  const cartBtn = document.getElementById('openCartBtn');
+  const targetRect = cartBtn.getBoundingClientRect();
+  // force reflow
+  requestAnimationFrame(()=> {
+    img.style.transform = `translate(${targetRect.left - rect.left}px, ${targetRect.top - rect.top}px) scale(.2)`;
+    img.style.opacity = 0;
+  });
+  setTimeout(()=> { img.remove(); addToCart(item.id, item.price, item.img); }, 650);
+}
+
+/* Basic addToCart */
+function addToCart(id, price, img){
+  const item = foods.find(f=>f.id===id);
+  if(!item) return;
+  const cart = getCart();
+  const found = cart.find(c=>c.id===id);
+  if(found) found.qty += 1;
+  else cart.push({ id, item: item.name, price: price, qty: 1, img });
+  setCart(cart);
+  updateCartUI();
+  // open cart briefly
+  cartPanel.classList.add('open');
+  setTimeout(()=> cartPanel.classList.remove('open'), 1200);
+}
+
+/* remove item */
+function removeCartItem(index){
+  const cart = getCart();
+  cart.splice(index,1);
+  setCart(cart);
+  updateCartUI();
+}
+
+/* change qty */
+function changeQty(index, delta){
+  const cart = getCart();
+  if(!cart[index]) return;
+  cart[index].qty += delta;
+  if(cart[index].qty < 1) cart.splice(index,1);
+  setCart(cart);
+  updateCartUI();
+}
+
+/* clear cart */
+function clearCart(){
+  if(!confirm("Vider tout le panier ?")) return;
+  setCart([]);
+  updateCartUI();
+}
+
+/* checkout */
+function goCheckout(){
+  const cart = getCart();
+  if(cart.length === 0){ alert("Votre panier est vide !"); return; }
+  // Ici on redirige: vous pouvez personnaliser vers votre page de checkout
+  window.location.href = "checkout.html";
+}
+
+/* toggle cart panel */
+document.getElementById('openCartBtn').addEventListener('click', toggleCart);
+function toggleCart(){
+  cartPanel.classList.toggle('open');
+  updateCartUI();
+}
+
+/* init */
+updateCartUI();
+
+/* Utility: close profile on outside click */
+profileModal.addEventListener('click', (e)=>{
+  if(e.target === profileModal) closeProfile();
+});
+
+/* Close cart on Escape */
+document.addEventListener('keydown', (e)=> {
+  if(e.key === 'Escape'){
+    if(profileModal.classList.contains('open')) closeProfile();
+    if(cartPanel.classList.contains('open')) cartPanel.classList.remove('open');
+  }
+});
+</script>
+</body>
+</html>

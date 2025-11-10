@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>YouTube Movie Downloader</title>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    body {
+      margin:0;
+      font-family: 'Orbitron', sans-serif;
+      background: linear-gradient(135deg, #1b2735, #090a0f);
+      color: #fff;
+      padding: 20px;
+    }
+
+    h1 {
+      text-align: center;
+      font-size: 2.5rem;
+      background: linear-gradient(to right, #ff416c, #be60ee);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 30px;
+    }
+
+    .youtube-downloader { display:none; }
+    .youtube-downloader.active { display:block; }
+
+    .search-container {
+      display: flex;
+      max-width: 600px;
+      margin: auto;
+      margin-bottom: 20px;
+    }
+    .search-container input {
+      flex:1;
+      padding: 12px;
+      border-radius:5px 0 0 5px;
+      border:none;
+      outline:none;
+      font-size: 1rem;
+    }
+    .search-container button {
+      padding:12px 20px;
+      border:none;
+      background:#BE60EE;
+      color:#1A0526;
+      font-weight:600;
+      cursor:pointer;
+      border-radius:0 5px 5px 0;
+      transition:0.3s;
+    }
+    .search-container button:hover { background:#9a4ed1; }
+
+    .search-results { max-width: 800px; margin:auto; margin-bottom:30px; }
+    .search-result-item {
+      display:flex;
+      align-items:center;
+      background:#2D0842;
+      border-radius:10px;
+      margin:10px 0;
+      cursor:pointer;
+      padding:12px;
+      border:1px solid #3F0A5E;
+      transition:0.3s;
+    }
+    .search-result-item:hover { background:#3A0A55; border-color:#BE60EE; }
+    .search-result-item img { width:80px; height:60px; border-radius:6px; margin-right:12px; border:1px solid #BE60EE; }
+    .search-result-info h5 { color:#E0E0E0; font-size:14px; margin:0 0 5px; font-weight:600; }
+    .search-result-info p { color:#9A9A9A; font-size:12px; margin:0; }
+
+    .youtube-player {
+      background:#2D0842;
+      border-radius:12px;
+      padding:20px;
+      margin-top:20px;
+      border:1px solid #3F0A5E;
+      display:none;
+    }
+    .youtube-player.active { display:block; }
+    .youtube-player h3 { color:#BE60EE; margin-bottom:10px; }
+    .youtube-player p { color:#9A9A9A; margin-bottom:15px; }
+    .youtube-audio { width:100%; margin:15px 0; }
+    .youtube-controls { display:flex; gap:10px; justify-content:center; margin-top:15px; }
+    .youtube-controls button {
+      background:#BE60EE; color:#1A0526;
+      border:none; border-radius:8px;
+      padding:10px 15px; cursor:pointer;
+      font-weight:600; display:flex;
+      align-items:center; gap:5px;
+      transition:0.3s;
+    }
+    .youtube-controls button:hover { background:#9a4ed1; }
+    .status-indicator { display:inline-block; width:8px; height:8px; border-radius:50%; margin-right:5px; }
+    .status-processing { background:#FFA500; }
+    .status-success { background:#00ff5e; }
+    .status-error { background:#ff4444; }
+  </style>
+</head>
+<body>
+  <h1>YouTube Movie Downloader</h1>
+
+  <div class="search-container">
+    <input type="text" id="movieInput" placeholder="Enter movie name...">
+    <button onclick="searchMovie()">Search</button>
+  </div>
+
+  <div class="search-results" id="searchResults"></div>
+
+  <div class="youtube-player" id="youtubePlayer">
+    <h3 id="playerTitle"></h3>
+    <p id="playerDesc"></p>
+    <iframe id="playerVideo" width="100%" height="450" frameborder="0" allowfullscreen></iframe>
+    <div class="youtube-controls">
+      <button onclick="playAudio()">Play Audio</button>
+      <button onclick="downloadAudio()">Download Audio</button>
+    </div>
+  </div>
+
+  <script>
+    async function searchMovie(){
+      const query = document.getElementById('movieInput').value.trim();
+      if(!query){ alert('Please enter movie name!'); return; }
+
+      const resultsDiv = document.getElementById('searchResults');
+      resultsDiv.innerHTML = '<p style="text-align:center;">Searching...</p>';
+
+      try{
+        const res = await fetch(`https://api.siputzx.my.id/api/s/youtube?query=${encodeURIComponent(query)}`);
+        const data = await res.json();
+        resultsDiv.innerHTML = '';
+
+        data.forEach(item=>{
+          const div = document.createElement('div');
+          div.className='search-result-item';
+          div.innerHTML = `
+            <img src="${item.thumbnail}" alt="${item.title}">
+            <div class="search-result-info">
+              <h5>${item.title}</h5>
+              <p>${item.description || 'No description available.'}</p>
+            </div>
+          `;
+          div.onclick = ()=>{
+            const player = document.getElementById('youtubePlayer');
+            document.getElementById('playerTitle').innerText = item.title;
+            document.getElementById('playerDesc').innerText = item.description || '';
+            document.getElementById('playerVideo').src = `https://www.youtube.com/embed/${item.videoId}`;
+            player.classList.add('active');
+          };
+          resultsDiv.appendChild(div);
+        });
+      }catch(err){
+        resultsDiv.innerHTML='<p style="color:red;text-align:center;">Error fetching videos!</p>';
+        console.error(err);
+      }
+    }
+
+    function playAudio(){ alert('Audio play function placeholder'); }
+    function downloadAudio(){ alert('Audio download function placeholder'); }
+  </script>
+</body>
+</html>

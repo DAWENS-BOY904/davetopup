@@ -1,1 +1,261 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Dave Services</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<style>
+:root{
+  --green:#2f855a; --green-dark:#276749; --muted:#6b7280;
+  --card-bg:#fff; --page-bg:#f8fafc; --shadow:0 6px 18px rgba(15,23,42,0.06); --radius:12px;
+}
+*{box-sizing:border-box}
+body{margin:0;font-family:"Poppins",system-ui,-apple-system,"Segoe UI",Roboto,Arial;background:var(--page-bg);color:#111827;}
+header{position:fixed;top:0;left:0;right:0;height:72px;background:#fff;display:flex;align-items:center;gap:16px;padding:12px 20px;box-shadow:0 2px 8px rgba(15,23,42,0.06);z-index:30;}
+.logo img{height:44px; display:block;}
+.title{font-weight:700;color:var(--green);margin-left:6px;font-size:18px;}
+.header-right{margin-left:auto;display:flex;align-items:center;gap:12px;}
+.search{background:#f3f4f6;padding:6px 8px;border-radius:999px;display:flex;align-items:center;gap:8px;min-width:210px;}
+.search input{border:0;background:transparent;outline:none;font-size:14px;color:#111827;}
+.promo-offers{display:flex;gap:8px;align-items:center;}
+.chip{display:inline-flex;align-items:center;gap:8px;padding:8px 10px;border-radius:999px;background:#fff;border:1px solid #eef2f7;font-size:13px;color:var(--muted);box-shadow: var(--shadow);}
+.chip i{color:var(--green);font-size:14px;}
+main{padding:92px 20px 40px;max-width:1200px;margin:0 auto;}
+h1{margin:0 0 6px;font-size:22px;color:#0f172a;}
+p.lead{margin:0 0 18px;color:var(--muted);}
+.grid{display:grid;grid-template-columns: repeat(auto-fit, minmax(210px,1fr));gap:18px;}
+.card{background:var(--card-bg);border-radius:var(--radius);padding:12px;box-shadow: var(--shadow);position:relative;overflow:hidden;transition:transform .18s ease, box-shadow .18s ease;}
+.card:hover{transform:translateY(-6px); box-shadow:0 12px 30px rgba(15,23,42,0.08);}
+.promo-badge{position:absolute;top:12px;left:12px;background: linear-gradient(180deg,#fff 0%, #f9fafb 100%);border-radius:8px;padding:6px 8px;border:1px solid #e6eef0;display:flex;gap:8px;align-items:center;font-size:12px;color:var(--green);font-weight:600;backdrop-filter: blur(4px);}
+.promo-badge i{color:var(--green); font-size:14px;}
+.card img{width:100%; height:130px; object-fit:cover; border-radius:10px; display:block;}
+.card .meta{margin-top:10px; display:flex; align-items:center; justify-content:space-between; gap:10px;}
+.card h3{margin:0; font-size:16px; color:#0f172a;}
+.card p.desc{margin:6px 0 8px; color:var(--muted); font-size:13px; min-height:36px;}
+.price-row{display:flex;align-items:center;gap:8px;}
+.price{color:var(--green); font-weight:700; font-size:15px;}
+.old-price{color:#9ca3af;text-decoration:line-through;font-size:13px;}
+.card .actions{display:flex;gap:8px;margin-top:8px;}
+.btn{padding:8px 10px;border-radius:9px;border:0;cursor:pointer;font-weight:600;font-size:14px;}
+.btn-primary{background:var(--green);color:#fff;}
+.btn-outline{background:transparent;border:1px solid #e6eef0;color:#0f172a;}
+.social{display:flex;gap:10px;margin-top:10px;justify-content:center;}
+.social a{color:var(--green);font-size:16px;transition:transform .12s;}
+.social a:hover{transform:translateY(-3px); color:var(--green-dark);}
+.cart-btn{position:relative;background:var(--green);color:#fff;border-radius:10px;padding:8px 10px;display:inline-flex;gap:8px;align-items:center;border:0;cursor:pointer;box-shadow:0 6px 18px rgba(47,133,90,0.18);}
+.cart-count{background:#ef4444;color:#fff;width:20px;height:20px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;position:absolute;top:-8px;right:-8px;box-shadow:0 4px 8px rgba(0,0,0,0.08);}
+.cart-panel{position:fixed;right:-420px;top:72px;width:380px;max-width:95%;height:calc(100vh - 90px);background:#fff;border-radius:12px 0 0 12px;box-shadow:0 30px 80px rgba(2,6,23,0.12);transition:right .28s cubic-bezier(.2,.9,.2,1);z-index:60;display:flex;flex-direction:column;overflow:hidden;}
+.cart-panel.open{right:0;}
+.cart-header{padding:16px; border-bottom:1px solid #eef2f7; display:flex; align-items:center; justify-content:space-between;}
+.cart-items{padding:12px; overflow:auto; flex:1;}
+.cart-item{display:flex;gap:10px;align-items:center;padding:10px;border-radius:10px;border:1px solid #f3f4f6;margin-bottom:10px;}
+.cart-item img{width:68px;height:68px;object-fit:cover;border-radius:8px;}
+.cart-item .info{flex:1;}
+.cart-item .info b{display:block;}
+.cart-item .remove{background:transparent;border:0;color:#ef4444;cursor:pointer;font-size:16px;}
+.cart-footer{padding:12px;border-top:1px solid #eef2f7;display:flex;gap:8px;align-items:center;justify-content:space-between;}
+.checkout-btn{background:var(--green);color:#fff;border-radius:10px;padding:10px 12px;border:0;font-weight:700;cursor:pointer;}
+.modal{position:fixed;inset:0;display:none;align-items:center;justify-content:center;z-index:80;background:rgba(2,6,23,0.45);}
+.modal.open{display:flex;}
+.modal-card{width:100%; max-width:760px;background:#fff;border-radius:14px;padding:18px;box-shadow:0 30px 80px rgba(2,6,23,0.12);display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:center;}
+.modal-card img{width:100%;height:300px;object-fit:cover;border-radius:10px;}
+.modal-card .m-info h3{margin:0 0 8px;}
+.modal-card .m-info p{color:var(--muted);line-height:1.5;}
+.close-modal{position:absolute;top:24px;right:24px;background:#fff;border-radius:999px;border:0;padding:8px;cursor:pointer;box-shadow:var(--shadow);}
+.fly{position:fixed;width:40px;height:40px;border-radius:10px;z-index:120;pointer-events:none;transition: transform .8s cubic-bezier(.2,.9,.2,1), opacity .6s;}
+@media(max-width:820px){.modal-card{grid-template-columns:1fr;} .header-right{gap:8px;}}
+</style>
+</head>
+<body>
 
+<header>
+<div style="display:flex;align-items:center;gap:10px;">
+  <div class="logo"><a href="./index.html"><img src="https://files.catbox.moe/iatbhv.png" alt="logo"></a></div>
+  <div>
+    <div class="title">Dave Services</div>
+    <div style="font-size:12px;color:var(--muted);margin-top:2px;">Services & Offres</div>
+  </div>
+</div>
+<div class="header-right">
+  <div class="search">
+    <i class="fa-solid fa-magnifying-glass" style="color:#9ca3af"></i>
+    <input id="searchInput" placeholder="Rechercher un service..." />
+  </div>
+  <div class="promo-offers" style="margin-left:6px">
+    <div class="chip"><i class="fa-solid fa-tag"></i> Promo</div>
+    <div class="chip"><i class="fa-solid fa-star"></i> Offers</div>
+  </div>
+  <button class="cart-btn" id="openCartBtn" title="Voir le panier">
+    <i class="fa-solid fa-cart-shopping"></i>
+    <span style="font-size:13px;">Panier</span>
+    <span class="cart-count" id="cartCount">0</span>
+  </button>
+</div>
+</header>
+
+<main>
+<h1>Nos Services Populaires</h1>
+<p class="lead">Choisissez parmi nos services et ajoutez-les à votre panier. Cliquez sur un service pour voir le profil détaillé.</p>
+<div class="grid" id="serviceGrid"></div>
+</main>
+
+<div class="cart-panel" id="cartPanel" aria-hidden="true">
+<div class="cart-header">
+  <div style="display:flex;flex-direction:column;">
+    <strong>Votre Panier</strong>
+    <small style="color:var(--muted)">Vérifiez vos articles avant le paiement</small>
+  </div>
+  <button class="close-modal" onclick="toggleCart()" title="Fermer"><i class="fa-solid fa-xmark"></i></button>
+</div>
+<div class="cart-items" id="cartItems"></div>
+<div style="padding:12px;border-top:1px solid #eef2f7;">
+<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+  <div><strong>Total:</strong> <span id="cartTotal">$0.00</span></div>
+  <div style="display:flex;gap:8px;">
+    <button class="btn btn-outline" onclick="clearCart()">Vider le panier</button>
+    <button class="checkout-btn" onclick="goCheckout()">Go to Checkout</button>
+  </div>
+</div>
+</div>
+</div>
+
+<div class="modal" id="profileModal" aria-hidden="true">
+<div class="modal-card" role="dialog" aria-modal="true">
+  <img id="modalImg" src="" alt="service image">
+  <div class="m-info">
+    <h3 id="modalTitle">Nom du service</h3>
+    <p id="modalDesc">Description complète du service...</p>
+    <p style="margin-top:12px;"><strong>Prix: </strong> <span id="modalPrice">$0.00</span></p>
+    <div style="display:flex;gap:10px;margin-top:16px;">
+      <button class="btn btn-primary" id="modalAddBtn">Ajouter au panier</button>
+      <button class="btn btn-outline" onclick="closeProfile()">Fermer</button>
+    </div>
+  </div>
+  <button class="close-modal" onclick="closeProfile()" aria-label="close profile"><i class="fa-solid fa-xmark"></i></button>
+</div>
+</div>
+
+<img id="flyImg" class="fly" src="" style="opacity:0;">
+
+<script>
+const services = [];
+for(let i=1;i<=20;i++){
+  services.push({
+    id:i,
+    name:`Service #${i}`,
+    price:(5+i).toFixed(2),
+    old:(7+i).toFixed(2),
+    img:`https://picsum.photos/400/250?random=${i}`,
+    desc:`Description complète du service #${i}. Un service de qualité pour répondre à vos besoins.`,
+    promo:i%2===0
+  });
+}
+
+const grid = document.getElementById('serviceGrid');
+const cartCountEl = document.getElementById('cartCount');
+const cartPanel = document.getElementById('cartPanel');
+const cartItemsEl = document.getElementById('cartItems');
+
+function renderServices(list){
+  grid.innerHTML="";
+  list.forEach(s=>{
+    const card = document.createElement('div'); card.className='card';
+    card.innerHTML=`
+      ${s.promo?`<div class="promo-badge"><i class="fa-solid fa-tag"></i> PROMO</div>`:''}
+      <img src="${s.img}" alt="${s.name}" loading="lazy" />
+      <div class="meta">
+        <div style="flex:1">
+          <h3>${s.name}</h3>
+          <p class="desc">${s.desc.substring(0,80)}${s.desc.length>80?'...':''}</p>
+        </div>
+      </div>
+      <div class="price-row">
+        <div>
+          <div class="price">$${s.price}</div>
+          <div class="old-price">$${s.old}</div>
+        </div>
+        <div style="margin-left:auto;display:flex;flex-direction:column;align-items:flex-end;gap:8px">
+          <div class="actions">
+            <button class="btn btn-outline" onclick="openProfile(${s.id})"><i class="fa-solid fa-eye"></i> Voir</button>
+            <button class="btn btn-primary" onclick="addToCartAnim(${s.id}, this)">Ajouter</button>
+          </div>
+        </div>
+      </div>
+    `;
+    grid.appendChild(card);
+  });
+}
+renderServices(services);
+
+document.getElementById('searchInput').addEventListener('input', e=>{
+  const q=e.target.value.trim().toLowerCase();
+  if(!q) return renderServices(services);
+  renderServices(services.filter(x=>x.name.toLowerCase().includes(q) || x.desc.toLowerCase().includes(q)));
+});
+
+const profileModal=document.getElementById('profileModal');
+function openProfile(id){
+  const item=services.find(f=>f.id===id); if(!item) return;
+  document.getElementById('modalImg').src=item.img;
+  document.getElementById('modalTitle').textContent=item.name;
+  document.getElementById('modalDesc').textContent=item.desc;
+  document.getElementById('modalPrice').textContent=`$${item.price}`;
+  document.getElementById('modalAddBtn').onclick=()=>{addToCart(item.id,item.price,item.img);closeProfile();};
+  profileModal.classList.add('open'); profileModal.removeAttribute('aria-hidden');
+}
+function closeProfile(){profileModal.classList.remove('open'); profileModal.setAttribute('aria-hidden','true');}
+
+function getCart(){return JSON.parse(localStorage.getItem('serviceCart')||'[]');}
+function setCart(c){localStorage.setItem('serviceCart',JSON.stringify(c));}
+
+function updateCartUI(){
+  const cart=getCart(); cartCountEl.textContent=cart.length;
+  if(cart.length===0){cartItemsEl.innerHTML='<div style="padding:18px;color:#6b7280">Votre panier est vide.</div>'; cartTotalEl.textContent='$0.00'; return;}
+  cartItemsEl.innerHTML=""; let total=0;
+  cart.forEach((c,idx)=>{
+    const div=document.createElement('div'); div.className='cart-item';
+    div.innerHTML=`
+      <img src="${c.img}" alt="${c.item}">
+      <div class="info"><b>${c.item}</b><small style="color:#6b7280">Qty: ${c.qty} • $${(c.price*c.qty).toFixed(2)}</small></div>
+      <div style="display:flex;flex-direction:column;gap:8px;align-items:flex-end">
+        <button class="btn btn-outline" onclick="changeQty(${idx},1)">+</button>
+        <button class="btn btn-outline" onclick="changeQty(${idx},-1)">-</button>
+        <button class="remove" onclick="removeCartItem(${idx})"><i class="fa-solid fa-trash"></i></button>
+      </div>
+    `;
+    cartItemsEl.appendChild(div); total+=c.price*c.qty;
+  });
+  cartTotalEl.textContent=`$${total.toFixed(2)}`;
+}
+
+function addToCartAnim(id,btnEl){
+  const item=services.find(f=>f.id===id); if(!item) return;
+  const img=document.createElement('img'); img.src=item.img; img.style.width='48px'; img.style.height='48px'; img.style.borderRadius='8px'; img.className='fly';
+  document.body.appendChild(img);
+  const rect=btnEl.getBoundingClientRect();
+  img.style.left=rect.left+'px'; img.style.top=rect.top+'px'; img.style.opacity=1;
+  const cartBtn=document.getElementById('openCartBtn');
+  const targetRect=cartBtn.getBoundingClientRect();
+  requestAnimationFrame(()=>{img.style.transform=`translate(${targetRect.left-rect.left}px,${targetRect.top-rect.top}px) scale(.1)`; img.style.opacity=0;});
+  setTimeout(()=>{document.body.removeChild(img); addToCart(item.id,item.price,item.img);},600);
+}
+
+function addToCart(id,price,img){
+  const cart=getCart(); const existing=cart.find(c=>c.itemId===id);
+  if(existing){existing.qty++;}else{cart.push({itemId:id,item:services.find(f=>f.id===id).name,price:price,img:img,qty:1});}
+  setCart(cart); updateCartUI();
+}
+
+function removeCartItem(idx){const cart=getCart(); cart.splice(idx,1); setCart(cart); updateCartUI();}
+function changeQty(idx,delta){const cart=getCart(); cart[idx].qty+=delta; if(cart[idx].qty<1) cart[idx].qty=1; setCart(cart); updateCartUI();}
+function clearCart(){setCart([]); updateCartUI();}
+function toggleCart(){cartPanel.classList.toggle('open'); updateCartUI();}
+function goCheckout(){alert("Redirection vers le checkout...");}
+
+const cartTotalEl=document.getElementById('cartTotal');
+updateCartUI();
+</script>
+
+</body>
+</html>
