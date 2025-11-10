@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Login / Signup — Da-Chatbot</title>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet"/>
+<style>
+body{font-family:Inter,Arial,sans-serif;background:#f4f6fb;display:flex;justify-content:center;align-items:center;height:100vh;margin:0;}
+.container{background:#fff;padding:24px;border-radius:12px;box-shadow:0 6px 20px rgba(0,0,0,0.08);width:360px;}
+h2{text-align:center;margin-bottom:16px;}
+input{width:100%;padding:10px;margin:8px 0;border-radius:8px;border:1px solid #ccc;outline:none;}
+button{width:100%;padding:10px;margin-top:12px;border:none;border-radius:8px;background:#2563eb;color:#fff;font-weight:600;cursor:pointer;}
+button.social{background:#f4f4f4;color:#333;margin-top:8px;}
+.social i{margin-right:8px;}
+.switch{margin-top:12px;text-align:center;font-size:14px;color:#666;cursor:pointer;}
+.error{color:red;font-size:13px;margin-top:4px;text-align:center;}
+</style>
+</head>
+<body>
+<div class="container">
+  <h2 id="formTitle">Login</h2>
+  <div id="errorMsg" class="error"></div>
+  <input type="email" id="email" placeholder="Email" />
+  <input type="password" id="password" placeholder="Password" />
+  <button id="submitBtn">Login</button>
+  <button class="social" id="googleLogin"><i class="fa fa-google"></i> Login with Google</button>
+  <button class="social" id="facebookLogin"><i class="fa fa-facebook"></i> Login with Facebook</button>
+  <div class="switch" id="toggleForm">Don't have an account? Sign Up</div>
+</div>
+
+<!-- Firebase -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+
+<script>
+// --- Firebase Config ---
+const firebaseConfig = {
+  apiKey: "<YOUR_API_KEY>",
+  authDomain: "<YOUR_AUTH_DOMAIN>",
+  projectId: "<YOUR_PROJECT_ID>",
+  storageBucket: "<YOUR_STORAGE_BUCKET>",
+  messagingSenderId: "<YOUR_MESSAGING_SENDER_ID>",
+  appId: "<YOUR_APP_ID>"
+};
+firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+
+// --- Elements ---
+const emailEl = document.getElementById('email');
+const passEl = document.getElementById('password');
+const submitBtn = document.getElementById('submitBtn');
+const toggleForm = document.getElementById('toggleForm');
+const formTitle = document.getElementById('formTitle');
+const errorMsg = document.getElementById('errorMsg');
+
+let isLogin = true; // toggle login/signup
+
+toggleForm.onclick = ()=>{
+  isLogin = !isLogin;
+  formTitle.textContent = isLogin?'Login':'Sign Up';
+  submitBtn.textContent = isLogin?'Login':'Sign Up';
+  toggleForm.textContent = isLogin?"Don't have an account? Sign Up":"Already have an account? Login";
+  errorMsg.textContent = '';
+};
+
+// --- Submit ---
+submitBtn.onclick = async ()=>{
+  const email = emailEl.value.trim();
+  const pass = passEl.value.trim();
+  if(!email || !pass){ errorMsg.textContent='Please enter email & password'; return; }
+  try{
+    let user;
+    if(isLogin){
+      user = await auth.signInWithEmailAndPassword(email, pass);
+    } else{
+      user = await auth.createUserWithEmailAndPassword(email, pass);
+    }
+
+    // --- Redirect based on admin or user ---
+    if(email === 'admin305@gmail.com'){
+      // Store a token for payouts.html check
+      localStorage.setItem('adminToken','admin-secret-token');
+      window.location.href = '/admin/payouts.html';
+    } else {
+      localStorage.removeItem('adminToken');
+      window.location.href = '/index.html';
+    }
+  }catch(e){
+    console.error(e);
+    errorMsg.textContent = e.message;
+  }
+};
+
+// --- Google Login ---
+document.getElementById('googleLogin').onclick = async ()=>{
+  const provider = new firebase.auth.GoogleAuthProvider();
+  try{
+    const result = await auth.signInWithPopup(provider);
+    const email = result.user.email;
+    if(email === 'admin305@gmail.com'){
+      localStorage.setItem('adminToken','admin-secret-token');
+      window.location.href='/admin/payouts.html';
+    } else {
+      localStorage.removeItem('adminToken');
+      window.location.href='/index.html';
+    }
+  }catch(e){ errorMsg.textContent = e.message; }
+};
+
+// --- Facebook Login ---
+document.getElementById('facebookLogin').onclick = async ()=>{
+  const provider = new firebase.auth.FacebookAuthProvider();
+  try{
+    const result = await auth.signInWithPopup(provider);
+    const email = result.user.email;
+    if(email === 'admin305@gmail.com'){
+      localStorage.setItem('adminToken','admin-secret-token');
+      window.location.href='/admin/payouts.html';
+    } else {
+      localStorage.removeItem('adminToken');
+      window.location.href='/index.html';
+    }
+  }catch(e){ errorMsg.textContent = e.message; }
+};
+</script>
+</body>
+</html>
