@@ -6,20 +6,22 @@ const cors = require('cors');
 const Stripe = require('stripe');
 const mongoose = require('mongoose');
 const jwt = require('jsonwebtoken');
+const path = require('path');
 
 const app = express();
 const stripe = Stripe(process.env.STRIPE_SECRET_KEY);
 
 app.use(cors());
 app.use(bodyParser.json());
-app.use(express.static('public'));
+app.use(express.static(path.join(__dirname, 'public')));
 
 // --- MongoDB connection ---
 mongoose.connect(process.env.MONGODB_URI, {
   useNewUrlParser: true,
   useUnifiedTopology: true
-}).then(()=>console.log('MongoDB connected'))
-  .catch(err=>console.error('MongoDB error:', err));
+})
+.then(()=>console.log('MongoDB connected'))
+.catch(err=>console.error('MongoDB error:', err));
 
 // --- Transaction schema ---
 const txSchema = new mongoose.Schema({
@@ -54,9 +56,9 @@ function adminAuth(req, res, next){
 
 // --- Routes ---
 
-// Home
-app.get('/', (req, res) => {
-  res.sendFile(__dirname + '/public/index.html');
+// Serve index.html for all frontend routes
+app.get('/*', (req,res)=>{
+  res.sendFile(path.join(__dirname,'public','index.html'));
 });
 
 // Stripe Checkout
@@ -90,15 +92,12 @@ app.post('/api/create-checkout-session', async (req,res)=>{
   }
 });
 
-// --- Admin endpoints ---
-
-// Get all transactions
+// Admin endpoints
 app.get('/api/admin/transactions', adminAuth, async (req,res)=>{
   const txs = await Transaction.find().sort({ createdAt:-1 });
   res.json(txs);
 });
 
-// Individual payout
 app.post('/api/admin/payout', adminAuth, async (req,res)=>{
   try{
     const { txId, note } = req.body;
@@ -106,9 +105,6 @@ app.post('/api/admin/payout', adminAuth, async (req,res)=>{
     if(!tx) return res.status(404).json({ error:'Transaction not found' });
     if(tx.status !== 'pending') return res.status(400).json({ error:'Transaction not pending' });
 
-    // --- Real payout logic: call Stripe/PayPal/Bank API here ---
-    // For example, stripe.payouts.create({amount: tx.amount*100, currency:'usd', destination:'acct_xxx'})
-    
     tx.status='completed';
     tx.payoutNote = note;
     tx.payoutAt = new Date();
@@ -121,7 +117,6 @@ app.post('/api/admin/payout', adminAuth, async (req,res)=>{
   }
 });
 
-// Bulk payout
 app.post('/api/admin/payout-bulk', adminAuth, async (req,res)=>{
   try{
     const { txIds } = req.body;
@@ -138,10 +133,8 @@ app.post('/api/admin/payout-bulk', adminAuth, async (req,res)=>{
   }
 });
 
-// Admin login (for JWT)
 app.post('/api/admin/login', async (req,res)=>{
   const { username, password } = req.body;
-  // Replace with real DB user check
   if(username==='admin' && password==='password123'){
     const token = jwt.sign({ username:'admin', role:'admin' }, process.env.JWT_SECRET, { expiresIn:'12h' });
     return res.json({ token });
