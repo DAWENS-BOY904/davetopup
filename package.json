@@ -1,0 +1,23 @@
+{
+  "name": "dave-topup",
+  "version": "1.0.0",
+  "description": "DAVE-TOPUP - Top-up site with Stripe payment",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "nodemon server.js"
+  },
+  "keywords": ["topup", "stripe", "payment", "freefire", "gaming"],
+  "author": "Robens",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.18.2",
+    "stripe": "^12.16.0",
+    "dotenv": "^16.3.1",
+    "cors": "^2.8.5",
+    "body-parser": "^1.20.2"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.1"
+  }
+}
