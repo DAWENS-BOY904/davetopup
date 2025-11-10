@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Checkout - DAWENS SHOP</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<style>
+body { font-family: 'Segoe UI', Arial, sans-serif; margin:0; padding:0; background:#f5f5f7;}
+header { background:#2f855a; padding:16px 20px; color:#fff; position:sticky; top:0; box-shadow:0 2px 6px rgba(0,0,0,0.1);}
+header h2{margin:0; font-weight:600;}
+.container{max-width:720px; margin:30px auto; background:#fff; padding:25px; border-radius:12px; box-shadow:0 4px 12px rgba(0,0,0,0.08);}
+h3{margin-top:0; color:#2f855a;}
+form label{font-weight:600; margin-top:12px; display:block;}
+form input, form textarea, form select{width:100%;padding:12px;margin-top:6px;border:1px solid #ccc;border-radius:8px;box-sizing:border-box; font-size:14px;}
+form input:focus, form textarea:focus, form select:focus{outline:none; border-color:#2f855a; box-shadow:0 0 4px rgba(47,133,90,0.3);}
+button{background:#2f855a;color:#fff;border:none;padding:14px;font-size:16px;font-weight:600;border-radius:8px;cursor:pointer;margin-top:20px; transition:0.3s;}
+button:hover{background:#276749;}
+.cart-summary{margin:20px 0; padding:12px; background:#f0fdf4; border-radius:8px;}
+.cart-item{display:flex;justify-content:space-between;padding:8px 0; border-bottom:1px solid #e6f4ea; font-size:14px;}
+.cart-item:last-child{border-bottom:none;}
+.autocomplete-container{position:relative;}
+.autocomplete-list{position:absolute; top:100%; left:0; right:0; background:#fff; border:1px solid #ccc; border-radius:6px; max-height:180px; overflow-y:auto; z-index:1000;}
+.autocomplete-list div{padding:10px; cursor:pointer;}
+.autocomplete-list div:hover{background:#f0f9f4;}
+</style>
+</head>
+<body>
+<header>
+  <h2>Checkout - DAWENS SHOP</h2>
+</header>
+
+<div class="container">
+  <h3>Vos informations</h3>
+  <form id="checkoutForm">
+    <label for="fullName">Full Name</label>
+    <input type="text" id="fullName" required>
+<label for="email">Email</label>
+<input type="email" id="email" required>
+
+<label for="phone">Phone Number</label>
+<input type="tel" id="phone" required>
+
+<label for="address">Address</label>
+<input type="text" id="address" placeholder="Start typing your address..." required>
+
+<label for="zip">Zip / Postal Code</label>
+<input type="text" id="zip" required>
+
+<h3>Votre panier</h3>
+<div class="cart-summary" id="cartSummary"></div>
+
+<button type="submit">Proceed to Payment</button>
+  </form>
+</div>
+
+<!-- Google Places API for autocomplete -->
+<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAOVYRIgupAurZup5y1PRh8Ismb1A3lLao&libraries=places&callback=initMap"></script>
+
+<script>
+// Récupérer le cart depuis localStorage
+let cart = JSON.parse(localStorage.getItem('cart')) || [];
+
+function renderCartSummary(){
+  const summary = document.getElementById('cartSummary');
+  summary.innerHTML = '';
+  let total = 0;
+  cart.forEach(item=>{
+    const itemTotal = item.price * item.quantity;
+    total += itemTotal;
+    summary.innerHTML += `
+      <div class="cart-item">
+        <span>${item.name} (${item.size} x ${item.quantity})</span>
+        <span>$${itemTotal.toFixed(2)}</span>
+      </div>
+    `;
+  });
+  summary.innerHTML += `<div style="text-align:right; margin-top:10px; font-weight:bold;">Total: $${total.toFixed(2)}</div>`;
+}
+renderCartSummary();
+
+// Google Places Autocomplete
+function initAutocomplete(){
+  const addressInput = document.getElementById('address');
+  const autocomplete = new google.maps.places.Autocomplete(addressInput, {
+    types: ['geocode'], componentRestrictions: { country: 'US' }
+  });
+
+  autocomplete.addListener('place_changed', function(){
+    const place = autocomplete.getPlace();
+    if(!place.address_components) return;
+
+    let postal_code = '';
+    place.address_components.forEach(comp=>{
+      if(comp.types.includes('postal_code')) postal_code = comp.long_name;
+    });
+    if(postal_code) document.getElementById('zip').value = postal_code;
+  });
+}
+
+google.maps.event.addDomListener(window, 'load', initAutocomplete);
+
+// Submit form: store data + cart -> mode-payment.html
+document.getElementById('checkoutForm').addEventListener('submit', function(e){
+  e.preventDefault();
+  const checkoutData = {
+    fullName: document.getElementById('fullName').value,
+    email: document.getElementById('email').value,
+    phone: document.getElementById('phone').value,
+    address: document.getElementById('address').value,
+    zip: document.getElementById('zip').value,
+    cart: cart
+  };
+  localStorage.setItem('checkoutData', JSON.stringify(checkoutData));
+  window.location.href='mode-payment.html';
+});
+</script>
+</body>
+</html>

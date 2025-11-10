@@ -1,0 +1,295 @@
+<html lang="fr">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Mode de paiement — DAWENS SHOP</title>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet"/>
+<style>
+  :root{--accent:#0f9d58;--muted:#6b7280;--bg:#f8faf9;}
+  body{font-family:Inter,system-ui,Arial,sans-serif;background:var(--bg);margin:0;color:#0b1220;}
+  header{background:#fff;padding:18px 20px;box-shadow:0 2px 8px rgba(11,18,32,0.06);position:sticky;top:0;z-index:10;}
+  header .brand{display:flex;align-items:center;gap:12px}
+  header h1{font-size:18px;margin:0;color:var(--accent)}
+  .container{max-width:980px;margin:28px auto;padding:22px;background:#fff;border-radius:12px;box-shadow:0 8px 30px rgba(11,18,32,0.06)}
+  .grid{display:grid;grid-template-columns:1fr 380px;gap:22px}
+  .section-title{color:var(--accent);font-weight:700;margin-bottom:10px}
+  .order-card{border:1px solid #eef4ee;padding:14px;border-radius:10px;background:#fcfffb}
+  .item{display:flex;gap:12px;align-items:center;padding:10px 0;border-bottom:1px dashed #edf6ee}
+  .item:last-child{border-bottom:none}
+  .item img{width:72px;height:72px;border-radius:8px;object-fit:cover}
+  .price{font-weight:700;color:#0b1220}
+  label{display:block;margin-top:10px;font-weight:600;color:#111}
+  input[type="text"], input[type="email"], input[type="tel"], select{width:100%;padding:10px;border:1px solid #e6eef0;border-radius:8px;font-size:14px}
+  .pay-methods{display:flex;flex-direction:column;gap:12px;margin-top:12px}
+  .method{display:flex;align-items:center;gap:12px;padding:12px;border-radius:10px;border:1px solid #eef2f1;background:#fff;cursor:pointer}
+  .method.selected{border-color:var(--accent);box-shadow:0 4px 18px rgba(15,157,88,0.08);}
+  .method .icons{display:flex;gap:10px;font-size:20px;color:#444}
+  .btn-pay{display:inline-block;background:var(--accent);color:#fff;padding:12px 16px;border-radius:10px;border:none;font-weight:700;cursor:pointer;margin-top:12px}
+  .btn-ghost{background:transparent;border:1px solid #e6eef0;padding:10px;border-radius:8px;cursor:pointer}
+  .owner-info{font-size:14px;color:var(--muted);margin-top:12px;border-top:1px solid #f0f4f2;padding-top:12px}
+  .terms{font-size:13px;color:var(--muted);margin-top:12px}
+  .small{font-size:13px;color:var(--muted)}
+  footer{max-width:980px;margin:16px auto;text-align:center;color:var(--muted);font-size:13px}
+  .icons-row{display:flex;gap:8px;align-items:center;margin-top:8px}
+  .card-icons i{font-size:22px;margin-right:10px;color:#374151}
+  /* responsive */
+  @media(max-width:900px){
+    .grid{grid-template-columns:1fr; padding-bottom:12px}
+    .container{margin:12px;padding:16px}
+  }
+</style>
+</head>
+<body>
+<header>
+  <div class="brand">
+    <img src="https://i.imgur.com/yourLogo.png" alt="logo" style="height:40px;border-radius:6px">
+    <h1>DAWENS SHOP — Paiement</h1>
+  </div>
+</header>
+
+<main class="container">
+  <div class="grid">
+    <!-- LEFT: Payment form -->
+    <div>
+      <div class="section-title">Détails de facturation</div>
+      <div>
+        <label>Nom complet</label>
+        <input id="fullName" type="text" placeholder="Ex: Jean Dupont" />
+
+        <label>Email</label>
+        <input id="email" type="email" placeholder="exemple@mail.com" />
+
+        <label>Téléphone</label>
+        <input id="phone" type="tel" placeholder="+1 555 555 5555" />
+
+        <label>Adresse</label>
+        <input id="address" type="text" placeholder="Start typing your address..." />
+
+        <label>Zip / Postal Code</label>
+        <input id="zip" type="text" placeholder="10001" />
+      </div>
+
+      <div style="margin-top:18px" class="section-title">Méthode de paiement</div>
+      <div class="pay-methods" id="payMethods">
+        <div class="method selected" data-method="card" id="method-card">
+          <input type="radio" name="method" value="card" checked style="display:none" />
+          <div style="flex:1">
+            <strong>Carte bancaire (Visa / MasterCard / AmEx / Discover)</strong>
+            <div class="small">Paiement sécurisé via Stripe Checkout</div>
+          </div>
+          <div class="icons">
+            <span class="card-icons">
+              <i class="fa-brands fa-cc-visa"></i>
+              <i class="fa-brands fa-cc-mastercard"></i>
+              <i class="fa-brands fa-cc-amex"></i>
+              <i class="fa-solid fa-credit-card"></i>
+            </span>
+          </div>
+        </div>
+
+        <div class="method" data-method="paypal" id="method-paypal">
+          <div style="flex:1">
+            <strong>PayPal</strong>
+            <div class="small">Payer avec votre compte PayPal</div>
+          </div>
+          <div class="icons">
+            <i class="fa-brands fa-paypal" style="font-size:24px;color:#003087"></i>
+          </div>
+        </div>
+
+        <div class="method" data-method="cashapp" id="method-cashapp">
+          <div style="flex:1">
+            <strong>Cash App</strong>
+            <div class="small">Envoyer le paiement à notre $Cashtag (voir info owner)</div>
+          </div>
+          <div class="icons">
+            <i class="fa-brands fa-square-paypal" style="display:none"></i>
+            <img src="https://i.imgur.com/6RZ7Y9S.png" alt="cashapp" style="height:22px" />
+          </div>
+        </div>
+      </div>
+<div class="method" data-method="moncash" id="method-moncash">
+  <div style="flex:1">
+    <strong>MonCash / NatCash</strong>
+    <div class="small">Envoyer le paiement via MonCash à notre numéro officiel</div>
+  </div>
+  <div class="icons">
+    <img src="https://i.imgur.com/8Z0X8bP.png" alt="moncash" style="height:22px" />
+  </div>
+</div>
+
+      <div style="margin-top:14px;display:flex;gap:10px;align-items:center">
+        <button class="btn-pay" id="payBtn">Payer maintenant</button>
+        <button class="btn-ghost" id="cancelBtn">Annuler</button>
+      </div>
+
+      <div class="owner-info">
+        <div><strong>Owner:</strong> DAWENS SHOP — Jean / Contact: +1 555 555 5555</div>
+        <div class="icons-row">
+          <div class="card-icons">
+            <i class="fa-brands fa-cc-visa"></i>
+            <i class="fa-brands fa-cc-mastercard"></i>
+            <i class="fa-brands fa-cc-amex"></i>
+            <i class="fa-brands fa-cc-discover"></i>
+          </div>
+        </div>
+      </div>
+
+      <div class="terms">
+        <strong>Terms of Use</strong>
+        <p>By completing this payment you agree to our <a href="#" onclick="alert('Terms: example legal text')">Terms of Use</a> and <a href="#" onclick="alert('Refund policy example')">Refund Policy</a>. Transactions are processed by third-party payment providers. For disputes, contact support@dawens.shop.</p>
+      </div>
+    </div>
+
+    <!-- RIGHT: Order summary -->
+    <aside>
+      <div class="section-title">Résumé de la commande</div>
+      <div class="order-card" id="orderCard">
+        <!-- Items are injected here -->
+      </div>
+
+      <div style="margin-top:12px" class="section-title">Secure checkout</div>
+      <div class="small">Vos informations sont traitées de manière sécurisée par nos partenaires de paiement (Stripe / PayPal).</div>
+    </aside>
+  </div>
+</main>
+
+<footer>© <span id="year"></span> DAWENS SHOP — All rights reserved.</footer>
+
+<script>
+document.getElementById('year').textContent = new Date().getFullYear();
+
+// Load checkoutData from localStorage (set by checkout.html)
+const checkoutData = JSON.parse(localStorage.getItem('checkoutData') || '{}');
+const orderCard = document.getElementById('orderCard');
+
+function renderOrder(){
+  orderCard.innerHTML = '';
+  if(!checkoutData || !checkoutData.cart || !checkoutData.cart.length){
+    orderCard.innerHTML = '<div class="small">Votre panier est vide.</div>';
+    return;
+  }
+  let subtotal = 0;
+  checkoutData.cart.forEach(item=>{
+    const itemTotal = (item.price || 0) * (item.quantity || 1);
+    subtotal += itemTotal;
+    const node = document.createElement('div');
+    node.className = 'item';
+    node.innerHTML = `
+      <img src="${item.image || 'https://i.pravatar.cc/72'}" alt="${item.name}" />
+      <div style="flex:1">
+        <div><strong>${item.name}</strong></div>
+        <div class="small">Taille: ${item.size || '-'} • Qty: ${item.quantity}</div>
+      </div>
+      <div class="price">$${itemTotal.toFixed(2)}</div>
+    `;
+    orderCard.appendChild(node);
+  });
+  const shipping = 8.57;
+  const Tax = 4.69;
+  const total = subtotal + shipping + Tax;
+  const totals = document.createElement('div');
+  totals.style.marginTop = '12px';
+  totals.innerHTML = `
+    <div style="display:flex;justify-content:space-between; padding-top:8px"><span class="small">Sous-total</span><strong>$${subtotal.toFixed(2)}</strong></div>
+    <div style="display:flex;justify-content:space-between; padding-top:8px"><span class="small">Tax</span><strong>$${Tax.toFixed(2)}</strong></div>
+    <div style="display:flex;justify-content:space-between; padding-top:8px"><span class="small">Livraison</span><strong>$${shipping.toFixed(2)}</strong></div>
+    <div style="display:flex;justify-content:space-between; padding-top:12px; font-size:18px"><span>Total</span><strong>$${total.toFixed(2)}</strong></div>
+  `;
+  orderCard.appendChild(totals);
+}
+renderOrder();
+
+// Payment method selection UI
+document.querySelectorAll('.method').forEach(m=>{
+  m.addEventListener('click', ()=>{
+    document.querySelectorAll('.method').forEach(x=>x.classList.remove('selected'));
+    m.classList.add('selected');
+  });
+});
+
+// Prefill form from checkoutData if available
+if(checkoutData){
+  ['fullName','email','phone','address','zip'].forEach(k=>{
+    if(checkoutData[k]) document.getElementById(k).value = checkoutData[k];
+  });
+}
+
+// Payment actions
+const payBtn = document.getElementById('payBtn');
+payBtn.addEventListener('click', async ()=>{
+  // validate fields
+  const fullName = document.getElementById('fullName').value.trim();
+  const email = document.getElementById('email').value.trim();
+  const phone = document.getElementById('phone').value.trim();
+  const address = document.getElementById('address').value.trim();
+  const zip = document.getElementById('zip').value.trim();
+  if(!fullName || !email || !phone || !address || !zip){
+    alert('Veuillez remplir tous les champs de facturation.');
+    return;
+  }
+
+  // determine selected method
+  const method = document.querySelector('.method.selected').dataset.method;
+  const payload = {
+    billing: { fullName, email, phone, address, zip },
+    cart: checkoutData.cart || []
+  };
+
+  try{
+    if(method === 'card'){
+      // Call server to create Stripe Checkout Session
+      const res = await fetch('/api/create-checkout-session', {
+        method:'POST',
+        headers:{ 'Content-Type':'application/json' },
+        body: JSON.stringify(payload)
+      });
+      const data = await res.json();
+      if(res.ok && data.url){
+        window.location.href = data.url;
+      } else {
+        alert('Erreur serveur lors de la création de la session: ' + (data.error || 'unknown'));
+        console.error(data);
+      }
+    } else if(method === 'paypal'){
+      const res = await fetch('/api/create-paypal-transaction', {
+        method:'POST',
+        headers:{ 'Content-Type':'application/json' },
+        body: JSON.stringify(payload)
+      });
+      const data = await res.json();
+      if(res.ok && data.approvalUrl){
+        window.location.href = data.approvalUrl;
+      } else {
+        alert('Erreur PayPal: ' + (data.error || 'unknown'));
+      }
+    } else if(method === 'cashapp'){
+      const cashtag = '$DAWENSSHOP';
+      const note = encodeURIComponent(`Order for ${fullName} — ${Math.floor(Math.random()*900000+100000)}`);
+      const message = `Veuillez envoyer $${(function(){ let s=0; (checkoutData.cart||[]).forEach(i=>s+=i.price*i.quantity); return (s+4.99).toFixed(2);}())} à notre Cash App ${cashtag}.\n\nAjoutez la note: ${decodeURIComponent(note)}\n\nAprès paiement, envoyez la confirmation par email à support@dawens.shop.`;
+      alert(message);
+    } else if(method === 'moncash'){
+      const phoneNumber = '50912345678'; // mete MonCash / NatCash number ou
+      const totalAmount = (function(){
+        let s = 0;
+        (checkoutData.cart||[]).forEach(i=>s+=i.price*i.quantity);
+        const shipping = 8.57, tax=4.69;
+        return (s + shipping + tax).toFixed(2);
+      })();
+      const note = encodeURIComponent(`Order for ${fullName} — ${Math.floor(Math.random()*900000+100000)}`);
+      const message = `Veuillez envoyer $${totalAmount} via MonCash / NatCash au numéro: ${phoneNumber}.\n\nAjoutez la note: ${decodeURIComponent(note)}\n\nAprès paiement, envoyez la confirmation par email à support@dawens.shop.`;
+      alert(message);
+    } else {
+      alert('Méthode non prise en charge.');
+    }
+  }catch(err){
+    console.error(err);
+    alert('Erreur réseau, réessayez.');
+  }
+});
+
+// Cancel button returns to shop
+document.getElementById('cancelBtn').addEventListener('click', ()=> location.href = 'index.html');
+</script>
+</body>
+</html>

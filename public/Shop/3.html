@@ -173,10 +173,10 @@ select, input {
 </div>
 
 <div class="product-container">
-  <img src="https://files.catbox.moe/hpgnd2.jpeg" alt="T-shirt Noir">
+  <img src="https://files.catbox.moe/iad625.jpeg" alt="T-shirt Noir">
   <div class="product-info">
-    <h2>WOMENS DNA OVERSIZED T-SHIRT - SUMMIT BLUE</h2>
-    <p>WOMENS DNA OVERSIZED T-SHIRT - SUMMIT BLUE unisexe de haute qualité, confortable et élégant.</p>
+    <h2>COTTON T-SHIRT</h2>
+    <p>A comfortable and breathable t-shirt made from 100% cotton, perfect for everyday wear. Soft on the skin and durable, ideal for casual outfits.</p>
     <div class="price">$100</div>
 
     <label for="size">Taille :</label><br>
@@ -210,11 +210,11 @@ function addToCart(){
   const qty = parseInt(document.getElementById('quantity').value);
   const product = {
     id: Date.now(),
-    name: "WOMENS DNA OVERSIZED T-SHIRT - SUMMIT BLUE",
+    name: "COTTON T-SHIRT",
     size: size,
     quantity: qty,
     price: 100,
-    image: "https://files.catbox.moe/hpgnd2.jpeg"
+    image: "https://files.catbox.moe/iad625.jpeg"
   };
   cart.push(product);
   localStorage.setItem('cart', JSON.stringify(cart)); // save cart

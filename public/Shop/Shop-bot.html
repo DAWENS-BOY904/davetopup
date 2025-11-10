@@ -1,0 +1,225 @@
+<!doctype html>
+<html lang="ht">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>AI Chat — Voice / Photo / Emoji</title>
+  <style>
+    :root{
+      --bg:#f4f6fb; --card:#ffffff; --accent:#4f46e5; --muted:#6b7280;
+      --radius:12px;
+    }
+    *{box-sizing:border-box;font-family:Inter,system-ui,Arial}
+    body{margin:0;background:var(--bg);display:flex;align-items:center;justify-content:center;height:100vh;padding:20px}
+    .app{width:900px;max-width:100%;background:linear-gradient(180deg,#fff,#fbfdff);border-radius:16px;box-shadow:0 8px 30px rgba(2,6,23,0.06);overflow:hidden;display:grid;grid-template-columns:320px 1fr}
+    /* left panel */
+    .left{padding:18px;background:#f8fafc;border-right:1px solid rgba(0,0,0,0.04)}
+    .menu{display:flex;gap:8px;margin-bottom:12px}
+    .menu button{flex:1;padding:8px;border-radius:10px;border:0;background:transparent;cursor:pointer;font-weight:600;color:var(--muted)}
+    .menu button.primary{background:var(--accent);color:#fff}
+    .profile{display:flex;align-items:center;gap:12px;margin-bottom:16px}
+    .avatar{width:56px;height:56px;border-radius:999px;overflow:hidden;flex:0 0 56px}
+    .avatar img{width:100%;height:100%;object-fit:cover}
+    .bot-name{font-weight:700}
+    .left p{color:var(--muted);font-size:13px;margin:6px 0 0}
+    /* chat area */
+    .chat-wrap{display:flex;flex-direction:column;height:100%}
+    .messages{flex:1;padding:20px;overflow:auto;background:linear-gradient(180deg,#ffffff00,#ffffff33)}
+    .msg{display:flex;gap:10px;margin-bottom:14px;align-items:flex-start}
+    .msg.user{justify-content:flex-end}
+    .bubble{max-width:70%;padding:12px 14px;border-radius:14px;background:#fff;box-shadow:0 6px 18px rgba(2,6,23,0.04)}
+    .bubble.assistant{background:#0f172a;color:#fff;border-radius:14px}
+    .controls{display:flex;gap:8px;padding:12px;border-top:1px solid rgba(0,0,0,0.04);align-items:center}
+    .controls input[type="text"]{flex:1;padding:10px;border-radius:10px;border:1px solid #e6e9ef}
+    .icon-btn{width:44px;height:44px;border-radius:10px;border:0;background:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 8px rgba(2,6,23,0.04)}
+    .emoji-panel{position:absolute;bottom:78px;left:20px;background:#fff;padding:8px;border-radius:10px;box-shadow:0 8px 30px rgba(2,6,23,0.08);display:grid;grid-template-columns:repeat(6,1fr);gap:6px}
+    .emoji{cursor:pointer;font-size:18px;padding:6px}
+    .file-preview{max-width:200px;border-radius:8px;display:block;margin-top:8px}
+    .small{font-size:12px;color:var(--muted)}
+  </style>
+</head>
+<body>
+  <div class="app">
+    <div class="left">
+      <div class="menu">
+        <button id="btnHome" class="primary">Chat</button>
+        <button id="btnSettings">Settings</button>
+        <button id="btnAbout">About</button>
+      </div>
+
+      <div class="profile">
+        <div class="avatar"><img id="botAvatar" src="https://i.pravatar.cc/150?img=32" alt="bot"></div>
+        <div>
+          <div class="bot-name">Dave AI</div>
+          <p class="small">Tou pare — Hello, how can I assist you?</p>
+        </div>
+      </div>
+
+      <p class="small">Features:</p>
+      <ul class="small">
+        <li>Text chat with OpenAI</li>
+        <li>Record & send voice</li>
+        <li>Upload photo</li>
+        <li>Emoji picker</li>
+      </ul>
+    </div>
+
+    <div class="chat-wrap">
+      <div id="messages" class="messages">
+        <!-- initial assistant message -->
+        <div class="msg assistant">
+          <div class="avatar" style="width:40px;height:40px"><img src="https://i.pravatar.cc/150?img=32" alt=""></div>
+          <div class="bubble assistant">Hello — how can I assist you?</div>
+        </div>
+      </div>
+
+      <div style="position:relative">
+        <div id="emojiPanel" class="emoji-panel" style="display:none"></div>
+      </div>
+
+      <div class="controls">
+        <button id="emojiBtn" class="icon-btn" title="Emoji">😊</button>
+
+        <input id="textInput" type="text" placeholder="Type a message..." />
+
+        <input id="fileInput" type="file" accept="image/*" style="display:none" />
+        <button id="attachBtn" class="icon-btn" title="Attach photo">📷</button>
+
+        <button id="recordBtn" class="icon-btn" title="Record voice">🎙️</button>
+
+        <button id="sendBtn" class="icon-btn" title="Send">➡️</button>
+      </div>
+    </div>
+  </div>
+
+<script>
+/* ---------- UI helpers ---------- */
+const messagesEl = document.getElementById('messages');
+const textInput = document.getElementById('textInput');
+const sendBtn = document.getElementById('sendBtn');
+const emojiBtn = document.getElementById('emojiBtn');
+const emojiPanel = document.getElementById('emojiPanel');
+const attachBtn = document.getElementById('attachBtn');
+const fileInput = document.getElementById('fileInput');
+const recordBtn = document.getElementById('recordBtn');
+
+const EMOJIS = ['😀','😁','😂','🤣','😊','😍','😉','👍','🙏','🔥','💯','🎉','💡','🤖','📸','🎧'];
+EMOJIS.forEach(e => {
+  const b = document.createElement('div'); b.className='emoji'; b.textContent = e;
+  b.onclick = () => { textInput.value += e; emojiPanel.style.display='none'; textInput.focus(); };
+  emojiPanel.appendChild(b);
+});
+
+emojiBtn.addEventListener('click', ()=> {
+  emojiPanel.style.display = emojiPanel.style.display === 'none' ? 'grid' : 'none';
+});
+
+attachBtn.addEventListener('click', ()=> fileInput.click());
+fileInput.addEventListener('change', async (e) => {
+  const f = e.target.files[0];
+  if (!f) return;
+  const url = URL.createObjectURL(f);
+  addMessage('user', '', url, f);
+  // send to server
+  await sendFormData({ file: f, text: '' });
+});
+
+sendBtn.addEventListener('click', sendTextMessage);
+textInput.addEventListener('keydown', (e)=> { if (e.key === 'Enter') sendTextMessage(); });
+
+function addMessage(role, text, imageUrl=null, fileObj=null){
+  const wrap = document.createElement('div');
+  wrap.className = 'msg ' + (role==='user' ? 'user' : 'assistant');
+  const bubble = document.createElement('div');
+  bubble.className = 'bubble ' + (role==='assistant' ? 'assistant' : '');
+  if (text) bubble.innerText = text;
+  if (imageUrl){
+    const img = document.createElement('img');
+    img.src = imageUrl; img.className='file-preview';
+    bubble.appendChild(img);
+  }
+  wrap.appendChild(bubble);
+  messagesEl.appendChild(wrap);
+  messagesEl.scrollTop = messagesEl.scrollHeight;
+}
+
+/* ---------- Send text ---------- */
+async function sendTextMessage(){
+  const txt = textInput.value.trim();
+  if (!txt) return;
+  addMessage('user', txt);
+  textInput.value = '';
+  // call backend
+  const res = await fetch('/api/chat', {
+    method:'POST',
+    headers: {'Content-Type':'application/json'},
+    body: JSON.stringify({ message: txt })
+  });
+  if (!res.ok){
+    addMessage('assistant','(Error contacting server)');
+    return;
+  }
+  const data = await res.json();
+  addMessage('assistant', data.reply);
+}
+
+/* ---------- Send form data (file / image / optional text) ---------- */
+async function sendFormData({file=null, text='' }){
+  const fd = new FormData();
+  if (file) fd.append('image', file);
+  fd.append('text', text);
+  // show typing
+  addMessage('assistant','Processing...');
+  const res = await fetch('/api/chat-image', { method:'POST', body: fd });
+  const json = await res.json();
+  // remove the 'Processing...' last assistant bubble
+  const bubbles = Array.from(messagesEl.querySelectorAll('.bubble.assistant'));
+  if (bubbles.length) bubbles[bubbles.length-1].remove();
+  if (res.ok) addMessage('assistant', json.reply);
+  else addMessage('assistant', '(Server error)');
+}
+
+/* ---------- Voice recording ---------- */
+let mediaRecorder, audioChunks=[];
+recordBtn.addEventListener('click', async ()=>{
+  if (!mediaRecorder || mediaRecorder.state === 'inactive'){
+    // start recording
+    if (!navigator.mediaDevices) return alert('Microphone not supported');
+    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    mediaRecorder = new MediaRecorder(stream);
+    audioChunks = [];
+    mediaRecorder.ondataavailable = e => audioChunks.push(e.data);
+    mediaRecorder.onstop = async () => {
+      const blob = new Blob(audioChunks, { type: 'audio/webm' });
+      const file = new File([blob], 'voice.webm', { type: blob.type });
+      addMessage('user','(voice message)');
+      // send to server for transcription & chat
+      const fd = new FormData();
+      fd.append('audio', file);
+      addMessage('assistant','Transcribing...');
+      const res = await fetch('/api/voice', { method:'POST', body: fd });
+      const json = await res.json();
+      // remove last 'Transcribing...' bubble
+      const bubbles = Array.from(messagesEl.querySelectorAll('.bubble.assistant'));
+      if (bubbles.length) bubbles[bubbles.length-1].remove();
+      if (res.ok){
+        addMessage('assistant', json.reply);
+      } else addMessage('assistant','(Voice server error)');
+    };
+    mediaRecorder.start();
+    recordBtn.textContent = '⏹️ Stop';
+  } else {
+    // stop
+    mediaRecorder.stop();
+    recordBtn.textContent = '🎙️';
+  }
+});
+
+/* ---------- Simple status for top menu (example) ---------- */
+document.getElementById('btnHome').onclick = ()=> alert('Already in Chat');
+document.getElementById('btnSettings').onclick = ()=> alert('Settings — you can add preferences here');
+document.getElementById('btnAbout').onclick = ()=> alert('AI Chat example — built for you');
+</script>
+
+</body>
+</html>
