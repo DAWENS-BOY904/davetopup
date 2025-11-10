@@ -26,7 +26,6 @@ header {
   color: #2f855a;
   cursor: pointer;
 }
-
 .cart-count {
   position: absolute;
   top: -6px;
@@ -40,7 +39,6 @@ header {
   display: flex; align-items: center; justify-content: center;
 }
 
-/* Cart panel */
 .cart-panel {
   position: fixed;
   top: 0; right: -400px;
@@ -53,7 +51,6 @@ header {
   display: flex;
   flex-direction: column;
 }
-
 .cart-panel.active { right: 0; }
 
 .cart-header {
@@ -65,39 +62,25 @@ header {
 .cart-header button {
   background: none; border: none; font-size: 20px; cursor: pointer; color: #555;
 }
-
-.cart-items {
-  flex: 1;
-  overflow-y: auto;
-  padding: 15px;
-}
+.cart-items { flex: 1; overflow-y: auto; padding: 15px; }
 
 .cart-item {
-  display: flex;
-  align-items: center;
+  display: flex; align-items: center;
   margin-bottom: 15px;
   border-bottom: 1px solid #eee;
   padding-bottom: 10px;
-  position: relative;
 }
 .cart-item img {
   width: 60px; height: 60px; border-radius: 6px; object-fit: cover; margin-right: 10px;
 }
-.cart-item-details {
-  flex: 1;
-}
-.cart-item-details h4 { margin: 0; font-size: 15px; }
-.cart-item-details p { margin: 2px 0; font-size: 13px; color: #555; }
-
+.cart-item-details { flex: 1; }
 .delete-btn {
   background: none;
   border: none;
   color: #d33;
   font-size: 16px;
   cursor: pointer;
-  transition: transform 0.2s ease;
 }
-.delete-btn:hover { transform: scale(1.1); }
 
 .checkout-btn {
   background: #2f855a;
@@ -130,8 +113,9 @@ header {
 .product-info h2 { margin-bottom: 8px; }
 .product-info p { color: #666; font-size: 14px; margin-bottom: 10px; }
 .price { color: #2f855a; font-size: 22px; font-weight: bold; margin: 10px 0; }
+
 select, input {
-  padding: 8px; margin-top: 6px; border: 1px solid #ccc; border-radius: 5px;
+  padding: 8px; margin-top: 6px; border: 1px solid #ccc; border-radius: 5px; width: 100%;
 }
 .add-btn {
   display: inline-flex;
@@ -149,7 +133,26 @@ select, input {
 }
 .add-btn:hover { background: #276749; }
 
-/* Footer */
+.qty-control {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 8px;
+}
+.qty-control button {
+  width: 30px;
+  height: 30px;
+  font-size: 18px;
+  background: #eee;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+.qty-control input {
+  width: 60px;
+  text-align: center;
+}
+
 footer {
   text-align: center;
   padding: 20px;
@@ -157,11 +160,8 @@ footer {
   background: #fff;
   border-top: 1px solid #ddd;
 }
-footer p {
-  margin: 6px 0;
-  font-size: 13px;
-  color: #555;
-}
+footer p { margin: 6px 0; font-size: 13px; color: #555; }
+
 .similar {
   max-width: 900px;
   margin: 40px auto;
@@ -219,28 +219,27 @@ footer p {
 <div class="product-container">
   <img src="https://files.catbox.moe/2g77cr.jpeg" alt="Apple Card">
   <div class="product-info">
-    <h2>Apple Card - Carte Virtuelle & Physique</h2>
-    <p>La <strong>Apple Card</strong> est une carte innovante, sécurisée et connectée à votre Apple Wallet. Gérée directement depuis votre iPhone, elle offre cashback, confidentialité et design premium.</p>
-    <div class="price">$250</div>
+    <h2>Apple Card - Recharge personnalisée</h2>
+    <p>Rechargez votre <strong>Apple Card</strong> avec le montant de votre choix. Sécurisé, rapide, et totalement compatible avec Apple Pay et Wallet.</p>
+    
+    <label for="amount">Montant Apple Card (USD)</label>
+    <input type="number" id="amount" min="50" max="5000" value="100" oninput="updatePrice()"><br>
 
-    <label for="quantity">Quantité :</label><br>
-    <input type="number" id="quantity" min="1" max="10" value="1"><br><br>
+    <label for="email">Adresse e-mail *</label>
+    <input type="email" id="email" placeholder="Entrez votre Gmail pour recevoir la confirmation">
+
+    <div class="qty-control">
+      <button onclick="changeQty(-1)">-</button>
+      <input type="number" id="qty" value="1" min="1">
+      <button onclick="changeQty(1)">+</button>
+    </div>
+
+    <div class="price" id="displayPrice">$0</div>
 
     <button class="add-btn" onclick="addToCart()">
       <i class="fa-solid fa-cart-plus"></i> Ajouter au panier
     </button>
   </div>
-</div>
-
-<!-- DESCRIPTION -->
-<div class="product-container">
-  <h3>Description complète</h3>
-  <p>
-    L’Apple Card est une carte de paiement créée par Apple et soutenue par Goldman Sachs. 
-    Elle est intégrée dans l’application Wallet de votre iPhone et permet de suivre vos dépenses en temps réel.
-    Avec un design minimaliste en titane, elle offre une expérience fluide et sécurisée. 
-    Compatible avec Apple Pay, sans frais annuels, et avec un cashback instantané.
-  </p>
 </div>
 
 <!-- PRODUITS SIMILAIRES -->
@@ -272,25 +271,53 @@ footer p {
 
 <footer>
   <p>📧 Contact: <a href="mailto:dawenshop@gmail.com">dawenshop@gmail.com</a></p>
-  <p>📞 Support: <a href="support.html">Cliquez ici pour contacter le support</a></p>
-  <p>&copy; 2025 DAWENS SHOP - Tous droits réservés</p>
+  <p>📞 Support: <a href="contact.html">Cliquez ici pour contacter le support</a></p>
+  <p>&copy; 2025 DAVE TopUp - Tous droits réservés</p>
 </footer>
 
 <script>
 let cart = JSON.parse(localStorage.getItem('cart')) || [];
+updateCartCount();
+updatePrice();
 
 function updateCartCount(){
   document.getElementById('cartCount').textContent = cart.reduce((a,b)=>a+b.quantity,0);
 }
-updateCartCount();
+
+function changeQty(change){
+  const qtyInput = document.getElementById('qty');
+  let qty = parseInt(qtyInput.value);
+  qty = Math.max(1, qty + change);
+  qtyInput.value = qty;
+  updatePrice();
+}
+
+function updatePrice(){
+  const amount = parseFloat(document.getElementById('amount').value);
+  const qty = parseInt(document.getElementById('qty').value);
+  let price = amount * 1.35 * qty;
+  if(price < 50) price = 50;
+  document.getElementById('displayPrice').textContent = "Total: $" + price.toFixed(2);
+  return price;
+}
 
 function addToCart(){
-  const qty = parseInt(document.getElementById('quantity').value);
+  const amount = parseFloat(document.getElementById('amount').value);
+  const qty = parseInt(document.getElementById('qty').value);
+  const email = document.getElementById('email').value;
+  const price = updatePrice();
+
+  if(!email.includes("@gmail.com")){
+    alert("Veuillez entrer une adresse Gmail valide pour recevoir la notification.");
+    return;
+  }
+
   const product = {
     id: Date.now(),
-    name: "Apple Card",
+    name: `Apple Card +$${amount}`,
     quantity: qty,
-    price: 250,
+    price: price,
+    email: email,
     image: "https://files.catbox.moe/2g77cr.jpeg"
   };
   cart.push(product);
@@ -310,12 +337,11 @@ function renderCart(){
       <img src="${item.image}" alt="${item.name}">
       <div class="cart-item-details">
         <h4>${item.name}</h4>
-        <p>Quantité: ${item.quantity}</p>
-        <p><strong>$${item.price * item.quantity}</strong></p>
+        <p><strong>$${item.price.toFixed(2)}</strong></p>
+        <p>Qté: ${item.quantity}</p>
+        <p>Notif: ${item.email}</p>
       </div>
-      <button class="delete-btn" onclick="removeFromCart(${item.id})">
-        <i class="fa-solid fa-trash"></i>
-      </button>
+      <button class="delete-btn" onclick="removeFromCart(${item.id})"><i class="fa-solid fa-trash"></i></button>
     `;
     cartItems.appendChild(div);
   });
@@ -333,6 +359,5 @@ function closeCart(){ document.getElementById('cartPanel').classList.remove('act
 
 document.getElementById('cartIcon').addEventListener('click', openCart);
 </script>
-
 </body>
 </html>

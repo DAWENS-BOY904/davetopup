@@ -1,0 +1,611 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AirPods Max - DAWENS SHOP</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<style>
+body {
+  font-family: Arial, sans-serif;
+  margin: 0; padding: 0;
+  background: #f8f9fa;
+}
+header {
+  background: #fff;
+  padding: 10px 15px;
+  display: flex; justify-content: space-between; align-items: center;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+  position: sticky; top: 0; z-index: 1000;
+}
+.logo img { height: 40px; }
+
+.cart-icon {
+  position: relative;
+  font-size: 22px;
+  color: #2f855a;
+  cursor: pointer;
+}
+.cart-count {
+  position: absolute;
+  top: -6px; right: -8px;
+  background: red; color: #fff;
+  font-size: 12px; font-weight: bold;
+  border-radius: 50%;
+  width: 18px; height: 18px;
+  display: flex; align-items: center; justify-content: center;
+}
+
+/* Cart dropdown */
+#cartDropdown {
+  position: absolute;
+  top: 40px; right: 0;
+  width: 300px;
+  background: #fff;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  display: none;
+  flex-direction: column;
+  z-index: 1001;
+}
+#cartDropdown h4 {
+  margin: 10px; font-size: 16px; border-bottom: 1px solid #ddd; padding-bottom: 5px;
+}
+.cart-item {
+  display: flex;
+  align-items: center;
+  padding: 10px;
+  border-bottom: 1px solid #eee;
+}
+.cart-item img { width: 50px; height: 50px; object-fit: cover; border-radius: 5px; margin-right: 10px; }
+.cart-item-info { flex: 1; font-size: 14px; }
+.cart-item-info p { margin: 2px 0; }
+.cart-item button.remove-btn {
+  background: red;
+  color: #fff;
+  border: none;
+  padding: 4px 6px;
+  font-size: 12px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+.cart-item button.remove-btn:hover { background: darkred; }
+
+.cart-total {
+  padding: 10px;
+  font-weight: bold;
+  display: flex; justify-content: space-between;
+}
+.checkout-btn-cart {
+  background: #2f855a;
+  color: #fff;
+  border: none;
+  padding: 10px;
+  margin: 10px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: bold;
+}
+.checkout-btn-cart:hover { background: #276749; }
+
+/* === Container === */
+.product-container {
+  max-width: 900px;
+  margin: 40px auto;
+  background: linear-gradient(145deg, #ffffff, #f3f3f3);
+  border-radius: 16px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+  padding: 30px;
+  font-family: 'Poppins', sans-serif;
+  transition: 0.4s ease;
+}
+.product-container:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 15px 30px rgba(0, 0, 0, 0.12);
+}
+
+/* === Carousel === */
+.carousel {
+  position: relative;
+  overflow: hidden;
+  border-radius: 14px;
+}
+.carousel img {
+  width: 100%;
+  opacity: 0;
+  transform: scale(1.03);
+  border-radius: 14px;
+  transition: opacity 0.6s ease, transform 0.6s ease;
+}
+.carousel img.active {
+  display: block;
+  opacity: 1;
+  transform: scale(1);
+}
+.carousel button {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background: rgba(0, 0, 0, 0.45);
+  border: none;
+  color: #fff;
+  font-size: 26px;
+  padding: 10px 15px;
+  cursor: pointer;
+  border-radius: 50%;
+  transition: background 0.3s ease, transform 0.2s;
+}
+.carousel button:hover {
+  background: rgba(0, 0, 0, 0.7);
+  transform: translateY(-50%) scale(1.1);
+}
+.carousel .prev { left: 15px; }
+.carousel .next { right: 15px; }
+
+/* === Product Info === */
+.product-info {
+  margin-top: 25px;
+  text-align: center;
+}
+.product-info h2 {
+  margin-bottom: 12px;
+  font-size: 26px;
+  color: #111;
+}
+.product-info p {
+  color: #555;
+  font-size: 15px;
+  margin-bottom: 18px;
+  line-height: 1.6;
+}
+.price {
+  color: #1a7f64;
+  font-size: 24px;
+  font-weight: bold;
+  margin-bottom: 15px;
+}
+
+/* === Select / Inputs === */
+select,
+input {
+  padding: 10px 12px;
+  border: 1px solid #dcdcdc;
+  border-radius: 8px;
+  width: 100%;
+  font-size: 15px;
+  background: #fff;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+select:focus,
+input:focus {
+  outline: none;
+  border-color: #1a7f64;
+  box-shadow: 0 0 5px rgba(26, 127, 100, 0.4);
+}
+
+/* === Quantity Control === */
+.qty-control {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  margin-top: 18px;
+}
+.qty-control button {
+  width: 35px;
+  height: 35px;
+  border: none;
+  background: #e5e5e5;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 18px;
+  transition: 0.3s;
+}
+.qty-control button:hover {
+  background: #1a7f64;
+  color: #fff;
+  transform: scale(1.1);
+}
+.qty-control input {
+  width: 70px;
+  text-align: center;
+  font-weight: bold;
+  border: 1px solid #ccc;
+}
+
+/* === Add to Cart Button === */
+.add-btn {
+  display: block;
+  width: 100%;
+  background: linear-gradient(135deg, #1a7f64, #2f855a);
+  color: #fff;
+  border: none;
+  padding: 14px 0;
+  border-radius: 10px;
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: 600;
+  margin-top: 20px;
+  letter-spacing: 0.5px;
+  box-shadow: 0 4px 10px rgba(47, 133, 90, 0.3);
+  transition: all 0.35s ease;
+}
+.add-btn:hover {
+  background: linear-gradient(135deg, #2f855a, #1a7f64);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 15px rgba(47, 133, 90, 0.4);
+}
+.add-btn:active {
+  transform: translateY(0);
+  box-shadow: 0 4px 8px rgba(47, 133, 90, 0.3);
+}
+
+/* === Responsive === */
+@media (max-width: 600px) {
+  .product-container {
+    padding: 20px;
+  }
+  .product-info h2 {
+    font-size: 22px;
+  }
+  .carousel button {
+    font-size: 22px;
+    padding: 8px 12px;
+  }
+}
+
+.similar {
+  max-width: 900px;
+  margin: 40px auto;
+}
+.similar h3 { margin-bottom: 15px; }
+.similar-products {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 15px;
+}
+.similar-products div {
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+  padding: 10px;
+  text-align: center;
+}
+.similar-products img { width: 100%; border-radius: 6px; }
+.similar-products p { margin: 8px 0; font-size: 14px; font-weight: bold; }
+.similar-products span { color: #2f855a; font-weight: bold; }
+.similar-products a {
+  display: inline-block;
+  margin-top: 6px;
+  background: #2f855a;
+  color: #fff;
+  padding: 6px 10px;
+  border-radius: 6px;
+  font-size: 13px;
+  text-decoration: none;
+}
+.similar-products a:hover { background: #276749; }
+
+footer {
+  text-align: center;
+  padding: 20px;
+  margin-top: 50px;
+  background: #fff;
+  border-top: 1px solid #ddd;
+}
+footer p { margin: 5px 0; font-size: 13px; color: #555; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo"><a href="index.html"><img src="https://i.imgur.com/yourLogo.png" alt="DAWENS SHOP"></a></div>
+  <div class="cart-icon" id="cartIcon">
+    <i class="fa-solid fa-cart-shopping"></i>
+    <div class="cart-count" id="cartCount">0</div>
+
+    <!-- Cart dropdown -->
+    <div id="cartDropdown">
+      <h4>Votre Panier</h4>
+      <div id="cartItems"></div>
+      <div class="cart-total">
+        <span>Total:</span>
+        <span id="cartTotal">$0.00</span>
+      </div>
+      <button class="checkout-btn-cart" onclick="goToCheckout()">Aller au checkout <i class="fa-solid fa-arrow-right"></i></button>
+    </div>
+  </div>
+</header>
+
+<!-- HTML -->
+<div class="product-container">
+  <div class="carousel">
+    <img id="mainImage" src="https://files.catbox.moe/mn0om8.jpeg" class="active">
+    <button class="prev" onclick="changeImage(-1)">&#10094;</button>
+    <button class="next" onclick="changeImage(1)">&#10095;</button>
+  </div>
+
+  <div class="product-info">
+    <h2>AirPods Max</h2>
+    <p>Casque sans fil Apple avec audio spatial, réduction de bruit active et confort haut de gamme.</p>
+    <div class="price" id="priceDisplay">$359.99</div>
+
+    <label for="color">Choisissez une couleur :</label>
+    <select id="color" onchange="updateColor(this.value)">
+      <option value="Black">Black</option>
+      <option value="Green">Green</option>
+      <option value="White">White</option>
+      <option value="Petal Pink">Petal Pink</option>
+      <option value="Moonstone Blue">Moonstone Blue</option>
+      <option value="Chilled Lilac">Chilled Lilac</option>
+      <option value="Blue Dusk">Blue Dusk</option>
+      <option value="Sandstone">Sandstone</option>
+      <option value="Moonlight Grey">Moonlight Grey</option>
+    </select>
+
+    <div class="qty-control">
+      <button onclick="changeQty(-1)">-</button>
+      <input type="number" id="qty" value="1" min="1" onchange="updatePrice()">
+      <button onclick="changeQty(1)">+</button>
+    </div>
+
+    <div class="price" id="priceDisplay">$359.99</div>
+
+    <button class="add-btn" onclick="addToCart()"><i class="fa-solid fa-cart-plus"></i> Ajouter au panier</button>
+  </div>
+</div>
+
+<div class="product-container">
+  <h3>Description complète</h3>
+  <p>
+Les AirPods Max offrent un son haute fidélité, une réduction active du bruit et un confort exceptionnel grâce à leur arceau en acier inoxydable et leurs coussinets respirants. Audio spatial, Siri intégré et jusqu'à 20 heures d’autonomie.
+  </p>
+</div>
+
+<div class="similar">
+  <h3>Produits similaires</h3>
+  <div class="similar-products">
+    <div>
+      <img src="https://files.catbox.moe/jbc8as.webp">
+      <p>Apple Watch Series 9</p><span>$399</span><br>
+      <a href="watch.html">Voir</a>
+    </div>
+    <div>
+      <img src="https://files.catbox.moe/yjj4cw.webp">
+      <p>iPhone 15 Pro</p><span>$999</span><br>
+      <a href="iphone.html">Voir</a>
+    </div>
+    <div>
+      <img src="https://files.catbox.moe/w1dmwq.jpeg">
+      <p>MacBook Air M3</p><span>$1199</span><br>
+      <a href="macbook.html">Voir</a>
+    </div>
+  </div>
+</div>
+
+<footer>
+  <p>📧 Contact: <a href="mailto:dawenshop@gmail.com">dawenshop@gmail.com</a></p>
+  <p>📞 Support: <a href="support.html">Cliquez ici pour contacter le support</a></p>
+  <p>&copy; 2025 DAWENS SHOP - Tous droits réservés</p>
+</footer>
+
+<script>
+const colorImages = {
+  "Black": [
+    "https://files.catbox.moe/mn0om8.jpeg",
+    "https://files.catbox.moe/wpdqw9.jpeg",
+    "https://files.catbox.moe/4eojxj.jpeg",
+    "https://files.catbox.moe/noe2u1.jpeg",
+    "https://files.catbox.moe/541xyq.jpeg",
+    "https://files.catbox.moe/akl7a3.jpeg",
+    "https://files.catbox.moe/6gw3t6.jpeg",
+    "https://files.catbox.moe/kt0keh.jpeg",
+    "https://files.catbox.moe/zk5lye.jpeg",
+    "https://files.catbox.moe/4lnp0j.jpeg",
+    "https://files.catbox.moe/lfpm4h.jpeg"
+  ],
+  "Green": [
+    "https://files.catbox.moe/6kjmxs.jpeg",
+    "https://files.catbox.moe/os2cse.jpeg",
+    "https://files.catbox.moe/npij2u.jpeg",
+    "https://files.catbox.moe/9gm8qv.jpeg",
+    "https://files.catbox.moe/jyxnni.jpeg",
+    "https://files.catbox.moe/x4xc52.jpeg",
+    "https://files.catbox.moe/i753ex.jpeg",
+    "https://files.catbox.moe/pqyz14.jpeg",
+    "https://files.catbox.moe/t3v2s9.jpeg",
+    "https://files.catbox.moe/m60wb9.jpeg",
+    "https://files.catbox.moe/p46g3y.jpeg"
+  ],
+  "White": [
+    "https://files.catbox.moe/8cbeku.jpeg",
+    "https://files.catbox.moe/thfytt.jpeg",
+    "https://files.catbox.moe/1w1qut.jpeg",
+    "https://files.catbox.moe/tr6hyx.jpeg",
+    "https://files.catbox.moe/6ruqjj.jpeg",
+    "https://files.catbox.moe/83u991.jpeg",
+    "https://files.catbox.moe/ck7wpw.jpeg",
+    "https://files.catbox.moe/zhb788.jpeg",
+    "https://files.catbox.moe/bzjd1y.jpeg",
+    "https://files.catbox.moe/vlzr9a.jpeg",
+    "https://files.catbox.moe/h1gay7.jpeg",
+    "https://files.catbox.moe/s97nze.jpeg",
+    "https://files.catbox.moe/6pa6tf.jpeg",
+    "https://files.catbox.moe/jv8h6t.jpeg"
+  ],
+  "Petal Pink": [
+    "https://files.catbox.moe/5f7zye.jpeg",
+    "https://files.catbox.moe/e2sm3f.jpeg",
+    "https://files.catbox.moe/ibe20t.jpeg",
+    "https://files.catbox.moe/gzd7k8.jpeg",
+    "https://files.catbox.moe/8t1ueq.jpeg",
+    "https://files.catbox.moe/39b9v9.jpeg",
+    "https://files.catbox.moe/hyqak7.jpeg",
+    "https://files.catbox.moe/fsbcrx.jpeg",
+    "https://files.catbox.moe/9vg8je.jpeg",
+    "https://files.catbox.moe/abp3zj.jpeg",
+    "https://files.catbox.moe/huo6ik.jpeg"
+  ],
+  "Moonstone Blue": [
+    "https://files.catbox.moe/rm7xkv.jpeg",
+    "https://files.catbox.moe/nwzfik.jpeg",
+    "https://files.catbox.moe/lqd013.jpeg",
+    "https://files.catbox.moe/bfk5ww.jpeg",
+    "https://files.catbox.moe/cia4zs.jpeg",
+    "https://files.catbox.moe/4a28vg.jpeg",
+    "https://files.catbox.moe/b84abs.jpeg",
+    "https://files.catbox.moe/z38owz.jpeg",
+    "https://files.catbox.moe/st7qnb.jpeg",
+    "https://files.catbox.moe/1i8h8i.jpeg",
+    "https://files.catbox.moe/b1269b.jpeg"
+  ],
+  "Chilled Lilac": [
+    "https://files.catbox.moe/n0mo3p.jpeg",
+    "https://files.catbox.moe/ca6i62.jpeg",
+    "https://files.catbox.moe/5t9lv8.jpeg",
+    "https://files.catbox.moe/bbecoe.jpeg",
+    "https://files.catbox.moe/ac02w4.jpeg",
+    "https://files.catbox.moe/ockwik.jpeg",
+    "https://files.catbox.moe/45saye.jpeg",
+    "https://files.catbox.moe/25bbr6.jpeg",
+    "https://files.catbox.moe/h6azcj.jpeg"
+  ],
+  "Blue Dusk": [
+    "https://files.catbox.moe/5jzn30.jpeg",
+    "https://files.catbox.moe/umnsap.jpeg",
+    "https://files.catbox.moe/s6vjdl.jpeg",
+    "https://files.catbox.moe/eyouqv.jpeg",
+    "https://files.catbox.moe/l84g50.jpeg",
+    "https://files.catbox.moe/9sapco.jpeg",
+    "https://files.catbox.moe/q0hvw5.jpeg",
+    "https://files.catbox.moe/gfro2u.jpeg"
+  ],
+  "Sandstone": [
+    "https://files.catbox.moe/qioef8.jpeg",
+    "https://files.catbox.moe/7rc4by.jpeg",
+    "https://files.catbox.moe/x7jgmf.jpeg",
+    "https://files.catbox.moe/ohggck.jpeg",
+    "https://files.catbox.moe/xyohsa.jpeg",
+    "https://files.catbox.moe/0h5jt1.jpeg",
+    "https://files.catbox.moe/phg5mp.jpeg",
+    "https://files.catbox.moe/l5bxku.jpeg",
+    "https://files.catbox.moe/3onkv2.jpeg"
+  ],
+  "Moonlight Grey": [
+    "https://files.catbox.moe/zoulq8.jpeg",
+    "https://files.catbox.moe/1tpar2.jpeg",
+    "https://files.catbox.moe/nf3ug2.jpeg",
+    "https://files.catbox.moe/te20i3.jpeg",
+    "https://files.catbox.moe/dtu226.jpeg",
+    "https://files.catbox.moe/vxeaa0.jpeg",
+    "https://files.catbox.moe/3kjj3k.jpeg",
+    "https://files.catbox.moe/6mng2s.jpeg",
+    "https://files.catbox.moe/l6g18p.jpeg",
+    "https://files.catbox.moe/fm6uu0.jpeg",
+    "https://files.catbox.moe/6t0ov0.jpeg"
+  ]
+};
+
+let currentImages = colorImages["Black"];
+let currentIndex = 0;
+
+// Carousel functions
+function changeImage(step) {
+  currentIndex = (currentIndex + step + currentImages.length) % currentImages.length;
+  document.getElementById("mainImage").src = currentImages[currentIndex];
+}
+
+function updateColor(color) {
+  currentImages = colorImages[color];
+  currentIndex = 0;
+  document.getElementById("mainImage").src = currentImages[currentIndex];
+  updatePrice();
+}
+
+// Cart system
+let cart = JSON.parse(localStorage.getItem('cart')) || [];
+updateCartCount();
+renderCartItems();
+
+function updateCartCount() {
+  document.getElementById('cartCount').textContent = cart.reduce((a,b)=>a+b.quantity,0);
+}
+
+function changeQty(change){
+  const qtyInput = document.getElementById('qty');
+  let qty = parseInt(qtyInput.value);
+  qty = Math.max(1, qty + change);
+  qtyInput.value = qty;
+  updatePrice();
+}
+
+function updatePrice(){
+  const qty = parseInt(document.getElementById('qty').value);
+  let total = 499 * qty; // pri pou 1 item = $499
+  document.getElementById('priceDisplay').textContent = "$" + total.toFixed(2);
+  return total;
+}
+
+function addToCart(){
+  const qty = parseInt(document.getElementById('qty').value);
+  const color = document.getElementById('color').value;
+  const total = updatePrice();
+
+  const product = {
+    id: Date.now(),
+    name: `AirPods Max (${color})`,
+    quantity: qty,
+    price: total,
+    image: currentImages[currentIndex]
+  };
+  cart.push(product);
+  localStorage.setItem('cart', JSON.stringify(cart));
+  updateCartCount();
+  renderCartItems();
+  alert("✅ Produit ajouté au panier !");
+}
+
+const cartIcon = document.getElementById('cartIcon');
+const cartDropdown = document.getElementById('cartDropdown');
+cartIcon.addEventListener('click', () => {
+  cartDropdown.style.display = cartDropdown.style.display === 'flex' ? 'none' : 'flex';
+  renderCartItems();
+});
+
+function renderCartItems(){
+  const container = document.getElementById('cartItems');
+  container.innerHTML = '';
+  let total = 0;
+  cart.forEach((item,index)=>{
+    total += item.price;
+    const div = document.createElement('div');
+    div.className = 'cart-item';
+    div.innerHTML = `
+      <img src="${item.image}" style="width:50px; height:50px; object-fit:cover; border-radius:6px; margin-right:10px;">
+      <div class="cart-item-info">
+        <p>${item.name}</p>
+        <p>Qty: ${item.quantity}</p>
+        <p>Price: $${item.price.toFixed(2)}</p>
+      </div>
+      <button class="remove-btn" onclick="removeFromCart(${index})">X</button>
+    `;
+    container.appendChild(div);
+  });
+  document.getElementById('cartTotal').textContent = '$' + total.toFixed(2);
+}
+
+function removeFromCart(index){
+  cart.splice(index,1);
+  localStorage.setItem('cart', JSON.stringify(cart));
+  updateCartCount();
+  renderCartItems();
+}
+
+function goToCheckout(){
+  localStorage.setItem('cart', JSON.stringify(cart));
+  window.location.href = 'checkout.html';
+}
+</script>
+</body>
+</html>

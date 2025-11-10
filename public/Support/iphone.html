@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>iPhone 15 Pro - DAWENS SHOP</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<style>
+body {
+  font-family: Arial, sans-serif;
+  margin: 0; padding: 0;
+  background: #f8f9fa;
+}
+header {
+  background: #fff;
+  padding: 10px 15px;
+  display: flex; justify-content: space-between; align-items: center;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+  position: sticky; top: 0; z-index: 1000;
+}
+.logo img { height: 40px; }
+
+.cart-icon {
+  position: relative;
+  font-size: 22px;
+  color: #2f855a;
+  cursor: pointer;
+}
+.cart-count {
+  position: absolute;
+  top: -6px; right: -8px;
+  background: red; color: #fff;
+  font-size: 12px; font-weight: bold;
+  border-radius: 50%;
+  width: 18px; height: 18px;
+  display: flex; align-items: center; justify-content: center;
+}
+
+/* Cart dropdown */
+#cartDropdown {
+  position: absolute;
+  top: 40px; right: 0;
+  width: 300px;
+  background: #fff;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  display: none;
+  flex-direction: column;
+  z-index: 1001;
+}
+#cartDropdown h4 {
+  margin: 10px; font-size: 16px; border-bottom: 1px solid #ddd; padding-bottom: 5px;
+}
+.cart-item {
+  display: flex;
+  align-items: center;
+  padding: 10px;
+  border-bottom: 1px solid #eee;
+}
+.cart-item img { width: 50px; height: 50px; object-fit: cover; border-radius: 5px; margin-right: 10px; }
+.cart-item-info { flex: 1; font-size: 14px; }
+.cart-item-info p { margin: 2px 0; }
+.cart-total {
+  padding: 10px;
+  font-weight: bold;
+  display: flex; justify-content: space-between;
+}
+.checkout-btn-cart {
+  background: #2f855a;
+  color: #fff;
+  border: none;
+  padding: 10px;
+  margin: 10px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: bold;
+}
+.checkout-btn-cart:hover { background: #276749; }
+
+.product-container {
+  max-width: 900px;
+  margin: 30px auto;
+  background: #fff;
+  border-radius: 10px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+  padding: 20px;
+}
+
+.carousel {
+  position: relative;
+  overflow: hidden;
+  border-radius: 10px;
+}
+.carousel img {
+  width: 100%;
+  display: none;
+  border-radius: 10px;
+}
+.carousel img.active {
+  display: block;
+}
+.carousel button {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background: rgba(0,0,0,0.5);
+  border: none;
+  color: #fff;
+  font-size: 20px;
+  padding: 8px 12px;
+  cursor: pointer;
+  border-radius: 6px;
+}
+.carousel .prev { left: 10px; }
+.carousel .next { right: 10px; }
+
+.product-info { margin-top: 20px; }
+.product-info h2 { margin-bottom: 10px; }
+.price { color: #2f855a; font-size: 22px; font-weight: bold; }
+
+select, input {
+  padding: 8px;
+  margin-top: 6px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  width: 100%;
+}
+.qty-control {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 10px;
+}
+.qty-control button {
+  width: 30px; height: 30px;
+  border: none;
+  background: #eee;
+  border-radius: 5px;
+  cursor: pointer;
+}
+.qty-control input {
+  width: 60px;
+  text-align: center;
+}
+
+.add-btn {
+  background: #2f855a;
+  color: #fff;
+  border: none;
+  padding: 12px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 15px;
+  font-weight: bold;
+  margin-top: 15px;
+}
+.add-btn:hover { background: #276749; }
+
+.similar {
+  max-width: 900px;
+  margin: 40px auto;
+}
+.similar h3 { margin-bottom: 15px; }
+.similar-products {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 15px;
+}
+.similar-products div {
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+  padding: 10px;
+  text-align: center;
+}
+.similar-products img { width: 100%; border-radius: 6px; }
+.similar-products p { margin: 8px 0; font-size: 14px; font-weight: bold; }
+.similar-products span { color: #2f855a; font-weight: bold; }
+.similar-products a {
+  display: inline-block;
+  margin-top: 6px;
+  background: #2f855a;
+  color: #fff;
+  padding: 6px 10px;
+  border-radius: 6px;
+  font-size: 13px;
+  text-decoration: none;
+}
+.similar-products a:hover { background: #276749; }
+
+footer {
+  text-align: center;
+  padding: 20px;
+  margin-top: 50px;
+  background: #fff;
+  border-top: 1px solid #ddd;
+}
+footer p { margin: 5px 0; font-size: 13px; color: #555; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo"><a href="index.html"><img src="https://i.imgur.com/yourLogo.png" alt="DAWENS SHOP"></a></div>
+  <div class="cart-icon" id="cartIcon">
+    <i class="fa-solid fa-cart-shopping"></i>
+    <div class="cart-count" id="cartCount">0</div>
+
+    <!-- Cart dropdown -->
+    <div id="cartDropdown">
+      <h4>Votre Panier</h4>
+      <div id="cartItems"></div>
+      <div class="cart-total">
+        <span>Total:</span>
+        <span id="cartTotal">$0.00</span>
+      </div>
+      <button class="checkout-btn-cart" onclick="goToCheckout()">Aller au checkout <i class="fa-solid fa-arrow-right"></i></button>
+    </div>
+  </div>
+</header>
+
+<div class="product-container">
+  <div class="carousel">
+    <img src="https://files.catbox.moe/ambygx.jpeg" class="active">
+    <img src="https://files.catbox.moe/0orr2k.webp">
+    <img src="https://files.catbox.moe/bc584d.jpeg">
+    <img src="https://files.catbox.moe/l5msb8.jpeg">
+    <img src="https://files.catbox.moe/hui7r1.jpeg">
+    <button class="prev" onclick="changeImage(-1)">&#10094;</button>
+    <button class="next" onclick="changeImage(1)">&#10095;</button>
+  </div>
+
+  <div class="product-info">
+    <h2>iPhone 15 Pro - 128GB / 256GB / 512GB</h2>
+    <p>Dernier modèle Apple avec puce A17 Pro, design titane, caméra 48MP et sécurité renforcée FaceID.</p>
+
+    <label for="color">Choisissez une couleur :</label>
+    <select id="color">
+      <option value="Titane Naturel">Titane Naturel</option>
+      <option value="Titane Bleu">Titane grey</option>
+      <option value="Titane Blanc">Titane Blanc</option>
+      <option value="Titane Noir">Titane Noir</option>
+    </select>
+
+    <label for="case">Choisissez une coque (optionnelle) :</label>
+    <select id="case">
+      <option value="Aucune">Aucune</option>
+      <option value="Coque transparente">$20</option>
+      <option value="Coque cuir officielle">$49</option>
+    </select>
+
+    <div class="qty-control">
+      <button onclick="changeQty(-1)">-</button>
+      <input type="number" id="qty" value="1" min="1">
+      <button onclick="changeQty(1)">+</button>
+    </div>
+
+    <div class="price" id="priceDisplay">$999.00</div>
+
+    <button class="add-btn" onclick="addToCart()"><i class="fa-solid fa-cart-plus"></i> Ajouter au panier</button>
+  </div>
+</div>
+
+<div class="product-container">
+  <h3>Description complète</h3>
+  <p>
+Le iPhone 15 Pro est conçu en titane aérospatial, combinant légèreté et robustesse. Il intègre la puce A17 Pro pour des performances ultra-rapides et une efficacité énergétique exceptionnelle.
+    <br><br>
+    ✅ Sécurité avancée : Face ID amélioré, chiffrement des données et protection complète d’iCloud. ⚡ Vitesse : 5G, USB-C, A17 Pro, tout pour la rapidité. 📸 Caméra Pro : zoom optique 5x, vidéo 4K, mode nuit amélioré. 🔋 Autonomie : jusqu’à 29h de lecture vidéo. 🌍 Écologique : matériaux recyclés et économie d’énergie intelligente.
+  </p>
+</div>
+
+<div class="similar">
+  <h3>Produits similaires</h3>
+  <div class="similar-products">
+    <div>
+      <img src="https://files.catbox.moe/jbc8as.webp">
+      <p>Apple Watch Series 9</p><span>$399</span><br>
+      <a href="watch.html">Voir</a>
+    </div>
+    <div>
+      <img src="https://files.catbox.moe/ofcapw.jpeg">
+      <p>AirPods Max</p><span>$499</span><br>
+      <a href="airpods.html">Voir</a>
+    </div>
+    <div>
+      <img src="https://files.catbox.moe/w1dmwq.jpeg">
+      <p>MacBook Air M3</p><span>$1199</span><br>
+      <a href="macbook.html">Voir</a>
+    </div>
+  </div>
+</div>
+
+<footer>
+  <p>📧 Contact: <a href="mailto:dawenshop@gmail.com">dawenshop@gmail.com</a></p>
+  <p>📞 Support: <a href="support.html">Cliquez ici pour contacter le support</a></p>
+  <p>&copy; 2025 DAWENS SHOP - Tous droits réservés</p>
+</footer>
+
+<script>
+let currentImage = 0;
+const images = document.querySelectorAll(".carousel img");
+
+function changeImage(n) {
+  images[currentImage].classList.remove("active");
+  currentImage = (currentImage + n + images.length) % images.length;
+  images[currentImage].classList.add("active");
+}
+
+let cart = JSON.parse(localStorage.getItem('cart')) || [];
+updateCartCount();
+renderCartItems();
+
+function updateCartCount(){
+  document.getElementById('cartCount').textContent = cart.reduce((a,b)=>a+b.quantity,0);
+}
+
+function changeQty(change){
+  const qtyInput = document.getElementById('qty');
+  let qty = parseInt(qtyInput.value);
+  qty = Math.max(1, qty + change);
+  qtyInput.value = qty;
+  updatePrice();
+}
+
+function updatePrice(){
+  const qty = parseInt(document.getElementById('qty').value);
+  const caseVal = document.getElementById('case').value;
+  let basePrice = 999;
+  if (caseVal.includes("20")) basePrice += 20;
+  if (caseVal.includes("49")) basePrice += 49;
+  const total = basePrice * qty;
+  document.getElementById('priceDisplay').textContent = "$" + total.toFixed(2);
+  return total;
+}
+
+function addToCart(){
+  const qty = parseInt(document.getElementById('qty').value);
+  const color = document.getElementById('color').value;
+  const caseType = document.getElementById('case').value;
+  const total = updatePrice();
+
+  const product = {
+    id: Date.now(),
+    name: `iPhone 15 Pro (${color})`,
+    quantity: qty,
+    case: caseType,
+    price: total,
+    image: images[currentImage].src
+  };
+  cart.push(product);
+  localStorage.setItem('cart', JSON.stringify(cart));
+  updateCartCount();
+  renderCartItems();
+  alert("✅ Produit ajouté au panier !");
+}
+
+/* Cart dropdown toggle */
+const cartIcon = document.getElementById('cartIcon');
+const cartDropdown = document.getElementById('cartDropdown');
+cartIcon.addEventListener('click', () => {
+  cartDropdown.style.display = cartDropdown.style.display === 'flex' ? 'none' : 'flex';
+  renderCartItems();
+});
+
+/* Render cart items */
+function renderCartItems(){
+  const container = document.getElementById('cartItems');
+  container.innerHTML = '';
+  let total = 0;
+  cart.forEach(item=>{
+    total += item.price;
+    const div = document.createElement('div');
+    div.className = 'cart-item';
+    div.innerHTML = `
+      <img src="${item.image}">
+      <div class="cart-item-info">
+        <p>${item.name}</p>
+        <p>Qty: ${item.quantity}</p>
+        <p>Price: $${item.price.toFixed(2)}</p>
+      </div>
+    `;
+    container.appendChild(div);
+  });
+  document.getElementById('cartTotal').textContent = '$' + total.toFixed(2);
+}
+
+/* Checkout button */
+function goToCheckout(){
+  localStorage.setItem('cart', JSON.stringify(cart));
+  window.location.href = 'checkout.html';
+}
+</script>
+</body>
+</html>

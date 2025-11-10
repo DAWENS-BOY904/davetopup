@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MacBook Air M3 - DAWENS SHOP</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<style>
+body {
+  font-family: Arial, sans-serif;
+  margin: 0; padding: 0;
+  background: #f8f9fa;
+}
+header {
+  background: #fff;
+  padding: 10px 15px;
+  display: flex; justify-content: space-between; align-items: center;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+  position: sticky; top: 0; z-index: 1000;
+}
+.logo img { height: 40px; }
+
+.cart-icon {
+  position: relative;
+  font-size: 24px;
+  color: #2f855a;
+  cursor: pointer;
+}
+.cart-count {
+  position: absolute;
+  top: -6px; right: -8px;
+  background: red; color: #fff;
+  font-size: 14px; font-weight: bold;
+  border-radius: 50%;
+  width: 22px; height: 22px;
+  display: flex; align-items: center; justify-content: center;
+}
+
+/* Cart dropdown (pi laj) */
+#cartDropdown {
+  position: absolute;
+  top: 50px; right: 0;
+  width: 400px;
+  max-height: 500px;
+  background: #fff;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  display: none;
+  flex-direction: column;
+  overflow-y: auto;
+  z-index: 1001;
+}
+#cartDropdown h4 {
+  margin: 10px; font-size: 16px; border-bottom: 1px solid #ddd; padding-bottom: 5px;
+}
+.cart-item {
+  display: flex;
+  align-items: center;
+  padding: 10px;
+  border-bottom: 1px solid #eee;
+}
+.cart-item img { width: 60px; height: 60px; object-fit: cover; border-radius: 5px; margin-right: 10px; }
+.cart-item-info { flex: 1; font-size: 14px; }
+.cart-item-info p { margin: 2px 0; }
+.cart-item button.remove-btn {
+  background: red;
+  color: #fff;
+  border: none;
+  padding: 4px 6px;
+  font-size: 12px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+.cart-item button.remove-btn:hover { background: darkred; }
+
+.cart-total {
+  padding: 10px;
+  font-weight: bold;
+  display: flex; justify-content: space-between;
+}
+.checkout-btn-cart {
+  background: #2f855a;
+  color: #fff;
+  border: none;
+  padding: 12px;
+  margin: 10px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: bold;
+  font-size: 16px;
+}
+.checkout-btn-cart:hover { background: #276749; }
+
+.product-container {
+  max-width: 1000px;
+  margin: 30px auto;
+  background: #fff;
+  border-radius: 10px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+  padding: 25px;
+}
+
+/* Carousel container */
+.carousel {
+  position: relative;
+  overflow: hidden;
+  border-radius: 12px;
+  max-width: 100%;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+}
+
+/* Imaj ak videyo nan carousel */
+.carousel img,
+.carousel video {
+  width: 100%;
+  display: none;
+  border-radius: 12px;
+  object-fit: cover;
+  max-height: 500px;
+}
+
+/* Eleman aktif */
+.carousel img.active,
+.carousel video.active {
+  display: block;
+  animation: fadeIn 0.5s ease-in-out;
+}
+
+/* Bouton prev/next */
+.carousel button {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background: rgba(0,0,0,0.6);
+  border: none;
+  color: #fff;
+  font-size: 22px;
+  padding: 10px 14px;
+  cursor: pointer;
+  border-radius: 50%;
+  transition: background 0.3s;
+  z-index: 10;
+}
+.carousel button:hover {
+  background: rgba(0,0,0,0.8);
+}
+.carousel .prev { left: 15px; }
+.carousel .next { right: 15px; }
+
+/* Animation fade in */
+@keyframes fadeIn {
+  from {opacity: 0;}
+  to {opacity: 1;}
+}
+
+/* Product info */
+.product-info {
+  margin-top: 25px;
+  padding: 15px;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 3px 8px rgba(0,0,0,0.05);
+}
+
+.product-info h2 {
+  margin-bottom: 12px;
+  font-size: 28px;
+  font-weight: 700;
+  color: #111;
+}
+
+.product-info p {
+  font-size: 16px;
+  line-height: 1.6;
+  color: #333;
+}
+
+/* Price style */
+.price {
+  color: #2f855a;
+  font-size: 26px;
+  font-weight: bold;
+  margin: 15px 0;
+}
+
+/* Quantity controls */
+.qty-control {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 12px;
+}
+.qty-control button {
+  width: 34px;
+  height: 34px;
+  border: none;
+  background: #eee;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 18px;
+  transition: background 0.3s;
+}
+.qty-control button:hover { background: #ddd; }
+.qty-control input {
+  width: 70px;
+  text-align: center;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  padding: 6px;
+  font-size: 16px;
+}
+
+.add-btn {
+  background: #2f855a;
+  color: #fff;
+  border: none;
+  padding: 14px 18px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: bold;
+  margin-top: 20px;
+}
+.add-btn:hover { background: #276749; }
+
+/* Responsive for smaller screens */
+@media (max-width: 768px) {
+  .carousel img,
+  .carousel video { max-height: 350px; }
+  .product-info h2 { font-size: 24px; }
+  .price { font-size: 22px; }
+  .qty-control input { width: 60px; }
+  .add-btn, .checkout-btn { width: 100%; padding: 12px; font-size: 15px; }
+}
+
+.similar {
+  max-width: 1000px;
+  margin: 40px auto;
+}
+.similar h3 { margin-bottom: 15px; }
+.similar-products {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 15px;
+}
+.similar-products div {
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+  padding: 10px;
+  text-align: center;
+}
+.similar-products img { width: 100%; border-radius: 6px; }
+.similar-products p { margin: 8px 0; font-size: 14px; font-weight: bold; }
+.similar-products span { color: #2f855a; font-weight: bold; }
+.similar-products a {
+  display: inline-block;
+  margin-top: 6px;
+  background: #2f855a;
+  color: #fff;
+  padding: 6px 10px;
+  border-radius: 6px;
+  font-size: 13px;
+  text-decoration: none;
+}
+.similar-products a:hover { background: #276749; }
+
+footer {
+  text-align: center;
+  padding: 20px;
+  margin-top: 50px;
+  background: #fff;
+  border-top: 1px solid #ddd;
+}
+footer p { margin: 5px 0; font-size: 13px; color: #555; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo"><a href="index.html"><img src="https://i.imgur.com/yourLogo.png" alt="DAWENS SHOP"></a></div>
+  <div class="cart-icon" id="cartIcon">
+    <i class="fa-solid fa-cart-shopping"></i>
+    <div class="cart-count" id="cartCount">0</div>
+
+    <!-- Cart dropdown -->
+    <div id="cartDropdown">
+      <h4>Votre Panier</h4>
+      <div id="cartItems"></div>
+      <div class="cart-total">
+        <span>Total:</span>
+        <span id="cartTotal">$0.00</span>
+      </div>
+      <button class="checkout-btn-cart" onclick="goToCheckout()">Aller au checkout <i class="fa-solid fa-arrow-right"></i></button>
+    </div>
+  </div>
+</header>
+
+<div class="product-container">
+  <div class="carousel">
+    <img src="https://files.catbox.moe/zs75fm.jpeg" class="active">
+    <img src="https://files.catbox.moe/3pghua.jpeg">
+    <img src="https://files.catbox.moe/rudonm.jpeg">
+    <video class="carousel-media" controls>
+      <source src="https://files.catbox.moe/q97zqg.mov" type="video/mp4">
+      Your browser does not support the video tag.
+    </video>
+    <img src="https://files.catbox.moe/kcgg94.jpeg">
+    <img src="https://files.catbox.moe/mf5pv3.jpeg"> 
+    <img src="https://files.catbox.moe/p3gl4h.jpeg">
+    <img src="https://files.catbox.moe/a7yej4.jpeg">
+    <img src="https://files.catbox.moe/k26l55.jpeg">
+    <button class="prev" onclick="changeMedia(-1)">&#10094;</button>
+    <button class="next" onclick="changeMedia(1)">&#10095;</button>
+  </div>
+</div>
+
+  <div class="product-info">
+    <h2>MacBook Air M3</h2>
+    <p>Apple - MacBook Air 13-inch Laptop - Apple M4 chip Built for Apple Intelligence - 16GB Memory - 256GB SSD - Silver
+</p>
+
+    <label for="color">Choisissez une couleur :</label>
+    <select id="color">
+      <option value="Gris Sidéral">Starlight</option>
+      <option value="Argent">Midnight</option>
+      <option value="Argent">Silver</option>
+      <option value="Or Rose">Or Sky Blue</option>
+    </select>
+
+    <div class="qty-control">
+      <button onclick="changeQty(-1)">-</button>
+      <input type="number" id="qty" value="1" min="1">
+      <button onclick="changeQty(1)">+</button>
+    </div>
+
+    <div class="price" id="priceDisplay">$1199.00</div>
+
+    <button class="add-btn" onclick="addToCart()"><i class="fa-solid fa-cart-plus"></i> Ajouter au panier</button>
+  </div>
+</div>
+
+<div class="product-container">
+  <h3>Description complète</h3>
+  <p>
+Le MacBook Air M3 combine légèreté et performance. Processeur M3 ultra-rapide, GPU intégré pour graphismes fluides, écran Retina 13.6" lumineux, Wi-Fi 6, 2 ports Thunderbolt 4, clavier Magic Keyboard et Touch ID.  
+✅ Stockage SSD jusqu’à 1TB  
+✅ Autonomie jusqu’à 18h  
+✅ Silencieux et refroidissement efficace  
+✅ Design aluminium recyclable  
+Parfait pour productivité, création, études et divertissement.
+  </p>
+</div>
+
+<div class="similar">
+  <h3>Produits similaires</h3>
+  <div class="similar-products">
+    <div>
+      <img src="https://files.catbox.moe/yjj4cw.webp">
+      <p>iPhone 15 Pro</p><span>$999</span><br>
+      <a href="iphone.html">Voir</a>
+    </div>
+    <div>
+      <img src="https://files.catbox.moe/ofcapw.jpeg">
+      <p>AirPods Max</p><span>$499</span><br>
+      <a href="airpods.html">Voir</a>
+    </div>
+    <div>
+      <img src="https://files.catbox.moe/jbc8as.webp">
+      <p>Apple Watch Series 9</p><span>$399</span><br>
+      <a href="watch.html">Voir</a>
+    </div>
+  </div>
+</div>
+
+<footer>
+  <p>📧 Contact: <a href="mailto:dawenshop@gmail.com">dawenshop@gmail.com</a></p>
+  <p>📞 Support: <a href="support.html">Cliquez ici pour contacter le support</a></p>
+  <p>&copy; 2025 DAWENS SHOP - Tous droits réservés</p>
+</footer>
+
+<script>
+let currentMedia = 0;
+const mediaItems = document.querySelectorAll(".carousel img, .carousel video");
+
+// Fonksyon chanje imaj/videyo nan carousel
+function changeMedia(n){
+  // Sispann videyo aktyèl si li se yon videyo
+  if(mediaItems[currentMedia].tagName === "VIDEO") mediaItems[currentMedia].pause();
+  
+  mediaItems[currentMedia].classList.remove("active");
+  currentMedia = (currentMedia + n + mediaItems.length) % mediaItems.length;
+  mediaItems[currentMedia].classList.add("active");
+
+  // Si nouvo item se videyo, autoplay
+  if(mediaItems[currentMedia].tagName === "VIDEO") mediaItems[currentMedia].play();
+}
+
+// Cart init
+let cart = JSON.parse(localStorage.getItem('cart')) || [];
+updateCartCount();
+renderCartItems();
+
+// Met ajou kantite nan icon cart
+function updateCartCount(){
+  document.getElementById('cartCount').textContent = cart.reduce((a,b)=>a+b.quantity,0);
+}
+
+// Chanje kantite pwodwi
+function changeQty(change){
+  const qtyInput = document.getElementById('qty');
+  let qty = parseInt(qtyInput.value);
+  qty = Math.max(1, qty + change);
+  qtyInput.value = qty;
+  updatePrice();
+}
+
+// Kalkile pri total
+function updatePrice(){
+  const qty = parseInt(document.getElementById('qty').value);
+  let basePrice = 1199;
+  const total = basePrice * qty;
+  document.getElementById('priceDisplay').textContent = "$" + total.toFixed(2);
+  return total;
+}
+
+// Ajoute nan cart
+function addToCart(){
+  const qty = parseInt(document.getElementById('qty').value);
+  const color = document.getElementById('color').value;
+  const total = updatePrice();
+
+  const product = {
+    id: Date.now(),
+    name: `MacBook Air M3 (${color})`,
+    quantity: qty,
+    price: total,
+    image: mediaItems[currentMedia].src || ''
+  };
+  cart.push(product);
+  localStorage.setItem('cart', JSON.stringify(cart));
+  updateCartCount();
+  renderCartItems();
+  alert("✅ Produit ajouté au panier !");
+}
+
+// Dropdown cart
+const cartIcon = document.getElementById('cartIcon');
+const cartDropdown = document.getElementById('cartDropdown');
+cartIcon.addEventListener('click', () => {
+  cartDropdown.style.display = cartDropdown.style.display === 'flex' ? 'none' : 'flex';
+  renderCartItems();
+});
+
+// Montre tout pwodwi nan cart
+function renderCartItems(){
+  const container = document.getElementById('cartItems');
+  container.innerHTML = '';
+  let total = 0;
+  cart.forEach((item,index)=>{
+    total += item.price;
+    const div = document.createElement('div');
+    div.className = 'cart-item';
+    div.innerHTML = `
+      <img src="${item.image}" alt="product">
+      <div class="cart-item-info">
+        <p>${item.name}</p>
+        <p>Qty: ${item.quantity}</p>
+        <p>Price: $${item.price.toFixed(2)}</p>
+      </div>
+      <button class="remove-btn" onclick="removeFromCart(${index})">X</button>
+    `;
+    container.appendChild(div);
+  });
+  document.getElementById('cartTotal').textContent = '$' + total.toFixed(2);
+}
+
+// Retire item nan cart
+function removeFromCart(index){
+  cart.splice(index,1);
+  localStorage.setItem('cart', JSON.stringify(cart));
+  updateCartCount();
+  renderCartItems();
+}
+
+// Ale nan checkout
+function goToCheckout(){
+  localStorage.setItem('cart', JSON.stringify(cart));
+  window.location.href = 'checkout.html';
+}
+</script>
+</body>
+</html>
