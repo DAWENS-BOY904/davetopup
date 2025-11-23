@@ -1,0 +1,1132 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>P.U.B.G G-Coin</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <style>
+    :root{
+      --bg:#f6f5f3;
+      --card:#fff;
+      --muted:#8b8b95;
+      --accent:#ff6a00;
+      --radius:12px;
+      font-family: Inter, system-ui, -apple-system, 'Segoe UI', Roboto, Arial;
+    }
+    *{box-sizing:border-box}
+    body{background:var(--bg);margin:0;padding:20px;color:#222}
+    header{display:flex;align-items:center;gap:12px}
+    .back{font-size:22px;opacity:.8}
+    .logo{height:44px}
+    h1{font-size:18px;margin:6px 0 0}
+
+    /* ===================== */
+    /* G-COIN SELECT BUTTON  */
+    /* ===================== */
+    .controls{
+      margin:18px 0 10px;
+      display:flex;
+      align-items:center;
+    }
+
+    .g-coin-box{
+      display:flex;
+      align-items:center;
+      gap:8px;
+      background:white;
+      border:1px solid #e6e6e9;
+      padding:10px 14px;
+      border-radius:12px;
+      cursor:pointer;
+      transition:.25s;
+    }
+    .g-coin-box:hover{
+      border-color:#d0d0d0;
+      box-shadow:0 2px 8px rgba(0,0,0,0.06);
+    }
+    .g-coin-box img{
+      width:26px;height:26px;border-radius:6px;object-fit:cover;
+    }
+    .g-coin-box .arrow{ opacity:.6; }
+
+    /* ===================== */
+    /*      MODAL G-COIN     */
+    /* ===================== */
+    .gcoin-modal{
+      display:none;
+      position:fixed;
+      top:0;left:0;width:100%;height:100%;
+      background:rgba(0,0,0,0.35);
+      backdrop-filter:blur(4px);
+      z-index:9999;
+    }
+
+    .gcoin-modal-content{
+      background:white;
+      width:100%;
+      height:88%;
+      position:absolute;
+      bottom:0;
+      border-radius:18px 18px 0 0;
+      overflow-y:auto;
+      animation:slideUp .25s ease;
+    }
+
+    @keyframes slideUp{
+      from{transform:translateY(30px);opacity:0}
+      to{transform:translateY(0);opacity:1}
+    }
+
+    .gcoin-header{
+      padding:16px;
+      border-bottom:1px solid #eee;
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+    }
+
+    .gcoin-header h2{margin:0;font-size:18px;font-weight:600}
+    .gcoin-close{font-size:24px;cursor:pointer}
+
+    .gcoin-selected-top{
+      background:#f1f5f9;
+      padding:12px 20px;
+      display:flex;
+      align-items:center;
+      gap:12px;
+      border-bottom:1px solid #eee;
+      font-size:16px;
+    }
+    .gcoin-selected-top img{
+      width:28px;height:28px;border-radius:4px;
+    }
+
+    .gcoin-list{ padding:10px 0; }
+
+    .gcoin-item{
+      display:flex;
+      align-items:center;
+      padding:14px 20px;
+      gap:12px;
+      cursor:pointer;
+      border-bottom:1px solid #f0f0f0;
+    }
+    .gcoin-item img{
+      width:28px;height:28px;border-radius:4px;
+    }
+    .gcoin-item .check{
+      margin-left:auto;
+      display:none;
+      font-weight:bold;
+      color:#ff9900;
+      font-size:18px;
+    }
+    .gcoin-item.active .check{ display:block }
+
+    /* ===================== */
+    /*      PRODUCT GRID     */
+    /* ===================== */
+    .grid{
+      display:grid;
+      grid-template-columns:repeat(2,1fr);
+      gap:14px;
+    }
+
+    .card{
+      background:linear-gradient(180deg,#fff9e6 0%, #fff 25%);
+      border-radius:12px;
+      padding:10px;
+      border:5px solid #ffdca6;
+      box-shadow:0 6px 18px rgba(10,10,10,0.06);
+      position:relative;
+    }
+
+    .thumb{
+      width:100%;height:140px;border-radius:6px;
+      object-fit:cover;
+      border:4px solid #e6f7ed;
+    }
+
+    .i-dot{
+      position:absolute;right:10px;top:10px;
+      width:34px;height:34px;
+      border-radius:50%;
+      background:linear-gradient(180deg,#fff,#f7f0d9);
+      border:2px solid rgba(0,0,0,0.06);
+      display:flex;align-items:center;justify-content:center;
+    }
+
+    .info{padding:10px 6px}
+    .title{font-size:16px;margin:6px 0;color:#111}
+    .price-row{display:flex;justify-content:space-between;align-items:center}
+    .price{font-size:20px;font-weight:700;color:var(--accent)}
+    .old{text-decoration:line-through;font-size:13px;color:var(--muted)}
+    .badge{
+      background:#ff8a00;color:white;
+      padding:6px 8px;border-radius:8px;
+      font-weight:600;font-size:13px;
+    }
+
+.add-cart{
+  width:100%;
+  margin-top:8px;
+  background:#ff6a00;
+  color:white;
+  border:none;
+  padding:10px;
+  border-radius:10px;
+  font-size:15px;
+  cursor:pointer;
+  font-weight:600;
+  transition:0.25s;
+}
+.add-cart:hover{
+  opacity:0.85;
+}
+
+.cart-icon {
+  position: relative;
+  cursor: pointer;
+  font-size: 24px;
+}
+#cartCount {
+  position: absolute;
+  top: -8px;
+  right: -10px;
+  background: red;
+  color: white;
+  border-radius: 50%;
+  padding: 2px 6px;
+  font-size: 12px;
+}
+
+.cart-modal {
+  display: none; /* Hidden by default */
+  position: fixed;
+  z-index: 1000;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  overflow: auto;
+  background: rgba(0,0,0,0.5);
+}
+
+.cart-content {
+  background: #fff;
+  margin: 10% auto;
+  padding: 25px;
+  border-radius: 10px;
+  width: 90%;
+  max-width: 400px;
+  position: relative;
+}
+
+.close {
+  position: absolute;
+  top: 10px;
+  right: 15px;
+  font-size: 24px;
+  cursor: pointer;
+}
+
+.cart-item {
+  display: flex;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+.cart-item img {
+  width: 50px;
+  height: 50px;
+  object-fit: cover;
+  margin-right: 10px;
+}
+
+.cart-item .item-info {
+  flex: 1;
+}
+
+.desc-modal {
+  display: none;
+  position: fixed;
+  z-index: 1000;
+  left: 0; top: 0;
+  width: 100%; height: 100%;
+  background: rgba(0,0,0,0.5);
+}
+.desc-content {
+  background: #fff;
+  margin: 10% auto;
+  padding: 20px;
+  border-radius: 12px;
+  width: 90%;
+  max-width: 400px;
+  position: relative;
+}
+.desc-content .close {
+  position: absolute;
+  top: 10px;
+  right: 15px;
+  font-size: 24px;
+  cursor: pointer;
+}
+
+.product-details {
+  background: #fff;
+  padding: 20px;
+  border-radius: 12px;
+  margin-top: 20px;
+  box-shadow: 0 0 20px rgba(0,0,0,0.08);
+  font-family: "Poppins", sans-serif;
+}
+
+.product-details h2 {
+  text-align: center;
+  font-size: 26px;
+  margin-bottom: 20px;
+  color: #333;
+}
+
+.pd-block {
+  margin-bottom: 20px;
+  padding: 15px;
+  background: #f9f9f9;
+  border-radius: 10px;
+  border-left: 3px solid #007bff;
+}
+
+.pd-block h3 {
+  margin-bottom: 8px;
+  font-size: 18px;
+  color: #0056d6;
+}
+
+.pd-block p,
+.pd-block li {
+  color: #444;
+  line-height: 1.6;
+}
+
+.pd-block ol {
+  padding-left: 20px;
+}
+
+.pd-image {
+  margin: 25px 0;
+  text-align: center;
+}
+
+.pd-image img {
+  width: 100%;
+  max-width: 420px;
+  border-radius: 12px;
+  box-shadow: 0 0 15px rgba(0,0,0,0.15);
+}
+
+.extra-benefits {
+  margin-top: 25px;
+  font-family: "Poppins", sans-serif;
+}
+
+.benefit-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 15px;
+  background: #f9f9f9;
+  padding: 18px;
+  border-radius: 12px;
+  margin-bottom: 18px;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.06);
+  border-left: 4px solid #e63946; /* Accent rouge */
+}
+
+.benefit-item i {
+  font-size: 28px;
+  color: #e63946; /* Icon color matching titles */
+  margin-top: 4px;
+}
+
+.benefit-text h4 {
+  margin: 0 0 6px 0;
+  font-size: 18px;
+  color: #e63946;
+  font-weight: 600;
+}
+
+.benefit-text p {
+  margin: 0;
+  font-size: 15px;
+  color: #444;
+  line-height: 1.6;
+}
+
+/* === CAROUSEL MARQUEE === */
+.carousel-marquee {
+  width: 100%;
+  overflow: hidden; /* kache tras la */
+  background: #fff;
+  padding: 5px 0;
+  margin: 0;
+  border-radius: 0;
+  box-shadow: 0 0 10px rgba(0,0,0,0.05);
+  position: relative;
+}
+
+.carousel-track {
+  display: flex;
+  gap: 15px; /* espas ant imaj yo */
+  animation: marquee 12s linear infinite;
+  white-space: nowrap; /* pa kase nan liy */
+}
+
+.carousel-track img {
+  width: 40px;
+  height: 30px;
+  border-radius: 4px;
+  object-fit: cover;
+  box-shadow: 0 0 4px rgba(0,0,0,0.1);
+  flex-shrink: 0; /* pa pèmèt imaj yo vin pi piti */
+}
+
+@keyframes marquee {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-55%); } /* deplase mwatye pou li san gap */
+}
+
+footer {
+  background: linear-gradient(135deg, #0d0d0d, #1a1a1a);
+  text-align: center;
+  padding: 25px 10px;
+  margin-top: 30px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+footer .social-icons {
+  margin-bottom: 12px;
+}
+
+footer .social-icons a {
+  margin: 0 10px;
+  font-size: 26px;
+  color: #ffffff;
+  transition: 0.3s ease;
+  text-shadow: 0 0 8px rgba(255, 255, 255, 0.4);
+}
+
+footer .social-icons a:nth-child(1):hover {
+  color: #1877F2; /* Facebook */
+  text-shadow: 0 0 10px #1877F2;
+}
+
+footer .social-icons a:nth-child(2):hover {
+  color: #25D366; /* WhatsApp */
+  text-shadow: 0 0 10px #25D366;
+}
+
+footer p {
+  color: #e6e6e6;
+  font-size: 14px;
+  letter-spacing: 0.5px;
+}
+
+footer strong {
+  color: #00eaff;
+  text-shadow: 0 0 10px #00eaff;
+}
+</style>
+</head>
+
+<body>
+
+<header>
+  <div class="back">←</div>
+  <img class="logo" src="https://files.catbox.moe/vusmd5.webp">
+
+  <div style="flex:1">
+    <h1>P.U.B.G G-Coin</h1>
+    <div style="color:var(--muted);font-size:13px">G-Coin store</div>
+  </div>
+
+<!-- CART ICON -->
+<div id="cartBtn" class="cart-icon">
+  <i class="fa-solid fa-cart-shopping"></i>
+  <span id="cartCount">0</span>
+</div>
+
+<!-- NAN CART MODAL, bouton "Go to Checkout" rete menm jan -->
+<div id="cartModal" class="cart-modal">
+  <div class="cart-content">
+    <span id="closeCart" class="close">&times;</span>
+    <h2>Shopping Cart</h2>
+    <div id="cartItems"></div>
+    <button id="checkoutBtn" style="
+      margin-top:15px;
+      width:100%;
+      padding:10px;
+      background:var(--accent);
+      color:white;
+      border:none;
+      border-radius:8px;
+      font-size:16px;
+      cursor:pointer;
+    ">Go to Checkout</button>
+  </div>
+</div>
+</header>
+
+<!-- ===================== -->
+<!--     SELECT BUTTON     -->
+<!-- ===================== -->
+<div class="controls">
+  <div class="g-coin-box" id="openGcoin">
+    <img id="gcoinFlag" src="https://files.catbox.moe/vusmd5.webp">
+    <span id="gcoinName">G-Coin</span>
+    <span class="arrow">▼</span>
+  </div>
+</div>
+
+<!-- ===================== -->
+<!--        MODAL          -->
+<!-- ===================== -->
+<div class="gcoin-modal" id="gcoinModal">
+  <div class="gcoin-modal-content">
+
+    <div class="gcoin-header">
+      <span class="gcoin-close" id="closeGcoin">✕</span>
+      <h2>G-Coin</h2>
+      <span style="opacity:0">✕</span>
+    </div>
+
+    <div class="gcoin-selected-top">
+      <img id="topFlag" src="https://files.catbox.moe/vusmd5.webp">
+      <span id="topName">G-Coin</span>
+    </div>
+
+    <div class="gcoin-list">
+
+      <div class="gcoin-item active"
+           data-name="G-Coin"
+           data-img="https://files.catbox.moe/vusmd5.webp">
+        <img src="https://files.catbox.moe/vusmd5.webp">
+        <span>G-Coin</span>
+        <span class="check">✔</span>
+      </div>
+
+    </div>
+
+  </div>
+</div>
+
+<!-- ===================== -->
+<!--     PRODUCT GRID      -->
+<!-- ===================== -->
+<main class="grid">
+
+<!-- PRODUCT ARTICLE EXAMPLE -->
+<article class="card">
+  <div class="i-dot" title="View Description">i</div>
+  <img class="thumb" src="https://files.catbox.moe/z08bk4.webp">
+  <div class="info">
+    <div class="title">Porsche Loot Cache Pack (x55)</div>
+    <div class="price-row">
+      <div>
+        <div class="price">$101.17</div>
+        <div class="old">$114.97</div>
+      </div>
+      <div class="badge">-$13.80</div>
+    </div>
+    <button class="add-cart"
+      data-title="Porsche Loot Cache Pack (x55)"
+      data-price="101.17">
+      Add to Cart
+    </button>
+  </div>
+</article>
+
+<!-- MODAL HTML -->
+<div id="descModal" class="desc-modal">
+  <div class="desc-content">
+    <span id="closeDesc" class="close">&times;</span>
+    <h3 id="descTitle"></h3>
+    <p id="descText"></p>
+  </div>
+</div>
+
+
+<article class="card">
+  <div class="i-dot">i</div>
+  <img class="thumb" src="https://files.catbox.moe/7y642b.webp">
+  <div class="info">
+    <div class="title">Porsche Rush Pack</div>
+    <div class="price-row">
+      <div>
+        <div class="price">$27.26</div>
+        <div class="old">$30.97</div>
+      </div>
+      <div class="badge">-$3.71</div>
+    </div>
+
+    <!-- ADD TO CART -->
+    <button class="add-cart"
+      data-title="Porsche Rush Pack"
+      data-price="27.26">
+      Add to Cart
+    </button>
+  </div>
+</article>
+
+
+<article class="card">
+  <div class="i-dot">i</div>
+  <img class="thumb" src="https://files.catbox.moe/0dad96.webp">
+  <div class="info">
+    <div class="title">PGC 2025 Mega Bundle</div>
+    <div class="price-row">
+      <div>
+        <div class="price">$21.99</div>
+        <div class="old">$24.99</div>
+      </div>
+      <div class="badge">-$3.00</div>
+    </div>
+
+    <!-- ADD TO CART -->
+    <button class="add-cart"
+      data-title="PGC 2025 Mega Bundle"
+      data-price="21.99">
+      Add to Cart
+    </button>
+  </div>
+</article>
+
+
+<article class="card">
+  <div class="i-dot">i</div>
+  <img class="thumb" src="https://files.catbox.moe/xueuyj.webp">
+  <div class="info">
+    <div class="title">PGC 2025 Weapon Set</div>
+    <div class="price-row">
+      <div>
+        <div class="price">$21.99</div>
+        <div class="old">$24.99</div>
+      </div>
+      <div class="badge">-$3.00</div>
+    </div>
+
+    <!-- ADD TO CART -->
+    <button class="add-cart"
+      data-title="PGC 2025 Weapon Set"
+      data-price="21.99">
+      Add to Cart
+    </button>
+  </div>
+</article>
+
+<article class="card">
+  <div class="i-dot">i</div>
+  <img class="thumb" src="https://files.catbox.moe/hysrbd.webp">
+  <div class="info">
+    <div class="title">Archivist's Chest Bundle（x 50）</div>
+    <div class="price-row">
+      <div>
+        <div class="price">$90.63</div>
+        <div class="old">$102.96</div>
+      </div>
+      <div class="badge">-$12.33</div>
+    </div>
+
+    <!-- ADD TO CART -->
+    <button class="add-cart"
+      data-title="Archivist's Chest Bundle（x 50）"
+      data-price="90.63">
+      Add to Cart
+    </button>
+  </div>
+</article>
+
+
+<article class="card">
+  <div class="i-dot">i</div>
+  <img class="thumb" src="https://files.catbox.moe/o1kmtd.webp">
+  <div class="info">
+    <div class="title">Archivist's Chest Bundle (x25)</div>
+    <div class="price-row">
+      <div>
+        <div class="price">$46.63</div>
+        <div class="old">$52.96</div>
+      </div>
+      <div class="badge">-$6.33</div>
+    </div>
+
+    <!-- ADD TO CART -->
+    <button class="add-cart"
+      data-title="Archivist's Chest Bundle (x25)"
+      data-price="46.63">
+      Add to Cart
+    </button>
+  </div>
+</article>
+
+<article class="card">
+  <div class="i-dot">i</div>
+  <img class="thumb" src="https://files.catbox.moe/h7dgcd.webp">
+  <div class="info">
+    <div class="title">Xinghun's Awe Of Tigers Mega Bundle</div>
+    <div class="price-row">
+      <div>
+        <div class="price">$21.99</div>
+        <div class="old">$24.99</div>
+      </div>
+      <div class="badge">-$3.00</div>
+    </div>
+
+    <!-- ADD TO CART -->
+    <button class="add-cart"
+      data-title="Xinghun's Awe Of Tigers Mega Bundle"
+      data-price="21.99">
+      Add to Cart
+    </button>
+  </div>
+</article>
+
+
+<article class="card">
+  <div class="i-dot">i</div>
+  <img class="thumb" src="https://files.catbox.moe/tusix8.webp">
+  <div class="info">
+    <div class="title">REBEL RABBIT BUNDLE</div>
+    <div class="price-row">
+      <div>
+        <div class="price">$43.99</div>
+        <div class="old">$49.99</div>
+      </div>
+      <div class="badge">-$6.00</div>
+    </div>
+
+    <!-- ADD TO CART -->
+    <button class="add-cart"
+      data-title="REBEL RABBIT BUNDLE"
+      data-price="43.99">
+      Add to Cart
+    </button>
+  </div>
+</article>
+
+<article class="card">
+  <div class="i-dot">i</div>
+  <img class="thumb" src="https://files.catbox.moe/xsdqt2.webp">
+  <div class="info">
+    <div class="title">KEY (×10)
+</div>
+    <div class="price-row">
+      <div>
+        <div class="price">$8.79</div>
+        <div class="old">$9.99</div>
+      </div>
+      <div class="badge">-$1.20</div>
+    </div>
+
+    <!-- ADD TO CART -->
+    <button class="add-cart"
+      data-title="KEY (×10)"
+      data-price="8.79">
+      Add to Cart
+    </button>
+  </div>
+</article>
+
+<article class="card">
+  <img class="thumb" src="https://files.catbox.moe/q4gikz.webp">
+  <div class="info">
+    <div class="title">100 G-Coin</div>
+    <div class="price-row">
+      <div>
+        <div class="price">$0.88</div>
+        <div class="old">$0.99</div>
+      </div>
+      <div class="badge">-$0.11</div>
+    </div>
+
+    <!-- ADD TO CART -->
+    <button class="add-cart"
+      data-title="100 G-Coin"
+      data-price="0.88">
+      Add to Cart
+    </button>
+  </div>
+</article>
+
+<article class="card">
+  <img class="thumb" src="https://files.catbox.moe/c53jhu.webp">
+  <div class="info">
+    <div class="title">500+10 G-Coin</div>
+    <div class="price-row">
+      <div>
+        <div class="price">$4.39</div>
+        <div class="old">$4.98</div>
+      </div>
+      <div class="badge">-$0.60</div>
+    </div>
+
+    <!-- ADD TO CART -->
+    <button class="add-cart"
+      data-title="500+10 G-Coin"
+      data-price="4.39">
+      Add to Cart
+    </button>
+  </div>
+</article>
+
+<article class="card">
+  <img class="thumb" src="https://files.catbox.moe/3a2kjs.webp">
+  <div class="info">
+    <div class="title">1000+50 G-Coin</div>
+    <div class="price-row">
+      <div>
+        <div class="price">$8.79</div>
+        <div class="old">$9.99</div>
+      </div>
+      <div class="badge">-$1.20</div>
+    </div>
+
+    <!-- ADD TO CART -->
+    <button class="add-cart"
+      data-title="1000+50 G-Coin"
+      data-price="8.79">
+      Add to Cart
+    </button>
+  </div>
+</article>
+
+<article class="card">
+  <img class="thumb" src="https://files.catbox.moe/al6x63.webp">
+  <div class="info">
+    <div class="title">2500+200 G-Coin</div>
+    <div class="price-row">
+      <div>
+        <div class="price">$21.99</div>
+        <div class="old">$24.99</div>
+      </div>
+      <div class="badge">-$3.00</div>
+    </div>
+
+    <!-- ADD TO CART -->
+    <button class="add-cart"
+      data-title="2500+200 G-Coin"
+      data-price="21.99">
+      Add to Cart
+    </button>
+  </div>
+</article>
+
+<article class="card">
+  <img class="thumb" src="https://files.catbox.moe/otfjlx.webp">
+  <div class="info">
+    <div class="title">5000+500 G-Coin</div>
+    <div class="price-row">
+      <div>
+        <div class="price">$43.99</div>
+        <div class="old">$49.99</div>
+      </div>
+      <div class="badge">-$6.00</div>
+    </div>
+
+    <!-- ADD TO CART -->
+    <button class="add-cart"
+      data-title="5000+500 G-Coin"
+      data-price="43.99">
+      Add to Cart
+    </button>
+  </div>
+</article>
+
+<article class="card">
+  <img class="thumb" src="https://files.catbox.moe/tmss2z.webp">
+  <div class="info">
+    <div class="title">10000+1200 G-Coin</div>
+    <div class="price-row">
+      <div>
+        <div class="price">$87.99</div>
+        <div class="old">$99.99</div>
+      </div>
+      <div class="badge">-$12.00</div>
+    </div>
+
+    <!-- ADD TO CART -->
+    <button class="add-cart"
+      data-title="10000+1200 G-Coin"
+      data-price="87.99">
+      Add to Cart
+    </button>
+  </div>
+</article>
+
+
+</main>
+
+<section class="product-details">
+
+  <h2>Product Details</h2>
+
+  <div class="pd-block">
+  <h3>How to Top Up PUBG G-Coin on DaveTopUp?</h3>
+  <ol>
+    <li>
+      Enter the DaveTopUp.com official website:
+      <a href="https://www.davetopup.com" target="_blank" style="color:#007bff; font-weight:bold;">
+        https://davetopup.com
+      </a>. 
+      Select your preferred language and currency, then log in.
+    </li>
+    <li>2. On the Home page, click <strong>Gift Card > PUBG G-Coin.</strong>.</li>
+    <li>Determine how many<li> PUBG G-Coin </stronge>you want.</li>
+    <li>Click<strong>“Top-Up Now”</strong>.</li>
+  </ol>
+  <p>Choose your preferred payment method and click<li>‘Pay Now’</stronge>to finish payment.
+<li>Once your payment is processed, your <li>PUBG G-Coin </stronge>code will be sent to you instantly.</stronge>
+</p>
+</div>
+
+<div class="pd-block">
+  <h3>How to Redeem PUBG G-Coin?</h3>
+  <p>Log in to your PUBG account and head to the main lobby:</p>
+  <ol>
+    <li>Go to 'Store' and click on 'Add Bonus/Gift Code' Enter your redemption code and select 'Redeem' to claim your PUBG G-Coin.</li>
+</p>
+</div>
+  <!-- 🖼️ PHOTO INFO KOTE OU METE IMAGE LA -->
+  <div class="pd-image">
+    <img src="https://files.catbox.moe/ha5kjg.webp" alt="Gift Card Info">
+  </div>
+
+</section>
+
+<section class="extra-benefits">
+
+  <div class="benefit-item">
+    <i class="fas fa-shield-alt"></i>
+    <div class="benefit-text">
+      <h4>7-Day After-Sales Guarantee</h4>
+      <p>
+        An extended warranty period allows for post-sales support, including refunds, 
+        in case of in-game bans or other issues related to this order within 7 days after delivery.
+      </p>
+    </div>
+  </div>
+
+  <div class="benefit-item">
+    <i class="fas fa-bolt"></i>
+    <div class="benefit-text">
+      <h4>Safe and Fast Top-Up</h4>
+      <p>
+        We use only formal channels for top-ups, ensuring traceable and reliable sources 
+        to guarantee your account security.
+      </p>
+    </div>
+  </div>
+
+  <div class="benefit-item">
+    <i class="fas fa-headset"></i>
+    <div class="benefit-text">
+      <h4>24/7 Customer Service</h4>
+      <p>
+        If you experience issues such as the top-up not being credited or an incorrect item purchased, 
+        you can reach out to our 24-hour customer service at any time, and we will assist you promptly.
+      </p>
+    </div>
+  </div>
+
+</section>
+
+<!-- Continuous Carousel -->
+<div class="carousel-marquee">
+  <div class="carousel-track" id="carouselTrack">
+    <img src="https://files.catbox.moe/338zqd.png" alt="Image 1">
+    <img src="https://files.catbox.moe/osdoa1.png" alt="Image 2">
+    <img src="https://files.catbox.moe/err4fp.png" alt="Image 3">
+    <img src="https://files.catbox.moe/3hszgf.png" alt="Image 4">
+    <img src="https://files.catbox.moe/j2xznd.png" alt="Image 5">
+    <img src="https://files.catbox.moe/vmhv6k.png" alt="Image 6">
+    <img src="https://files.catbox.moe/1ht61n.png" alt="Image 7">
+    <img src="https://files.catbox.moe/hgpbf0.jpeg" alt="Image 8">
+    <img src="https://files.catbox.moe/fhc4c5.png" alt="Image 9">
+    <img src="https://files.catbox.moe/3udooy.png" alt="Image 10">
+    <img src="https://files.catbox.moe/z1huv2.png" alt="Image 11">
+    <img src="https://files.catbox.moe/90kx3s.png" alt="Image 12">
+    <img src="https://files.catbox.moe/j8z5qp.jpeg" alt="Image 13">
+    <img src="https://files.catbox.moe/1pexa5.jpeg" alt="Image 14">
+    <img src="https://files.catbox.moe/obmgyn.png" alt="Image 15">
+    <img src="https://files.catbox.moe/ebd1wn.png" alt="Image 16">
+    <img src="https://files.catbox.moe/pzz2aa.png" alt="Image 17">
+    <img src="https://files.catbox.moe/b5ljzm.png" alt="Image 18">
+    <img src="https://files.catbox.moe/xwvcnh.png" alt="Image 19">
+  </div>
+</div>
+<!-- Footer HTML -->
+<footer>
+  <div class="social-icons">
+    <a href="https://facebook.com" target="_blank"><i class="fab fa-facebook"></i></a>
+    <a href="https://wa.me/18652941614)" target="_blank"><i class="fab fa-whatsapp"></i></a>
+  </div>
+  <p>© 2025 <strong>DAVE TECH</strong>. All rights reserved.</p>
+</footer>
+
+<script>
+/* OPEN / CLOSE MODAL */
+const btn = document.getElementById("openGcoin");
+const modal = document.getElementById("gcoinModal");
+const closeBtn = document.getElementById("closeGcoin");
+
+btn.onclick = () => modal.style.display = "block";
+closeBtn.onclick = () => modal.style.display = "none";
+
+window.onclick = (e) => {
+  if (e.target === modal) modal.style.display = "none";
+};
+
+/* SELECT LOGIC */
+const items = document.querySelectorAll(".gcoin-item");
+
+const flagMain = document.getElementById("gcoinFlag");
+const nameMain = document.getElementById("gcoinName");
+
+const topFlag = document.getElementById("topFlag");
+const topName = document.getElementById("topName");
+
+items.forEach(item => {
+  item.addEventListener("click", () => {
+
+    items.forEach(i => i.classList.remove("active"));
+    item.classList.add("active");
+
+    const img = item.dataset.img;
+    const name = item.dataset.name;
+
+    flagMain.src = img;
+    nameMain.textContent = name;
+
+    topFlag.src = img;
+    topName.textContent = name;
+
+    modal.style.display = "none";
+  });
+});
+
+// Cart logic
+let productsInCart = [];
+
+const cartBtn = document.getElementById('cartBtn');
+const cartModal = document.getElementById('cartModal');
+const closeCart = document.getElementById('closeCart');
+const cartItems = document.getElementById('cartItems');
+const cartCount = document.getElementById('cartCount');
+const checkoutBtn = document.getElementById('checkoutBtn');
+
+// Open cart modal
+cartBtn.addEventListener('click', () => {
+  cartModal.style.display = 'block';
+  renderCartItems();
+});
+
+// Close modal
+closeCart.addEventListener('click', () => {
+  cartModal.style.display = 'none';
+});
+
+// Click outside modal
+window.addEventListener('click', (e) => {
+  if(e.target === cartModal) cartModal.style.display = 'none';
+});
+
+// Add to cart buttons
+const addButtons = document.querySelectorAll('.add-cart');
+addButtons.forEach(btn => {
+  btn.addEventListener('click', () => {
+    const title = btn.dataset.title;
+    const price = btn.dataset.price;
+    const img = btn.closest('.card').querySelector('.thumb').src;
+
+    productsInCart.push({ name: title, price: `$${price}`, img });
+    renderCartItems();
+    cartModal.style.display = 'block';
+  });
+});
+
+// Render cart items
+function renderCartItems() {
+  cartItems.innerHTML = "";
+  productsInCart.forEach((item, index) => {
+    const div = document.createElement('div');
+    div.classList.add('cart-item');
+    div.innerHTML = `
+      <img src="${item.img}" alt="${item.name}">
+      <div class="item-info">
+        <div>${item.name}</div>
+        <div>${item.price}</div>
+      </div>
+      <button class="remove-btn" style="
+        margin-left:10px;
+        background:red;
+        color:white;
+        border:none;
+        padding:4px 8px;
+        border-radius:6px;
+        cursor:pointer;
+      ">Remove</button>
+    `;
+    cartItems.appendChild(div);
+
+    // Remove button logic
+    div.querySelector('.remove-btn').addEventListener('click', () => {
+      productsInCart.splice(index, 1); // retire atik la nan array
+      renderCartItems(); // mete ajou cart la
+    });
+  });
+  cartCount.textContent = productsInCart.length;
+}
+
+// Go to checkout
+checkoutBtn.addEventListener('click', () => {
+  window.location.href = 'checkout.html';
+});
+
+// Sample descriptions for each product with red highlight for calculation
+const productDescriptions = {
+  "Porsche Loot Cache Pack (x55)": `By purchasing this package, you will receive PUBG G-Coin codes valued at <span style="color:red;">10000+1200*1+1000+50*1+500+10*1 =12760 G-Coins</span>, which can satisfy your exchange for the Porsche Loot Cache Pack (x55).`,
+  "Porsche Rush Pack": "This is the full description for Porsche Rush Pack.",
+  "PGC 2025 Mega Bundle": "This is the full description for PGC 2025 Mega Bundle.",
+  "PGC 2025 Weapon Set": "This is the full description for PGC 2025 Weapon Set."
+};
+
+const descModal = document.getElementById('descModal');
+const descTitle = document.getElementById('descTitle');
+const descText = document.getElementById('descText');
+const closeDesc = document.getElementById('closeDesc');
+
+// Open modal on i-dot click
+document.querySelectorAll('.i-dot').forEach(dot => {
+  dot.addEventListener('click', () => {
+    const card = dot.closest('.card');
+    const title = card.querySelector('.title').textContent;
+
+    descTitle.textContent = title;
+    descText.innerHTML = productDescriptions[title] || "No description available.";
+
+    descModal.style.display = 'block';
+  });
+});
+
+// Close modal
+closeDesc.addEventListener('click', () => {
+  descModal.style.display = 'none';
+});
+
+// Click outside modal to close
+window.addEventListener('click', (e) => {
+  if (e.target === descModal) descModal.style.display = 'none';
+});
+</script>
+
+</body>
+</html>
