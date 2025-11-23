@@ -71,8 +71,8 @@ function adminAuth(req,res,next){
 // ====== ROUTES ======
 
 // Home
-app.get('/', (req, res) => {
-  res.sendFile(__dirname + 'index.html');
+app.get("/", (req, res) => {
+  return res.sendFile(path.join(__dirname, "public/index.html"));
 });
 
 // --- Account ---
