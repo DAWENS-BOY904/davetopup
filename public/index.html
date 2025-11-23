@@ -31,21 +31,21 @@
 }
 
 html, body {
-  height: 100%;
+  height: 110%;
   margin: 0;
 }
 
 body {
-  background: linear-gradient(180deg, #fbf8ff 0%, #fff 60%);
+  background: linear-gradient(180deg, #fbf8ff 0%, #fff 65%);
   color: #0b0b10;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
 .container {
-  max-width: 420px;
+  max-width: 425px;
   margin: 0 auto;
-  padding: 16px;
+  padding: 4px;
 }
 
 /* HEADER */
@@ -768,17 +768,17 @@ header {
 <div class="side-menu" id="sideMenu">
   <h3>Menu</h3>
   <ul>
-    <li><a href="public/index.html"><i class="fas fa-home"></i> Accueil</a></li>
-    <li><a href="public/library.html"><i class="fas fa-book"></i> Bibliothèque</a></li>
-    <li><a href="public/Support/privacy.html"><i class="fas fa-lock"></i> Confidentialité</a></li>
-    <li><a href="public/Support/terms.html"><i class="fas fa-file-contract"></i> Conditions</a></li>
+    <li><a href="#index.html"><i class="fas fa-home"></i> Accueil</a></li>
+    <li><a href="library.html"><i class="fas fa-book"></i> Bibliothèque</a></li>
+    <li><a href="Support/privacy.html"><i class="fas fa-lock"></i> Confidentialité</a></li>
+    <li><a href="Support/terms.html"><i class="fas fa-file-contract"></i> Conditions</a></li>
     <li>
-  <a href="public/bot/Report-bug.html">
+  <a href="bot/Report-bug.html">
     <i class="fas fa-triangle-exclamation"></i> Report bug
   </a>
 </li>
-    <li><a href="public/Support/contact.html"><i class="fas fa-phone"></i> Contact</a></li>
-   <li><a href="public/comunity/index.html"><i class="fas fa-users"></i> Communitries</a></li>
+    <li><a href="Support/contact.html"><i class="fas fa-phone"></i> Contact</a></li>
+   <li><a href="comunity/index.html"><i class="fas fa-users"></i> Communitries</a></li>
   </ul>
 </div>
 
@@ -804,7 +804,7 @@ header {
     <section class="hero" aria-labelledby="hero-title">
       <h1 id="hero-title">Obtenez vos<br>Cartes et<br>Crédits en<br>Quelques Clics!</h1>
       <p>Achetez vos produits numériques préférés, comme des cartes Apple, des crédits Free Fire, et des UC PUBG, en toute simplicité. Rapide, sécurisé, et instantané.</p>
-      <a class="cta" href="public/index1.html">Acheter Maintenant →</a>
+      <a class="cta" href="index1.html">Acheter Maintenant →</a>
     </section>
 
     <!-- Products preview -->
@@ -815,10 +815,10 @@ header {
   <!-- Circle rotation interactive -->
   <div class="circle-wrapper">
     <div class="circle">
-      <div class="segment segment1" data-link="public/index1.html">MonCash</div>
-      <div class="segment segment2" data-link="public/index1.html">NatCash</div>
-      <div class="segment segment3" data-link="public/index1.html">PayPal</div>
-      <div class="segment segment4" data-link="public/index1.html">Stripe</div>
+      <div class="segment segment1" data-link="index1.html">MonCash</div>
+      <div class="segment segment2" data-link="index1.html">NatCash</div>
+      <div class="segment segment3" data-link="index1.html">PayPal</div>
+      <div class="segment segment4" data-link="index1.html">Stripe</div>
       <div class="center-icon">➤</div>
     </div>
   </div>
@@ -955,7 +955,7 @@ header {
         <div class="cta-box">
             <h2>Prêt à révolutionner votre expérience avec Dave TopUp !</h2>
 <p>Rejoignez des milliers d'utilisateurs satisfaits et découvrez la puissance de Dave TopUp, FF Shop, Library et Film.</p>
-            <a href="public/index1.html" class="btn btn-primary">Commencer Maintenant</a>
+            <a href="index1.html" class="btn btn-primary">Commencer Maintenant</a>
         </div>
     </div>
 </section>
@@ -1099,12 +1099,12 @@ header {
     <div class="panel" hidden>
       <ul class="links">
         <li><a href="comunity/index.html">Chat Page</a></li>
-        <li><a href="public/index3.html">Shop Dawens</a></li>
-        <li><a href="public/index5.html">Account ff</a></li>
+        <li><a href="index3.html">Shop Dawens</a></li>
+        <li><a href="index5.html">Account ff</a></li>
 
-        <li><a href="public/movie.html">Movie Watch</a></li>
+        <li><a href="movie.html">Movie Watch</a></li>
 
-        <li><a href="public/feature/allgift.html">iTunes Gift Card US</a></li>
+        <li><a href="feature/allgift.html">iTunes Gift Card US</a></li>
       </ul>
     </div>
 
@@ -1163,7 +1163,7 @@ header {
   <div class="container">
     <div class="footer-logo">DAVE TOPUP</div>
     <div class="footer-links">
-      <a href="public/index3.html">Shop</a>
+      <a href="index3.html">Shop</a>
       <a href="#features">Documentation</a>
       <a href="https://shop.com">Support</a>
     </div>
@@ -1198,7 +1198,7 @@ header {
   font-family:'Poppins',sans-serif;
   border-radius:12px;
   opacity:0;
-  transition:all 0.6s ease;
+  transition:all 0.9s ease;
 ">
   <span style="margin-bottom:12px; text-align:center;">
     Nous utilisons des cookies pour améliorer votre expérience.<br>
@@ -1268,7 +1268,7 @@ const menuBtn = document.querySelector('.menu-btn');
 
   // Si ou vle, flèch nan mitan ka ouvè menm paj la
   document.querySelector('.circle .center-icon').addEventListener('click', ()=>{
-    window.location.href = 'public/index1.html';
+    window.location.href = 'index1.html';
   });
 
 const commentForm = document.getElementById('comment-form');
