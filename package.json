@@ -4,11 +4,8 @@
   "description": "Server for DaveTopUp - Free Fire, COD, Blood Strike top-up service",
   "main": "server.js",
   "scripts": {
-    "build": "next build",
     "start": "node server.js",
-    "dev": "nodemon server.js",
-    "prisma:generate": "prisma generate",
-    "prisma:migrate": "prisma migrate dev"
+    "dev": "nodemon server.js"
   },
   "keywords": [
     "stripe",
@@ -22,31 +19,21 @@
   "author": "DaveTopUp",
   "license": "MIT",
   "dependencies": {
-   "nodemailer": "^7.9.2",
-    "@vitalets/google-translate-api": "^8.0.0",
     "body-parser": "^1.20.2",
     "cors": "^2.8.5",
     "dotenv": "^16.3.1",
-    "cookie": "^0.5.0",
-    "cookie-parser": "^1.4.6",
-    "os": "^0.1.2",
-    "javascript-obfuscator": "^4.0.0",
-    "child_process": "^1.0.2",
     "express": "^4.18.2",
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^7.3.3",
+    "nodemailer": "^6.9.4",
     "stripe": "^14.19.0",
     "node-fetch": "^3.3.2",
-    "multer": "^1.4.5",
-    "next": "13.x",
-    "react": "18.x",
-    "react-dom": "18.x",
-    "prisma": "4.x",
-    "@prisma/client": "4.x",
-    "next-auth": "4.x",
-    "bcryptjs": "2.x",
-    "aws-sdk": "2.x",
-    "swr": "2.x"
+    "os": "^0.1.2",
+    "child_process": "^1.0.2",
+    "cookie": "^0.5.0",
+    "cookie-parser": "^1.4.6",
+    "multer": "^1.4.5"
+
   },
   "devDependencies": {
     "nodemon": "^3.0.1"
