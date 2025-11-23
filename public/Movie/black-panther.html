@@ -276,10 +276,6 @@ h1 {
   color: white;
 }
 
-.download {
-  background: #333;
-  color: white;
-}
 
 .share {
   background: #222;
@@ -347,30 +343,6 @@ h1 {
     height: 110px;
   }
 }
-
-.season-select {
-  margin: 20px 0;
-  padding: 12px 16px;
-  border-radius: 12px;
-  font-size: 16px;
-  background: #111;       /* background nwa */
-  color: #fff;            /* tèks blan */
-  border: 2px solid #e50914; /* entourel wouj */
-  outline: none;
-  cursor: pointer;
-  transition: all 0.3s ease;
-}
-
-.season-select:hover {
-  background: #e50914;   /* vin wouj lè hover */
-  color: #fff;            /* tèks rete blan */
-  border-color: #fff;     /* entourel vin blan lè hover */
-}
-
-.season-select:focus {
-  border-color: #ff4b5c; /* lè klike sou li, entourel chanje */
-  box-shadow: 0 0 10px #e50914;
-}
   
 .related-section {
   margin-top: 40px;
@@ -425,7 +397,29 @@ h1 {
   margin: 8px 0 15px 0;  /* espas ant tit la ak tags yo */
   font-weight: 500;
 
-</style>
+ .download {
+      background: #00fff;
+      color: white;
+      display: block;
+      width: 100%;
+      text-align: center;
+      margin-top: 8px;
+      text-decoration: none;
+      border-radius: 10px;
+    }
+
+    /* HIDDEN DOWNLOAD LIST */
+    .video-downloads {
+      margin-top: 20px;
+      display: none; /* important */
+      animation: fade 0.25s ease-in-out;
+    }
+
+    @keyframes fade {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
 </head>
 <body>
 <header class="main-header">
@@ -456,10 +450,10 @@ h1 {
   <div class="container">
 
     <div class="video-box">
-      <video src="video.mp4" controls></video>
+      <video src="https://macdn.aoneroom.com/media/vone/2025/06/14/daa9940a9ec6abb1135422ecbe12b3c4-sd.mp4" controls></video>
     </div>
 
-    <h1>Super Cube [Version française]</h1>
+    <h1>Black Panther</h1>
 
 <!-- Movie Info -->
 <div class="movie-info" id="movieInfoBox">
@@ -469,32 +463,16 @@ h1 {
     <div class="tags">
       <span>Action</span>
       <span>Adventure</span>
-      <span>Animation</span>
+      <span>Fantasy</span>
     </div>
 
     <p class="description">
-      An ordinary boy won the affection of his goddess and thus pissed off a gang leader. He got a mysterious cube accidentally and started his venture with superpowers. He grows in power as he helps people and punishes evildoers.
+      T'Challa, heir to the hidden but advanced kingdom of Wakanda, must step forward to lead his people into a new future and must confront a challenger from his country's past.
     </p>
-
- <!-- Select Episodes & Seasons -->
-  <select id="episodeSelect" class="season-select">
-    <option value="video1.mp4">Season 1 - Episode 1</option>
-    <option value="video2.mp4">Season 1 - Episode 2</option>
-    <option value="video3.mp4">Season 1 - Episode 3</option>
-    <option value="video4.mp4">Season 1 - Episode 4</option>
-    <option value="video5.mp4">Season 1 - Episode 5</option>
-    <option value="video6.mp4">Season 1 - Episode 6</option>
-    <option value="video7.mp4">Season 1 - Episode 7</option>
-    <option value="video8.mp4">Season 1 - Episode 8</option>
-    <option value="video9.mp4">Season 1 - Episode 9</option>
-    <option value="video10.mp4">Season 1 - Episode 10</option>
-    <option value="video10.mp4">Season 1 - Episode 11</option>
-    <option value="video10.mp4">Season 1 - Episode 12</option>
-  </select>
 
     <div class="btns">
       <button class="btn play"><i class="fa fa-play"></i> Play</button>
-      <button class="btn download"><i class="fa fa-download"></i> Download</button>
+      <button id="toggleDownloadBtn" class="btn download"><i class="fa fa-download"></i> Download</button>
     </div>
 
     <div class="share"><i class="fa fa-share"></i> Share</div>
@@ -630,8 +608,13 @@ h1 {
   </div>
 </div>
 
+<!-- DOWNLOAD LINKS WILL BE INSERTED HERE BUT HIDDEN -->
+  <div class="video-downloads"></div>
+
+</div>
+
 <script>
-const API_BASE = "https://movieapi.giftedtech.co.ke";
+const API_BASE = "https://movieapi.giftedtech.co.ke/api/info/5099284245269335848";
 
 let CURRENT_MOVIE_ID = null;
 
@@ -800,7 +783,60 @@ downloadBtn.onclick = async () => {
 // ------------------------------
 // AUTOLOAD DEFAULT MOVIE
 // ------------------------------
-loadMovie("avatar-fire-and-ash-2025-official-trailer");
+loadMovie("5099284245269335848");
+// ------------------------------
+// DOWNLOAD BUTTONS GENERATOR (JSON DATA)
+// ------------------------------
+/* ------- JSON DATA ------- */
+const data = {
+  "status": 200,
+  "success": "true",
+  "creator": "GiftedTech",
+  "results": [
+    {
+      "id": "6711075405405062752",
+      "quality": "360p",
+      "download_url": "https://movieapi.giftedtech.co.ke/api/download/https%3A%2F%2Fbcdnw.hakunaymatata.com%2Fbt%2F994d9849486c58a5833a68102e23d844.mp4%3Fsign%3D27bd431265e89b6727a0074578e418cc%26t%3D1760951408",
+      "size": "320426512",
+      "format": "mp4"
+    },
+    {
+      "id": "6969422155025367968",
+      "quality": "480p",
+      "download_url": "https://movieapi.giftedtech.co.ke/api/download/https%3A%2F%2Fbcdnw.hakunaymatata.com%2Fresource%2F3846d72b375207fe7380a44d73fd5aef.mp4%3Fsign%3Dfda9096cee21b8201af298502e715e6e%26t%3D1760950499",
+      "size": "647283481",
+      "format": "mp4"
+    },
+    {
+      "id": "8113772324396090712",
+      "quality": "720p",
+      "download_url": "https://movieapi.giftedtech.co.ke/api/download/https%3A%2F%2Fbcdnw.hakunaymatata.com%2Fresource%2F00ea739c2e99522d54b6009b2e474342.mp4%3Fsign%3D95b19d10234bf7609e8e63358910d3d2%26t%3D1760950345",
+      "size": "647283481",
+      "format": "mp4"
+    }
+  ]
+};
+
+/* ------- SELECTORS ------- */
+const downloadBox = document.querySelector(".video-downloads");
+const toggleBtn = document.getElementById("toggleDownloadBtn");
+
+/* ------- ADD DOWNLOAD BUTTONS ------- */
+data.results.forEach(item => {
+  const btn = document.createElement("a");
+  btn.href = item.download_url;
+  btn.className = "btn download";
+  btn.innerHTML = `<i class="fa fa-download"></i> Download ${item.quality}`;
+  btn.setAttribute("download", "");
+  downloadBox.appendChild(btn);
+});
+
+/* ------- TOGGLE SHOW/HIDE ------- */
+toggleBtn.addEventListener("click", () => {
+  downloadBox.style.display = (downloadBox.style.display === "none" || downloadBox.style.display === "") 
+    ? "block" 
+    : "none";
+});
 </script>
 </body>
 </html>

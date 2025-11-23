@@ -1,0 +1,718 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>HandyFlix — Anime</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <style>
+    :root{
+      --bg:#09090a;
+      --card:#0f0f10;
+      --muted:#9aa0a6;
+      --accent:#ff2b2b;
+      --glass: rgba(255,255,255,0.03);
+      --radius:14px;
+      --gap:18px;
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%;}
+    body{
+      margin:0;
+      font-family:Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+      background:linear-gradient(180deg,#070708 0%, #0b0b0c 100%);
+      color:#e9eef2;
+      -webkit-font-smoothing:antialiased;
+      -moz-osx-font-smoothing:grayscale;
+      padding:18px;
+    }
+
+    /* HEADER FIX + STYLE PRO */
+.main-header {
+  position: sticky;
+  top: 0;
+  width: 100%;
+  z-index: 999;
+  padding: 12px 20px;
+  background: rgba(0, 0, 0, 0.75);
+  backdrop-filter: blur(8px);
+  border-bottom: 1px solid rgba(255, 0, 76, 0.25);
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+/* LEFT: LOGO + TEXT */
+.left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+/* LOGO IMAGE + GLOW */
+.logo-img {
+  width: 42px;
+  height: 42px;
+  border-radius: 10px;
+  object-fit: cover;
+  filter: drop-shadow(0 0 8px #ff004c);
+}
+
+/* LOGO TEXT DAWENSFLIX */
+.logo-text {
+  font-size: 24px;
+  font-weight: 800;
+  letter-spacing: 1px;
+  background: linear-gradient(to right, #ff004c 0%, #ff004c 55%, #ffffff 55%, #ffffff 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* SEARCH BUTTON CIRCLE */
+.search {
+  width: 45px;
+  height: 45px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.15);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  backdrop-filter: blur(6px);
+  color: white;
+  font-size: 19px;
+  border: 2px solid #ff004c;
+  transition: 0.25s;
+}
+
+.search:hover {
+  transform: scale(1.07);
+  border-color: #ff2d67;
+  background: rgba(255,255,255,0.2);
+}
+
+/* SEARCH MODAL */
+.search-modal {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.95);
+  z-index: 9999;
+  overflow-y: auto;
+  backdrop-filter: blur(6px);
+}
+
+/* MODAL HEADER */
+.modal-header {
+  position: sticky;
+  top: 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 24px;
+  background: rgba(0,0,0,0.85);
+  border-bottom: 1px solid rgba(255,0,76,0.4);
+}
+
+.modal-logo {
+  width: 50px;
+  height: 50px;
+  border-radius: 8px;
+  filter: drop-shadow(0 0 8px red);
+}
+
+.close {
+  font-size: 28px;
+  cursor: pointer;
+  color: white;
+  transition: 0.25s;
+}
+
+.close:hover {
+  color: #ff004c;
+}
+
+/* SEARCH MODAL CONTENT */
+.search-modal-content {
+  max-width: 900px;
+  margin: 20px auto;
+  padding: 30px;
+  background: rgba(30,30,30,0.95);
+  border-radius: 12px;
+  text-align: center;
+}
+
+.modal-message {
+  font-size: 16px;
+  opacity: 0.7;
+  margin-bottom: 20px;
+}
+
+.modal-search-input {
+  width: 90%;
+  padding: 12px 16px;
+  font-size: 16px;
+  border-radius: 8px;
+  border: 2px solid rgba(255, 0, 76, 0.5);
+  box-shadow: 0 0 10px rgba(255, 0, 76, 0.4);
+  outline: none;
+  margin-bottom: 30px;
+  background: rgba(255,255,255,0.1);
+  color: #fff;
+  transition: 0.25s ease;
+}
+
+.modal-search-input:focus {
+  border-color: #ff004c;
+  box-shadow: 0 0 15px #ff004c;
+  background: rgba(255,255,255,0.15);
+}
+
+/* SEARCH RESULTS */
+.search-results {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  justify-content: center;
+  padding-bottom: 20px;
+}
+
+.movie-result {
+  width: 140px;
+  height: 230px;
+  background: #222;
+  border-radius: 10px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  cursor: pointer;
+  transition: transform 0.25s, box-shadow 0.25s;
+}
+
+.movie-result:hover {
+  transform: scale(1.05);
+  box-shadow: 0 10px 25px rgba(255,0,76,0.4);
+}
+
+.result-img {
+  width: 100%;
+  height: 140px;
+  object-fit: cover;
+  border-bottom: 1px solid rgba(255,255,255,0.1);
+}
+
+.result-info {
+  padding: 8px 6px;
+  font-size: 13px;
+}
+
+.result-title {
+  font-weight: 600;
+  color: #fff;
+  margin: 4px 0;
+}
+
+.result-type {
+  font-size: 12px;
+  opacity: 0.7;
+}
+
+.result-rating {
+  font-size: 12px;
+  color: #ffdd00;
+}
+
+    /* Page title bar */
+    .titlebar{display:flex;align-items:center;gap:12px;padding:12px 10px;background:linear-gradient(180deg,rgba(255,255,255,0.02),transparent);border-radius:12px;margin-bottom:16px}
+    .back{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;background:var(--glass)}
+    .pagetitle{font-weight:700;font-size:18px}
+
+    /* Grid */
+    .grid{
+      display:grid;
+      grid-template-columns:repeat(2,1fr);
+      gap:var(--gap);
+    }
+
+    .card{
+      background:var(--card);
+      border-radius:var(--radius);
+      overflow:hidden;
+      box-shadow:0 8px 24px rgba(0,0,0,0.6);
+      border:1px solid rgba(255,255,255,0.03);
+      display:flex;flex-direction:column;height:320px;
+    }
+    .thumb{
+      width:100%;height:62%;position:relative;overflow:hidden;background:#111;
+    }
+    .thumb img{width:100%;height:100%;object-fit:cover;display:block;filter:contrast(0.98) saturate(1.02)}
+
+    .badge{
+      position:absolute;top:10px;right:10px;background:var(--accent);color:white;padding:6px 10px;border-radius:999px;font-size:12px;font-weight:700;box-shadow:0 6px 14px rgba(255,43,43,0.12)
+    }
+    .continue-badge{position:absolute;left:10px;top:10px;background:rgba(0,0,0,0.5);color:white;padding:4px 8px;border-radius:6px;font-size:12px}
+
+    .card-body{padding:12px;display:flex;flex-direction:column;gap:8px;flex:1;justify-content:space-between}
+    .movie-title{font-weight:700;font-size:16px}
+    .meta{display:flex;align-items:center;gap:12px;color:var(--muted);font-size:13px}
+    .meta i{opacity:0.9}
+
+    .rating{display:flex;align-items:center;gap:6px;background:rgba(255,255,255,0.02);padding:6px 8px;border-radius:10px}
+
+    /* responsive */
+    @media (min-width:820px){
+      .grid{grid-template-columns:repeat(3,1fr)}
+      body{padding:28px}
+    }
+    @media (min-width:1100px){.grid{grid-template-columns:repeat(4,1fr)}}
+
+    /* small touches */
+    .year{display:flex;align-items:center;gap:6px}
+
+
+.footer {
+  background: #111;
+  color: #fff;
+  padding: 40px 20px 20px;
+  font-family: 'Inter', sans-serif;
+}
+
+.footer-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 40px;
+  max-width: 1200px;
+  margin: 0 auto;
+  justify-content: space-between;
+}
+
+/* HandyFlix Info */
+.footer-about .footer-logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.footer-about .footer-logo img {
+  width: 40px;
+  height: 40px;
+  object-fit: cover;
+  border-radius: 8px;
+  filter: drop-shadow(0 0 8px #ff004c);
+}
+
+.footer-about h2 {
+  font-size: 24px;
+  color: #ff004c;
+  margin: 0;
+}
+
+.footer-about p {
+  opacity: 0.7;
+  line-height: 1.5;
+}
+
+/* Titles */
+.footer-links h3,
+.footer-categories h3,
+.footer-contact h3 {
+  font-size: 18px;
+  margin-bottom: 12px;
+  color: #ff004c;
+}
+
+/* Underline / Red line */
+.footer-underline {
+  width: 40px; 
+  height: 3px;
+  background: #ff004c; 
+  margin: 5px 0 15px 0;
+  border-radius: 2px;
+}
+
+/* Lists */
+.footer-links ul,
+.footer-categories ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.footer-links li,
+.footer-categories li {
+  margin-bottom: 8px;
+}
+
+/* Links */
+.footer-links a,
+.footer-categories a,
+.footer-contact a {
+  color: #fff;
+  text-decoration: none;
+  transition: 0.25s;
+}
+
+.footer-links a:hover,
+.footer-categories a:hover,
+.footer-contact a:hover {
+  color: #ff004c;
+}
+
+/* Contact email + icon */
+.footer-contact p {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  opacity: 0.8;
+  border: 2px solid #ff004c;
+  padding: 6px 10px;
+  border-radius: 6px;
+}
+
+.footer-contact p i {
+  color: #ff004c;
+}
+
+/* Social icons (gwo ak glow) */
+.footer-social {
+  margin-top: 10px;
+  display: flex;
+  gap: 16px; /* plis espas */
+}
+
+.footer-social a {
+  color: #fff;
+  font-size: 24px; /* pi gwo */
+  transition: 0.3s;
+  filter: drop-shadow(0 0 6px #ff004c); /* ti glow */
+}
+
+.footer-social a:hover {
+  color: #ff004c;
+  transform: scale(1.2); /* hover effect */
+}
+
+/* Footer bottom */
+.footer-bottom {
+  text-align: center;
+  padding-top: 20px;
+  border-top: 1px solid rgba(255,0,76,0.4);
+  font-size: 14px;
+  opacity: 0.7;
+  line-height: 1.6;
+}
+
+.footer-bottom .footer-copy {
+  margin: 0 0 5px 0;
+}
+
+.footer-bottom .footer-policies {
+  margin: 0;
+}
+
+.footer-bottom .footer-policies a {
+  color: #fff;
+  text-decoration: none;
+  margin: 0 5px;
+  transition: 0.25s;
+}
+
+.footer-bottom .footer-policies a:hover {
+  color: #ff004c;
+}
+
+/* Responsive */
+@media(max-width: 768px){
+  .footer-container {
+    flex-direction: column;
+    gap: 30px;
+  }
+  .footer-bottom {
+    font-size: 13px;
+  }
+  .footer-social a {
+    font-size: 20px; /* pi piti sou mobile */
+  }
+}
+  </style>
+</head>
+<body>
+  <header class="main-header">
+  <div class="left">
+    <a href="black.html" class="logo-link">
+      <img src="https://files.catbox.moe/fvuq13.png" alt="logo" class="logo-img">
+    </a>
+  </div>
+
+  <div class="search"><i class="fas fa-search"></i></div>
+</header>
+
+<!-- METE MODAL LA DEYÒ HEADER LA -->
+<div id="searchModal" class="search-modal">
+  <div class="modal-header">
+    <img src="https://files.catbox.moe/fvuq13.png" alt="logo" class="modal-logo">
+    <span class="close">&times;</span>
+  </div>
+
+  <div class="search-modal-content">
+    <p class="modal-message">Start typing to discover amazing content</p>
+    <input type="text" placeholder="Search for movies, series..." class="modal-search-input">
+    
+    <div class="search-results"></div>
+  </div>
+</div>
+  <div class="titlebar">
+    <div class="back"><i class="fas fa-arrow-left"></i></div>
+    <div class="pagetitle">Anime</div>
+  </div>
+
+  <div class="grid">
+    <!-- card 1 -->
+    <div class="card">
+      <div class="thumb">
+        <img src="https://files.catbox.moe/knwbxp.jpeg" alt="poster">
+        <div class="badge">SERIES</div>
+      </div>
+      <div class="card-body">
+        <div>
+          <div class="movie-title">Super Cube</div>
+          <div class="meta"><div class="year"><i class="far fa-calendar"></i><span>2025</span></div></div>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <div style="height:8px;flex:1;margin-right:10px;background:linear-gradient(90deg,#ff3b3b 30%, #2b2b2b 30%);border-radius:6px"></div>
+          <div class="rating"><i class="fas fa-star" style="color:gold"></i><strong>7.0</strong></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- card 2 -->
+    <div class="card">
+      <div class="thumb">
+        <img src="https://files.catbox.moe/0hte5i.jpeg" alt="poster">
+        <div class="badge">SERIES</div>
+      </div>
+      <div class="card-body">
+        <div>
+          <div class="movie-title">Devil May Cry</div>
+          <div class="meta"><div class="year"><i class="far fa-calendar"></i><span>2025</span></div></div>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <div style="height:8px;flex:1;margin-right:10px;background:linear-gradient(90deg,#ff3b3b 40%, #2b2b2b 40%);border-radius:6px"></div>
+          <div class="rating"><i class="fas fa-star" style="color:gold"></i><strong>7.4</strong></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- card 3 -->
+    <div class="card">
+      <div class="thumb">
+        <img src="https://files.catbox.moe/i4vt1p.jpeg" alt="poster">
+        <div class="continue-badge">Continue</div>
+        <div class="badge" style="right:10px;top:auto;bottom:10px">MOVIE</div>
+      </div>
+      <div class="card-body">
+        <div>
+          <div class="movie-title">The Legend of Hei 2</div>
+          <div class="meta"><div class="year"><i class="far fa-calendar"></i><span>2025</span></div></div>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <div style="height:8px;flex:1;margin-right:10px;background:linear-gradient(90deg,#ff3b3b 75%, #2b2b2b 75%);border-radius:6px"></div>
+          <div class="rating"><i class="fas fa-star" style="color:gold"></i><strong>7.9</strong></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- card 4 -->
+    <div class="card">
+      <div class="thumb">
+        <img src="https://files.catbox.moe/0gmht5.jpeg" alt="poster">
+        <div class="badge">SERIES</div>
+      </div>
+      <div class="card-body">
+        <div>
+          <div class="movie-title">Wolf King</div>
+          <div class="meta"><div class="year"><i class="far fa-calendar"></i><span>2025</span></div></div>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <div style="height:8px;flex:1;margin-right:10px;background:linear-gradient(90deg,#ff3b3b 20%, #2b2b2b 20%);border-radius:6px"></div>
+          <div class="rating"><i class="fas fa-star" style="color:gold"></i><strong>6.6</strong></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- card 5 -->
+    <div class="card">
+      <div class="thumb">
+        <img src="https://files.catbox.moe/awjuh9.jpeg" alt="poster">
+        <div class="badge">MOVIE</div>
+      </div>
+      <div class="card-body">
+        <div>
+          <div class="movie-title">Mission Zero</div>
+          <div class="meta"><div class="year"><i class="far fa-calendar"></i><span>2025</span></div></div>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <div style="height:8px;flex:1;margin-right:10px;background:linear-gradient(90deg,#ff3b3b 82%, #2b2b2b 82%);border-radius:6px"></div>
+          <div class="rating"><i class="fas fa-star" style="color:gold"></i><strong>7.9</strong></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- card 6 -->
+    <div class="card">
+      <div class="thumb">
+        <img src="https://files.catbox.moe/txalt2.jpeg" alt="poster">
+        <div class="badge">MOVIE</div>
+      </div>
+      <div class="card-body">
+        <div>
+          <div class="movie-title">Ne Zha 2</div>
+          <div class="meta"><div class="year"><i class="far fa-calendar"></i><span>2025</span></div></div>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <div style="height:8px;flex:1;margin-right:10px;background:linear-gradient(90deg,#ff3b3b 95%, #2b2b2b 95%);border-radius:6px"></div>
+          <div class="rating"><i class="fas fa-star" style="color:gold"></i><strong>8.0</strong></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+<footer class="footer">
+  <div class="footer-container">
+
+    <!-- HandyFlix Info -->
+<div class="footer-about">
+  <div class="footer-logo">
+    <img src="https://files.catbox.moe/fvuq13.png" alt="HandyFlix Logo">
+    <h2>DawensFlix</h2>
+  </div>
+  <p>Your ultimate destination for movies and series</p>
+</div>
+
+<!-- Quick Links -->
+<div class="footer-links">
+  <h3>Quick Links</h3>
+  <div class="footer-underline"></div>
+  <ul>
+    <li><a href="movie.html">Home</a></li>
+    <li><a href="#trending">Trending</a></li>
+    <li><a href="#">New Releases</a></li>
+    <li><a href="#search">Search</a></li>
+  </ul>
+</div>
+
+<!-- Categories -->
+<div class="footer-categories">
+  <h3>Categories</h3>
+  <div class="footer-underline"></div>
+  <ul>
+    <li><a href="#action">Action</a></li>
+    <li><a href="#anime">Anime</a></li>
+    <li><a href="#romance">Romance</a></li>
+    <li><a href="#standard">Horror</a></li>
+  </ul>
+</div>
+
+<!-- Contact -->
+<div class="footer-contact">
+  <h3>Contact Us</h3>
+  <div class="footer-underline"></div> <!-- red line -->
+  <p>
+    <i class="fas fa-envelope"></i>
+    <a href="mailto:contact@dawensflix.com">contact@dawensflix.com</a>
+  </p>
+  <div class="footer-social">
+    <a href="#" target="_blank"><i class="fab fa-facebook-f"></i></a>
+    <a href="#" target="_blank"><i class="fab fa-twitter"></i></a>
+    <a href="#" target="_blank"><i class="fab fa-instagram"></i></a>
+    <a href="#" target="_blank"><i class="fab fa-whatsapp"></i></a>
+    <a href="#" target="_blank"><i class="fab fa-youtube"></i></a>
+  </div>
+</div>
+
+
+<div class="footer-bottom">
+  <p class="footer-copy">© 2025 DawensFlix Studio. All rights reserved.</p>
+  <p class="footer-policies">
+    <a href="#">Privacy Policy</a> • 
+    <a href="#">Terms of Service</a> • 
+    <a href="#">Cookie Policy</a>
+  </p>
+</div>
+
+<script>
+const API_BASE = "https://movieapi.giftedtech.co.ke";
+
+// ELEMENTS
+const searchBtn = document.querySelector(".search");
+const searchModal = document.getElementById("searchModal");
+const closeBtn = document.querySelector(".close");
+const searchInput = document.querySelector(".modal-search-input");
+const searchResults = document.querySelector(".search-results");
+
+// ------------------------------
+// OPEN / CLOSE SEARCH MODAL
+// ------------------------------
+searchBtn.onclick = () => {
+  searchModal.style.display = "block";
+  searchInput.focus();
+};
+
+closeBtn.onclick = () => {
+  searchModal.style.display = "none";
+  searchResults.innerHTML = "";
+  searchInput.value = "";
+};
+
+// ------------------------------
+// SEARCH API
+// ------------------------------
+searchInput.addEventListener("input", async () => {
+  const query = searchInput.value.trim();
+  if (!query) {
+    searchResults.innerHTML = "";
+    return;
+  }
+
+  try {
+    const res = await fetch(`${API_BASE}/api/search/${encodeURIComponent(query)}`);
+    const data = await res.json();
+
+    searchResults.innerHTML = "";
+    const items = data.results.items;
+
+    items.forEach(item => {
+      const box = document.createElement("div");
+      box.className = "movie-result";
+      box.innerHTML = `
+        <img src="${item.cover?.url}" class="result-img">
+        <div class="result-info">
+          <p class="result-title">${item.title}</p>
+          <p class="result-type">${item.genre}</p>
+        </div>
+      `;
+
+      box.onclick = () => {
+        searchModal.style.display = "none";
+        searchResults.innerHTML = "";
+        searchInput.value = "";
+        loadMovie(item.subjectId);
+      };
+
+      searchResults.appendChild(box);
+    });
+  } catch (err) {
+    console.error("Search error:", err);
+  }
+});
+</script>
+</body>
+</html>

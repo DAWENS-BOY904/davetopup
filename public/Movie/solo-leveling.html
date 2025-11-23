@@ -459,7 +459,7 @@ h1 {
       <video src="video.mp4" controls></video>
     </div>
 
-    <h1>Super Cube [Version française]</h1>
+    <h1>Solo leveling</h1>
 
 <!-- Movie Info -->
 <div class="movie-info" id="movieInfoBox">
@@ -469,12 +469,11 @@ h1 {
     <div class="tags">
       <span>Action</span>
       <span>Adventure</span>
-      <span>Animation</span>
+      <span>Fantasy</span>
     </div>
 
     <p class="description">
-      An ordinary boy won the affection of his goddess and thus pissed off a gang leader. He got a mysterious cube accidentally and started his venture with superpowers. He grows in power as he helps people and punishes evildoers.
-    </p>
+      Ore dake reberu appu na ken</p>
 
  <!-- Select Episodes & Seasons -->
   <select id="episodeSelect" class="season-select">
@@ -484,12 +483,6 @@ h1 {
     <option value="video4.mp4">Season 1 - Episode 4</option>
     <option value="video5.mp4">Season 1 - Episode 5</option>
     <option value="video6.mp4">Season 1 - Episode 6</option>
-    <option value="video7.mp4">Season 1 - Episode 7</option>
-    <option value="video8.mp4">Season 1 - Episode 8</option>
-    <option value="video9.mp4">Season 1 - Episode 9</option>
-    <option value="video10.mp4">Season 1 - Episode 10</option>
-    <option value="video10.mp4">Season 1 - Episode 11</option>
-    <option value="video10.mp4">Season 1 - Episode 12</option>
   </select>
 
     <div class="btns">
@@ -651,13 +644,14 @@ const episodeSelect = document.getElementById("episodeSelect");
 const downloadBtn = document.querySelector(".btn.download");
 
 // ------------------------------
-// OPEN / CLOSE SEARCH MODAL
+// OPEN SEARCH MODAL
 // ------------------------------
 searchBtn.onclick = () => {
   searchModal.style.display = "block";
   searchInput.focus();
 };
 
+// CLOSE MODAL
 closeBtn.onclick = () => {
   searchModal.style.display = "none";
   searchResults.innerHTML = "";
@@ -682,8 +676,9 @@ searchInput.addEventListener("input", async () => {
     const items = data.results.items;
 
     items.forEach(item => {
-      const box = document.createElement("div");
+      let box = document.createElement("div");
       box.className = "movie-result";
+
       box.innerHTML = `
         <img src="${item.cover?.url}" class="result-img">
         <div class="result-info">
@@ -692,6 +687,7 @@ searchInput.addEventListener("input", async () => {
         </div>
       `;
 
+      // Load Movie After Click
       box.onclick = () => {
         searchModal.style.display = "none";
         searchResults.innerHTML = "";
@@ -702,7 +698,7 @@ searchInput.addEventListener("input", async () => {
       searchResults.appendChild(box);
     });
   } catch (err) {
-    console.error("Search error:", err);
+    console.log("Search error:", err);
   }
 });
 
@@ -710,17 +706,17 @@ searchInput.addEventListener("input", async () => {
 // GET MOVIE INFO
 // ------------------------------
 async function getMovieInfo(movieId) {
-  const res = await fetch(`${API_BASE}/api/info/${movieId}`);
-  const data = await res.json();
+  const response = await fetch(`${API_BASE}/api/info/${movieId}`);
+  const data = await response.json();
   return data.results.subject;
 }
 
 // ------------------------------
-// GET DOWNLOAD SOURCES
+// GET SOURCES
 // ------------------------------
 async function getDownloadSources(movieId) {
-  const res = await fetch(`${API_BASE}/api/sources/${movieId}`);
-  const data = await res.json();
+  const response = await fetch(`${API_BASE}/api/sources/${movieId}`);
+  const data = await response.json();
   return data.results;
 }
 
@@ -729,47 +725,59 @@ async function getDownloadSources(movieId) {
 // ------------------------------
 async function loadMovie(id) {
   CURRENT_MOVIE_ID = id;
+
   try {
     const movie = await getMovieInfo(id);
 
+    // Title
     movieTitle.textContent = movie.title;
+
+    // Description
     movieDesc.textContent = movie.description || "No description available.";
 
+    // Info (year, duration, rating)
     const year = movie.releaseDate ? movie.releaseDate.split("-")[0] : "N/A";
     const duration = movie.duration ? `${movie.duration} min` : "Unknown";
     const rating = movie.rating || "N/A";
 
-    movieInfoBox.innerHTML = `${year} &nbsp;|&nbsp; ${duration} &nbsp;|&nbsp; Rating: ${rating}`;
+    movieInfoBox.innerHTML = `
+      ${year} &nbsp;|&nbsp; ${duration} &nbsp;|&nbsp; Rating: ${rating}
+    `;
 
+    // Tags
     tagsBox.innerHTML = "";
     (movie.genres || []).forEach(tag => {
-      const span = document.createElement("span");
+      let span = document.createElement("span");
       span.textContent = tag;
       tagsBox.appendChild(span);
     });
 
+    // SOURCES
     const sources = await getDownloadSources(id);
 
     episodeSelect.innerHTML = "";
+
     sources.forEach(src => {
-      const opt = document.createElement("option");
+      let opt = document.createElement("option");
       opt.value = src.download_url;
       opt.textContent = src.quality;
       episodeSelect.appendChild(opt);
     });
 
+    // Auto-load first quality
     if (sources.length > 0) {
       mainVideo.src = sources[0].download_url;
       mainVideo.play();
     }
 
+    // Change episode
     episodeSelect.onchange = () => {
       mainVideo.src = episodeSelect.value;
       mainVideo.play();
     };
 
   } catch (err) {
-    console.error("LOAD ERROR:", err);
+    console.log("LOAD ERROR:", err);
   }
 }
 
@@ -783,12 +791,14 @@ downloadBtn.onclick = async () => {
   }
 
   const sources = await getDownloadSources(CURRENT_MOVIE_ID);
+
   if (!sources || sources.length === 0) {
     alert("No download sources available.");
     return;
   }
 
   const best = sources[sources.length - 1].download_url;
+
   const a = document.createElement("a");
   a.href = best;
   a.download = "";
@@ -796,11 +806,6 @@ downloadBtn.onclick = async () => {
   a.click();
   a.remove();
 };
-
-// ------------------------------
-// AUTOLOAD DEFAULT MOVIE
-// ------------------------------
-loadMovie("avatar-fire-and-ash-2025-official-trailer");
 </script>
 </body>
 </html>

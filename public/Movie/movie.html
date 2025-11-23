@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Movie Page</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+<style>
+/* === GLOBAL STYLE === */
+body {background:#000; margin:0; font-family:system-ui,sans-serif; color:white;}
+.main-header {position:sticky; top:0; width:100%; z-index:999; padding:12px 20px; background:rgba(0,0,0,0.75); backdrop-filter:blur(8px); border-bottom:1px solid rgba(255,0,76,0.25); display:flex; align-items:center; justify-content:space-between;}
+.left {display:flex; align-items:center; gap:10px;}
+.logo-img {width:42px; height:42px; border-radius:10px; object-fit:cover; filter:drop-shadow(0 0 8px #ff004c);}
+.logo-text {font-size:24px; font-weight:800; letter-spacing:1px; background:linear-gradient(to right,#ff004c 0%,#ff004c 55%,#fff 55%,#fff 100%); -webkit-background-clip:text; -webkit-text-fill-color:transparent;}
+.search {width:45px; height:45px; border-radius:50%; background:rgba(255,255,255,0.15); display:flex; align-items:center; justify-content:center; cursor:pointer; backdrop-filter:blur(6px); color:white; font-size:19px; border:2px solid #ff004c; transition:0.25s;}
+.search:hover {transform:scale(1.07); border-color:#ff2d67; background:rgba(255,255,255,0.2);}
+.search-modal {display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.95); z-index:9999; overflow-y:auto; backdrop-filter:blur(6px);}
+.modal-header {position:sticky; top:0; display:flex; justify-content:space-between; align-items:center; padding:12px 24px; background:rgba(0,0,0,0.85); border-bottom:1px solid rgba(255,0,76,0.4);}
+.modal-logo {width:50px; height:50px; border-radius:8px; filter:drop-shadow(0 0 8px red);}
+.close {font-size:28px; cursor:pointer; color:white; transition:0.25s;}
+.close:hover {color:#ff004c;}
+.search-modal-content {max-width:900px; margin:20px auto; padding:30px; background:rgba(30,30,30,0.95); border-radius:12px; text-align:center;}
+.modal-message {font-size:16px; opacity:0.7; margin-bottom:20px;}
+.modal-search-input {width:90%; padding:12px 16px; font-size:16px; border-radius:8px; border:2px solid rgba(255,0,76,0.5); box-shadow:0 0 10px rgba(255,0,76,0.4); outline:none; margin-bottom:30px; background:rgba(255,255,255,0.1); color:#fff; transition:0.25s ease;}
+.modal-search-input:focus {border-color:#ff004c; box-shadow:0 0 15px #ff004c; background:rgba(255,255,255,0.15);}
+.search-results {display:flex; flex-wrap:wrap; gap:12px; justify-content:center; padding-bottom:20px;}
+.movie-result {width:140px; height:230px; background:#222; border-radius:10px; overflow:hidden; display:flex; flex-direction:column; cursor:pointer; transition:transform 0.25s, box-shadow 0.25s;}
+.movie-result:hover {transform:scale(1.05); box-shadow:0 10px 25px rgba(255,0,76,0.4);}
+.result-img {width:100%; height:140px; object-fit:cover; border-bottom:1px solid rgba(255,255,255,0.1);}
+.result-info {padding:8px 6px; font-size:13px;}
+.result-title {font-weight:600; color:#fff; margin:4px 0;}
+.result-type {font-size:12px; opacity:0.7;}
+.container {max-width:900px; margin:auto; padding:20px;}
+.video-box {width:100%; height:300px; background:#111; border-radius:10px; overflow:hidden;}
+.video-box video {width:100%; height:100%; object-fit:cover;}
+h1 {margin-top:20px; font-size:26px; font-weight:700;}
+.tags span {background:#222; padding:6px 12px; border-radius:6px; margin-right:6px; font-size:13px;}
+.description {margin:15px 0; line-height:1.5; color:#ccc;}
+.btns {display:flex; gap:15px; margin:20px 0;}
+.btn {padding:14px 26px; border-radius:10px; font-weight:600; cursor:pointer; border:none; font-size:15px;}
+.play {background:#e50914; color:white;}
+.download {background:#333; color:white;}
+.share {background:#222; padding:12px 20px; display:inline-flex; align-items:center; border-radius:10px; margin-bottom:25px; cursor:pointer;}
+.share i {margin-right:8px;}
+.cast {margin-top:15px;}
+.cast-title {font-size:22px; font-weight:600; margin-bottom:10px;}
+.cast-list {display:flex; gap:20px; overflow-x:auto; padding-bottom:10px;}
+.actor {text-align:center; width:90px;}
+.actor img {width:60px; height:60px; border-radius:50%; object-fit:cover; margin-bottom:6px;}
+.actor .name {font-size:12px; font-weight:600;}
+.actor .role {font-size:12px; color:#aaa;}
+@media (max-width:600px){.movie-result{width:120px;height:200px;}.result-img{height:110px;}}
+.related-section {margin-top:40px;}
+.related-section h2 {font-size:22px; font-weight:700; margin-bottom:15px; color:#e50914;}
+.related-list {display:flex; gap:20px; overflow-x:auto; padding-bottom:10px;}
+.related-card {min-width:150px; background:#111; border-radius:10px; overflow:hidden; cursor:pointer; transition:transform 0.3s ease, box-shadow 0.3s ease;}
+.related-card img {width:100%; height:220px; object-fit:cover; display:block;}
+.related-card .related-title {padding:8px; font-size:14px; font-weight:600; text-align:center; color:#fff;}
+.related-card:hover {transform:scale(1.05); box-shadow:0 5px 15px rgba(229,9,20,0.6);}
+.movie-info {font-size:14px; color:#ccc; margin:8px 0 15px 0; font-weight:500;}
+</style>
+</head>
+<body>
+<header class="main-header">
+  <div class="left">
+    <a href="movie.html" class="logo-link">
+      <img src="https://files.catbox.moe/fvuq13.png" alt="logo" class="logo-img">
+    </a>
+  </div>
+  <div class="search"><i class="fas fa-search"></i></div>
+</header>
+
+<!-- SEARCH MODAL -->
+<div id="searchModal" class="search-modal">
+  <div class="modal-header">
+    <img src="https://files.catbox.moe/fvuq13.png" alt="logo" class="modal-logo">
+    <span class="close">&times;</span>
+  </div>
+  <div class="search-modal-content">
+    <p class="modal-message">Start typing to discover amazing content</p>
+    <input type="text" placeholder="Search for movies, series..." class="modal-search-input">
+    <div class="search-results"></div>
+  </div>
+</div>
+
+<div class="container">
+  <div class="video-box">
+    <video src="" controls></video>
+  </div>
+  <h1>Loading...</h1>
+  <div class="movie-info" id="movieInfoBox">Loading...</div>
+  <div class="tags"></div>
+  <p class="description">Loading...</p>
+
+  <div class="btns">
+    <button class="btn play"><i class="fa fa-play"></i> Play</button>
+    <button class="btn download" id="downloadBtn"><i class="fa fa-download"></i> Download</button>
+  </div>
+
+  <div class="share"><i class="fa fa-share"></i> Share</div>
+
+  <div class="cast">
+    <div class="cast-title">Cast</div>
+    <div class="cast-list">
+      <!-- Example actors, can be populated dynamically -->
+      <div class="actor">
+        <img src="https://files.catbox.moe/bwodt7.jpeg" />
+        <div class="name">Zoe Saldana</div>
+        <div class="role">Neytiri</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Related Movies -->
+  <div class="related-section">
+    <h2>Related Movies & Series</h2>
+    <div class="related-list">
+      <div class="related-card">
+        <img src="https://via.placeholder.com/150x220" alt="Movie 1">
+        <div class="related-title">Movie 1</div>
+      </div>
+      <div class="related-card">
+        <img src="https://via.placeholder.com/150x220" alt="Movie 2">
+        <div class="related-title">Movie 2</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const API_BASE = 'https://movieapi.giftedtech.co.ke'; // replace with real API
+let CURRENT_MOVIE_ID = null;
+
+// Elements
+const searchBtn = document.querySelector(".search");
+const searchModal = document.getElementById("searchModal");
+const closeBtn = document.querySelector(".close");
+const searchInput = document.querySelector(".modal-search-input");
+const searchResults = document.querySelector(".search-results");
+const mainVideo = document.querySelector(".video-box video");
+const movieTitle = document.querySelector("h1");
+const movieDesc = document.querySelector(".description");
+const tagsBox = document.querySelector(".tags");
+const movieInfoBox = document.getElementById("movieInfoBox");
+const downloadBtn = document.getElementById("downloadBtn");
+
+// --- SEARCH MODAL ---
+searchBtn.addEventListener("click",()=>{searchModal.style.display="block"; searchInput.focus();});
+closeBtn.addEventListener("click",()=>{searchModal.style.display="none"; searchInput.value=""; searchResults.innerHTML="";});
+window.addEventListener("click",(e)=>{if(e.target===searchModal){searchModal.style.display="none"; searchInput.value=""; searchResults.innerHTML="";}});
+searchInput.addEventListener("input",async ()=>{
+  const query=searchInput.value.trim();
+  searchResults.innerHTML="";
+  if(!query) return;
+  try{
+    const res=await fetch(`${API_BASE}/api/search/${encodeURIComponent(query)}`);
+    const data=await res.json();
+    const items=data.results.items||[];
+    items.forEach(item=>{
+      const box=document.createElement("div");
+      box.className="movie-result";
+      box.innerHTML=`<img src="${item.cover?.url||''}" class="result-img"><div class="result-info"><p class="result-title">${item.title}</p><p class="result-type">${item.genre||'Unknown'}</p></div>`;
+      box.onclick=()=>{searchModal.style.display="none"; searchResults.innerHTML=""; searchInput.value=""; window.location.href=`movie.html?id=${item.subjectId}`;}
+      searchResults.appendChild(box);
+    });
+  }catch(err){console.error(err);}
+});
+
+// --- LOAD MOVIE ---
+async function getMovieInfo(id){const res=await fetch(`${API_BASE}/api/info/${id}`);const data=await res.json();return data.results.subject;}
+async function getDownloadSources(id){const res=await fetch(`${API_BASE}/api/sources/${id}`);const data=await res.json();return data.results||[];}
+async function loadMovie(id){
+  try{
+    const movie=await getMovieInfo(id);
+    movieTitle.textContent=movie.title;
+    movieDesc.textContent=movie.description||"No description available.";
+    const year=movie.releaseDate?movie.releaseDate.split("-")[0]:"N/A";
+    const duration=movie.duration?`${movie.duration} min`:"Unknown";
+    const rating=movie.rating||"N/A";
+    movieInfoBox.innerHTML=`${year} &nbsp;|&nbsp; ${duration} &nbsp;|&nbsp; Rating: ${rating}`;
+    tagsBox.innerHTML=""; (movie.genres||[]).forEach(tag=>{const span=document.createElement("span"); span.textContent=tag; tagsBox.appendChild(span);});
+    const sources=await getDownloadSources(id);
+    if(sources.length>0){mainVideo.src=sources[0].download_url;}
+  }catch(err){console.error(err);}
+}
+
+// --- GET ID FROM URL ---
+const urlParams=new URLSearchParams(window.location.search);
+const movieId=urlParams.get("id");
+if(movieId){CURRENT_MOVIE_ID=movieId; loadMovie(movieId);}
+
+// --- DOWNLOAD BUTTON ---
+downloadBtn.onclick=async ()=>{
+  if(!CURRENT_MOVIE_ID){alert("Movie not loaded!"); return;}
+  const sources=await getDownloadSources(CURRENT_MOVIE_ID);
+  if(!sources||sources.length===0){alert("No download sources available."); return;}
+  const best=sources[sources.length-1].download_url;
+  const a=document.createElement("a"); a.href=best; a.download=""; document.body.appendChild(a); a.click(); a.remove();
+};
+</script>
+</body>
+</html>

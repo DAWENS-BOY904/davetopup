@@ -347,30 +347,6 @@ h1 {
     height: 110px;
   }
 }
-
-.season-select {
-  margin: 20px 0;
-  padding: 12px 16px;
-  border-radius: 12px;
-  font-size: 16px;
-  background: #111;       /* background nwa */
-  color: #fff;            /* tèks blan */
-  border: 2px solid #e50914; /* entourel wouj */
-  outline: none;
-  cursor: pointer;
-  transition: all 0.3s ease;
-}
-
-.season-select:hover {
-  background: #e50914;   /* vin wouj lè hover */
-  color: #fff;            /* tèks rete blan */
-  border-color: #fff;     /* entourel vin blan lè hover */
-}
-
-.season-select:focus {
-  border-color: #ff4b5c; /* lè klike sou li, entourel chanje */
-  box-shadow: 0 0 10px #e50914;
-}
   
 .related-section {
   margin-top: 40px;
@@ -455,11 +431,9 @@ h1 {
 
   <div class="container">
 
-    <div class="video-box">
-      <video src="video.mp4" controls></video>
-    </div>
+    <video id="player" controls autoplay style="width:100%;border-radius:10px;"></video>
 
-    <h1>Super Cube [Version française]</h1>
+    <h1>Teen Wolf: The Movie [Version française]</h1>
 
 <!-- Movie Info -->
 <div class="movie-info" id="movieInfoBox">
@@ -468,29 +442,13 @@ h1 {
 
     <div class="tags">
       <span>Action</span>
-      <span>Adventure</span>
-      <span>Animation</span>
+      <span>Drama</span>
+      <span>Fantasy</span>
     </div>
 
     <p class="description">
-      An ordinary boy won the affection of his goddess and thus pissed off a gang leader. He got a mysterious cube accidentally and started his venture with superpowers. He grows in power as he helps people and punishes evildoers.
+      A terrifying evil has emerged. The wolves howl once again, but only a Werewolf like Scott McCall, can gather both new allies and reunite trusted friends to fight back against what could be the most powerful and deadliest enemy.
     </p>
-
- <!-- Select Episodes & Seasons -->
-  <select id="episodeSelect" class="season-select">
-    <option value="video1.mp4">Season 1 - Episode 1</option>
-    <option value="video2.mp4">Season 1 - Episode 2</option>
-    <option value="video3.mp4">Season 1 - Episode 3</option>
-    <option value="video4.mp4">Season 1 - Episode 4</option>
-    <option value="video5.mp4">Season 1 - Episode 5</option>
-    <option value="video6.mp4">Season 1 - Episode 6</option>
-    <option value="video7.mp4">Season 1 - Episode 7</option>
-    <option value="video8.mp4">Season 1 - Episode 8</option>
-    <option value="video9.mp4">Season 1 - Episode 9</option>
-    <option value="video10.mp4">Season 1 - Episode 10</option>
-    <option value="video10.mp4">Season 1 - Episode 11</option>
-    <option value="video10.mp4">Season 1 - Episode 12</option>
-  </select>
 
     <div class="btns">
       <button class="btn play"><i class="fa fa-play"></i> Play</button>
@@ -797,10 +755,23 @@ downloadBtn.onclick = async () => {
   a.remove();
 };
 
-// ------------------------------
-// AUTOLOAD DEFAULT MOVIE
-// ------------------------------
-loadMovie("avatar-fire-and-ash-2025-official-trailer");
+async function playMovie(query) {
+  const search = await searchMovies(query);
+  const movieId = search.results.items[0].subjectId;
+
+  const info = await getMovieInfo(movieId);
+  const subjectId = info.results.subject.subjectId;
+
+  const sources = await getDownloadSources(subjectId);
+
+  // pran premye kalite mp4 la
+  const mp4 = sources.results[0].download_url;
+
+  document.getElementById("player").src = mp4;
+}
+
+// Egzanp: otomatikman jwe Black Panther
+playMovie("Teen Movie");
 </script>
 </body>
 </html>
