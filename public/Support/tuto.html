@@ -1,0 +1,564 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Tutoriel — DavToUp</title>
+  <style>
+    :root{
+      --bg:#0b0f1a;
+      --card:#0f1724;
+      --muted:#98a0b3;
+      --accent1:#7C3AED; /* violet */
+      --accent2:#06b6d4; /* cyan */
+      --glass: rgba(255,255,255,0.03);
+      --radius:14px;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family: Inter, "Poppins", system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+      background: linear-gradient(180deg,#030412 0%, #071029 60%);
+      color:#e6eef8;
+      -webkit-font-smoothing:antialiased;
+      -moz-osx-font-smoothing:grayscale;
+      padding:32px;
+    }
+
+    .container{max-width:1100px;margin:0 auto;display:grid;grid-template-columns:1fr 360px;gap:28px;align-items:start}
+    header{grid-column:1/-1;display:flex;align-items:center;justify-content:space-between;margin-bottom:4px}
+    .brand{
+      display:flex;flex-direction:column;
+    }
+    .title{
+      font-size:28px;
+      margin:0;
+      line-height:1;
+      background:linear-gradient(90deg,var(--accent1),var(--accent2));
+      -webkit-background-clip:text;
+      background-clip:text;
+      color:transparent;
+      font-weight:700;
+      /* glow */
+      text-shadow:0 0 18px rgba(124,58,237,0.22), 0 0 36px rgba(6,182,212,0.10);
+    }
+    .subtitle{
+      margin-top:6px;
+      color:var(--muted);
+      font-size:13px;
+    }
+
+    /* card */
+    .card{
+      background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+      border-radius:var(--radius);
+      padding:18px;
+      box-shadow: 0 8px 30px rgba(2,6,23,0.6);
+      border: 1px solid rgba(255,255,255,0.03);
+    }
+
+    /* left column */
+    .left .intro{
+      display:flex;gap:14px;align-items:flex-start;margin-bottom:16px;
+    }
+    .badge{
+      background:linear-gradient(90deg,var(--accent2),var(--accent1));
+      padding:8px 12px;border-radius:999px;font-weight:700;font-size:12px;color:#fff;
+      box-shadow:0 6px 18px rgba(7,19,35,0.6);
+    }
+
+    .videos{
+      display:grid;grid-template-columns:repeat(2,1fr);gap:12px;
+    }
+    .video-card{
+      background:var(--card);padding:10px;border-radius:12px;overflow:hidden;
+      display:flex;flex-direction:column;gap:8px;
+      border:1px solid rgba(255,255,255,0.025);
+    }
+    .video-card video{width:100%;height:160px;object-fit:cover;border-radius:8px;background:#000}
+    .video-card h4{margin:0;font-size:14px}
+    .video-card p{margin:0;font-size:12px;color:var(--muted)}
+
+    /* right column */
+    aside{position:sticky;top:28px;height:fit-content}
+    form .row{display:flex;gap:10px}
+    label{font-size:12px;color:var(--muted);display:block;margin-bottom:6px}
+    input[type="text"],input[type="email"],textarea{
+      width:100%;padding:10px;border-radius:10px;border:1px solid rgba(255,255,255,0.03);
+      background:linear-gradient(180deg, rgba(255,255,255,0.01), rgba(255,255,255,0.00));
+      color:var(--muted);
+      outline:none;
+    }
+    textarea{min-height:110px;resize:vertical;color:var(--muted)}
+    .btn{
+      display:inline-block;padding:10px 14px;border-radius:12px;font-weight:700;
+      background:linear-gradient(90deg,var(--accent1),var(--accent2));
+      color:white;border:none;cursor:pointer;box-shadow:0 8px 24px rgba(6,182,212,0.08);
+    }
+    .muted{color:var(--muted);font-size:13px}
+    .example{
+      background:linear-gradient(180deg, rgba(6,182,212,0.03), rgba(124,58,237,0.03));
+      border-radius:10px;padding:10px;font-family:monospace;font-size:13px;color:#cfeff6;
+      white-space:pre-wrap;margin-top:12px;border:1px solid rgba(255,255,255,0.02)
+    }
+
+    footer{grid-column:1/-1;margin-top:18px;color:var(--muted);font-size:13px;text-align:center}
+    @media (max-width:980px){
+      .container{grid-template-columns:1fr; padding:12px}
+      .videos{grid-template-columns:1fr}
+      aside{position:relative;top:0}
+    }
+
+/* --- Reset & base --- */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  font-family: 'Poppins', sans-serif;
+}
+body {
+  background: #0b0f1a;
+  color: #e6eef8;
+  overflow-x: hidden;
+}
+
+/* --- Icons / Header --- */
+.icons {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.cart-btn, .menu-btn {
+  background: transparent;
+  border: none;
+  color: #e6eef8;
+  font-size: 20px;
+  cursor: pointer;
+  padding: 8px;
+  border-radius: 8px;
+  transition: background 0.2s;
+}
+.cart-btn:hover, .menu-btn:hover {
+  background: rgba(124,58,237,0.2);
+}
+
+/* --- Side Menu --- */
+.side-menu {
+  position: fixed;
+  top: 0;
+  right: -320px; /* hidden by default */
+  width: 300px;
+  height: 100vh;
+  background: linear-gradient(180deg,#0f1724,#1a1f34);
+  box-shadow: -6px 0 24px rgba(0,0,0,0.6);
+  padding: 20px;
+  transition: right 0.3s ease-in-out;
+  z-index: 9999;
+  overflow-y: auto;
+}
+.side-menu.open {
+  right: 0;
+}
+
+.side-menu .close-btn {
+  background: transparent;
+  border: none;
+  font-size: 28px;
+  color: #e6eef8;
+  cursor: pointer;
+  float: right;
+}
+.side-menu ul {
+  list-style: none;
+  margin-top: 40px;
+}
+.side-menu ul li {
+  margin-bottom: 16px;
+  position: relative;
+}
+.side-menu ul li a {
+  color: #e6eef8;
+  text-decoration: none;
+  font-weight: 500;
+  transition: color 0.2s;
+}
+.side-menu ul li a:hover {
+  color: #7c3aed;
+}
+
+/* --- Submenu --- */
+.submenu {
+  list-style: none;
+  margin-top: 8px;
+  margin-left: 15px;
+  display: none;
+}
+.submenu li {
+  margin-bottom: 10px;
+}
+.support-item:hover .submenu {
+  display: block;
+}
+
+/* --- Cart Panel --- */
+.cart-panel {
+  position: fixed;
+  top: 0;
+  right: -320px; /* hidden by default */
+  width: 300px;
+  height: 100vh;
+  background: linear-gradient(180deg,#0f1724,#1a1f34);
+  box-shadow: -6px 0 24px rgba(0,0,0,0.6);
+  padding: 20px;
+  transition: right 0.3s ease-in-out;
+  z-index: 9998;
+  overflow-y: auto;
+}
+.cart-panel.open {
+  right: 0;
+}
+.cart-panel h3 {
+  margin-bottom: 12px;
+}
+.cart-panel p {
+  color: #98a0b3;
+  font-size: 14px;
+}
+.cart-panel .close-btn {
+  background: transparent;
+  border: none;
+  font-size: 28px;
+  color: #e6eef8;
+  cursor: pointer;
+  float: right;
+}
+
+/* --- Scrollbar (optional, modern) --- */
+.side-menu::-webkit-scrollbar,
+.cart-panel::-webkit-scrollbar {
+  width: 6px;
+}
+.side-menu::-webkit-scrollbar-thumb,
+.cart-panel::-webkit-scrollbar-thumb {
+  background: rgba(124,58,237,0.4);
+  border-radius: 3px;
+}
+
+/* --- Media Queries --- */
+@media (max-width: 768px) {
+  .side-menu, .cart-panel {
+    width: 260px;
+  }
+}
+  </style>
+</head>
+<body>
+
+<div class="icons">
+    <button class="cart-btn" id="openCart"><i class="fa-solid fa-cart-shopping"></i></button>
+    <button class="menu-btn" id="openMenu">☰</button>
+  </div>
+</header>
+
+<div class="side-menu" id="sideMenu">
+  <button class="close-btn" id="closeMenu">×</button>
+  <ul>
+    <li><a href="admin/login.html">Connexion</a></li>
+    <li><a href="index.html">Accueil</a></li>
+    <li><a href="Apple.html">Apple Card</a></li>
+    <li><a href="exchange.html">Exchange</a></li>
+    <li><a href="wallet.html">Mon Portefeuille</a></li>
+    <li><a href="Login/login.html">Paramètres</a></li>
+    <li class="support-item">
+      <a href="#" id="supportLink">Support ▼</a>
+      <ul class="submenu" id="supportSubmenu" style="display:none; margin-left:15px;">
+        <li><a href="assistant.html">Assistant</a></li>
+        <li><a href="politique.html">Politique & Confidentialité</a></li>
+      </ul>
+    </li>
+  </ul>
+</div>
+
+<div class="cart-panel" id="cartPanel">
+  <button class="close-btn" id="closeCart">×</button>
+  <h3>Votre Panier</h3>
+  <p>Aucun article ajouté.</p>
+</div>
+
+  <div class="container">
+    <header>
+      <div class="brand">
+        <h1 class="title">Tutoriels — Comment utiliser DavToUp</h1>
+        <div class="subtitle">Apprenez étape par étape comment utiliser le site, acheter vos packs et gérer votre compte. <strong>Message:</strong> Uka mete lot message pi pro</div>
+      </div>
+      <div class="badge">Guide rapide • 5 vidéos</div>
+    </header>
+
+    <main class="left">
+      <div class="card intro">
+        <div>
+          <h3 style="margin:0 0 6px 0">Tutoriel</h3>
+          <p class="muted" style="max-width:700px">
+            Apprenez étape par étape comment utiliser le site, acheter vos packs et gérer votre compte. Suivez les vidéos ci-dessous et utilisez le formulaire à droite pour nous contacter — votre message sera automatiquement envoyé à l'admin.
+          </p>
+        </div>
+      </div>
+
+      <div class="card" style="margin-top:14px">
+        <h3 style="margin-top:0">Vidéos du tutoriel</h3>
+        <div class="videos" style="margin-top:12px">
+          <!-- Video 1 -->
+          <div class="video-card">
+            <video controls preload="metadata" poster="">
+              <!-- REPLACE src with real video URL -->
+              <source src="videos/01-intro.mp4" type="video/mp4">
+              Your browser does not support the video tag.
+            </video>
+            <h4>01 — Introduction & création de compte</h4>
+            <p class="muted">Comment créer un compte, vérifier votre email et configurer votre profil.</p>
+          </div>
+
+          <!-- Video 2 -->
+          <div class="video-card">
+            <video controls preload="metadata" poster="">
+              <source src="videos/02-acheter-pack.mp4" type="video/mp4">
+            </video>
+            <h4>02 — Acheter un pack</h4>
+            <p class="muted">Sélectionner un pack, choisir la méthode de paiement et finaliser la commande.</p>
+          </div>
+
+          <!-- Video 3 -->
+          <div class="video-card">
+            <video controls preload="metadata" poster="">
+              <source src="videos/03-gerer-compte.mp4" type="video/mp4">
+            </video>
+            <h4>03 — Gérer votre compte</h4>
+            <p class="muted">Changer mot de passe, voir l'historique, et gérer notifications.</p>
+          </div>
+
+          <!-- Video 4 -->
+          <div class="video-card">
+            <video controls preload="metadata" poster="">
+              <source src="videos/04-support-refund.mp4" type="video/mp4">
+            </video>
+            <h4>04 — Support & remboursements</h4>
+            <p class="muted">Comment demander un remboursement et contacter le support.</p>
+          </div>
+
+          <!-- Video 5 -->
+          <div class="video-card">
+            <video controls preload="metadata" poster="">
+              <source src="videos/05-astuces.mp4" type="video/mp4">
+            </video>
+            <h4>05 — Astuces & best practices</h4>
+            <p class="muted">Conseils pour obtenir le meilleur rendement et éviter les erreurs courantes.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="card" style="margin-top:14px">
+        <h3 style="margin-top:0">Note professionnelle</h3>
+        <p class="muted">
+          Texte pro suggéré (remplacez si vous préférez) :
+        </p>
+        <div style="margin-top:10px;color:#e8f7ff">
+          <strong>Bienvenue sur DavToUp — Mode d'emploi rapide :</strong>
+          <ul style="color:var(--muted);margin-top:8px">
+            <li>Créez votre compte et vérifiez votre email.</li>
+            <li>Choisissez le pack adapté à vos besoins.</li>
+            <li>Paiements sécurisés via Stripe / CashApp (selon disponibilité).</li>
+            <li>Consultez l'historique pour suivre vos commandes.</li>
+            <li>Contactez-nous via le formulaire — nous répondons en moins de 24h.</li>
+          </ul>
+        </div>
+      </div>
+    </main>
+
+    <aside>
+      <div class="card">
+        <h3 style="margin-top:0">Contact / Laisser un commentaire</h3>
+        <p class="muted">Remplissez le formulaire ci-dessous. Votre message sera envoyé automatiquement à l'admin.</p>
+
+        <form id="contactForm">
+          <div style="margin-bottom:10px">
+            <label for="name">Name</label>
+            <input id="name" name="name" type="text" placeholder="Ex: Dawens Hacker" required>
+          </div>
+
+          <div style="margin-bottom:10px">
+            <label for="email">Email</label>
+            <input id="email" name="email" type="email" placeholder="Ex: you@mail.com" required>
+          </div>
+
+          <div style="margin-bottom:10px">
+            <label for="site">Site (optionnel)</label>
+            <input id="site" name="site" type="text" placeholder="https://exemple.com">
+          </div>
+
+          <div style="margin-bottom:10px">
+            <label for="message">Message</label>
+            <textarea id="message" name="message" placeholder="Écrivez votre message..." required></textarea>
+          </div>
+
+          <div style="display:flex;gap:8px;align-items:center">
+            <button class="btn" type="submit">Envoyer au Admin</button>
+            <div id="status" class="muted" style="font-size:13px">Prêt</div>
+          </div>
+
+          <div style="margin-top:12px">
+            <label class="muted">Méthode d'envoi (configurer avant usage)</label>
+            <div class="muted" style="font-size:13px">Option 1: EmailJS (client). Option 2: POST /api/contact (backend).</div>
+          </div>
+        </form>
+
+
+      </div>
+
+      <div class="card" style="margin-top:12px">
+        <h4 style="margin:0">Notes technique</h4>
+        <p class="muted" style="margin-top:8px">Si vous n'avez pas de backend, utilisez <strong>EmailJS</strong> (client) — instructions dans le code. Sinon implémentez un endpoint serveur pour envoyer l'email via Nodemailer (ex. Node/Express ci-dessous).</p>
+      </div>
+    </aside>
+
+    <footer>
+      © DavToUp • Tutoriels — Built with care.
+    </footer>
+  </div>
+
+  <script>
+const sideMenu = document.getElementById('sideMenu');
+const openMenu = document.getElementById('openMenu');
+const closeMenu = document.getElementById('closeMenu');
+
+openMenu.addEventListener('click', ()=> sideMenu.classList.add('open'));
+closeMenu.addEventListener('click', ()=> sideMenu.classList.remove('open'));
+
+const cartPanel = document.getElementById('cartPanel');
+const openCart = document.getElementById('openCart');
+const closeCart = document.getElementById('closeCart');
+
+openCart.addEventListener('click', ()=> cartPanel.classList.add('open'));
+closeCart.addEventListener('click', ()=> cartPanel.classList.remove('open'));
+
+/* Toggle submenu */
+const supportLink = document.getElementById('supportLink');
+const supportSubmenu = document.getElementById('supportSubmenu');
+supportLink.addEventListener('click', (e)=>{
+  e.preventDefault();
+  supportSubmenu.style.display = supportSubmenu.style.display === 'block' ? 'none' : 'block';
+});
+    // ---------- Helper: detect device & language ----------
+    function getDeviceType(){
+      const ua = navigator.userAgent || '';
+      if(/Mobi|Android|iPhone|iPad|iPod/i.test(ua)) return 'mobile';
+      return 'desktop';
+    }
+    const userLang = navigator.language || navigator.userLanguage || 'en-US';
+
+    // ---------- Form handling ----------
+    const form = document.getElementById('contactForm');
+    const statusEl = document.getElementById('status');
+
+    // Prepare admin email template as requested
+    function buildAdminTemplate(data){
+      return {
+        subject: "Dave Top Up received a new message.",
+        body:
+`Dave Top Up received a new message.
+Name
+${data.name}
+Email
+${data.email}
+Site
+${data.site || '—'}
+Message
+${data.message}
+Device
+${getDeviceType()}
+Language
+${userLang}
+Submitted_from
+Homepage`
+      };
+    }
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      statusEl.textContent = 'Envoi...';
+      const name = form.name.value.trim();
+      const email = form.email.value.trim();
+      const site = form.site.value.trim();
+      const message = form.message.value.trim();
+
+      if(!name || !email || !message){
+        statusEl.textContent = 'Remplissez tous les champs requis.';
+        return;
+      }
+
+      const payload = {
+        name, email, site, message,
+        device: getDeviceType(),
+        language: userLang,
+        from: 'Homepage'
+      };
+
+      // admin template (what admin should receive)
+      const adminMsg = buildAdminTemplate(payload);
+
+      // ------- OPTION A: EmailJS (client-side) -------
+      // If you want to use EmailJS (no backend), uncomment and configure the lines below:
+      //
+      // 1) Sign up at https://www.emailjs.com
+      // 2) Create a service (service_xxx), template (template_xxx) and get your user ID (user_xxx)
+      // 3) Replace the IDs below and uncomment the block to send via EmailJS.
+      //
+      // Example:
+      // emailjs.send('service_xxx','template_xxx', {
+      //   subject: adminMsg.subject,
+      //   message: adminMsg.body,
+      //   from_name: payload.name,
+      //   from_email: payload.email
+      // }, 'user_xxx')
+      // .then(() => {
+      //   statusEl.textContent = 'Message envoyé — Admin notifié (EmailJS).';
+      //   form.reset();
+      // }).catch((err) => {
+      //   console.error(err);
+      //   statusEl.textContent = 'Erreur EmailJS: voir console.';
+      // });
+
+      // ------- OPTION B: POST to your backend /api/contact -------
+      // Implement a server endpoint (example Node/Nodemailer below).
+      // Replace '/api/contact' with your actual endpoint.
+      try {
+        const resp = await fetch('/api/contact', {
+          method:'POST',
+          headers:{'Content-Type':'application/json'},
+          body: JSON.stringify({
+            adminSubject: adminMsg.subject,
+            adminBody: adminMsg.body,
+            payload
+          })
+        });
+
+        if(resp.ok){
+          statusEl.textContent = 'Message envoyé — Admin notifié.';
+          form.reset();
+        }else{
+          const txt = await resp.text().catch(()=>null);
+          statusEl.textContent = 'Serveur a retourné une erreur: ' + (txt||resp.status);
+        }
+      } catch(err){
+        console.warn('Fetch error:', err);
+        statusEl.textContent = 'Impossible d\'atteindre /api/contact. Voir console.';
+        console.error(err);
+
+        // As a fallback (developer) we show the prepared email so the integrator can send it manually:
+        console.log('ADMIN TEMPLATE:\n', adminMsg.body);
+      }
+    });
+  </script>
+
+</body>
+</html>

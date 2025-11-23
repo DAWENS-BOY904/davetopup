@@ -1,0 +1,590 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Tutoriel — DavToUp</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;800&display=swap" rel="stylesheet">
+  <style>
+    :root{
+      --bg:#0b0f1a;
+      --card:#0f1724;
+      --muted:#9aa4b2;
+      --glass: rgba(255,255,255,0.03);
+      --accent1: #ff5f6d;
+      --accent2: #ffc371;
+      --accent3: #7ee8fa;
+      --accent4: #b76cff;
+      --radius:14px;
+      --shadow: 0 10px 30px rgba(2,6,23,0.6);
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      min-height:100vh;
+      font-family:"Poppins",system-ui,Arial;
+      background: linear-gradient(180deg,#030417 0%, #071225 100%);
+      color:#e6eef8;
+      -webkit-font-smoothing:antialiased;
+      -moz-osx-font-smoothing:grayscale;
+      padding:36px;
+    }
+
+    .container{
+      max-width:1100px;
+      margin:0 auto;
+      display:grid;
+      grid-template-columns: 1fr 360px;
+      gap:30px;
+      align-items:start;
+    }
+
+    header{
+      grid-column:1/-1;
+      margin-bottom:6px;
+    }
+
+    .title-wrap{
+      display:flex;
+      align-items:center;
+      gap:18px;
+    }
+
+    h1{
+      margin:0;
+      font-size:30px;
+      line-height:1;
+      letter-spacing:0.2px;
+      font-weight:800;
+    }
+
+    /* Multicolor glowing subtitle */
+    .subtitle{
+      margin-top:6px;
+      font-weight:700;
+      font-size:15px;
+      display:inline-block;
+      padding:8px 14px;
+      border-radius:999px;
+      background: linear-gradient(90deg, var(--accent1), var(--accent2), var(--accent3), var(--accent4));
+      -webkit-background-clip: text;
+      background-clip: text;
+      color:transparent;
+      filter:drop-shadow(0 6px 16px rgba(124, 58, 237, 0.25));
+      animation: hue 6s linear infinite;
+    }
+
+    @keyframes hue{
+      0%{filter: drop-shadow(0 6px 16px rgba(255,95,109,0.25));}
+      25%{filter: drop-shadow(0 6px 16px rgba(255,195,113,0.25));}
+      50%{filter: drop-shadow(0 6px 16px rgba(126,232,250,0.25));}
+      75%{filter: drop-shadow(0 6px 16px rgba(183,108,255,0.25));}
+      100%{filter: drop-shadow(0 6px 16px rgba(255,95,109,0.25));}
+    }
+
+    .intro{
+      margin-top:14px;
+      color:var(--muted);
+      font-size:15px;
+      line-height:1.55;
+      background: linear-gradient(180deg, rgba(255,255,255,0.01), transparent);
+      padding:16px;
+      border-radius:12px;
+      box-shadow: var(--shadow);
+    }
+
+    main{
+      background:transparent;
+    }
+
+    .videos{
+      display:grid;
+      grid-template-columns: repeat(1,1fr);
+      gap:14px;
+      margin-top:18px;
+    }
+
+    .video-card{
+      background:var(--card);
+      border-radius:12px;
+      padding:12px;
+      box-shadow: 0 8px 30px rgba(2,6,23,0.45);
+      display:flex;
+      gap:12px;
+      align-items:center;
+    }
+
+    .video-thumb{
+      width:140px;
+      height:84px;
+      border-radius:8px;
+      background:linear-gradient(135deg, rgba(255,255,255,0.03), rgba(255,255,255,0.01));
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      overflow:hidden;
+      flex-shrink:0;
+    }
+
+    .video-thumb video, .video-thumb iframe{
+      width:100%;
+      height:100%;
+      object-fit:cover;
+      display:block;
+    }
+
+    .video-info{
+      flex:1;
+    }
+    .video-info h3{
+      margin:0 0 6px 0;
+      font-size:16px;
+      font-weight:600;
+    }
+    .video-info p{
+      margin:0;
+      color:var(--muted);
+      font-size:13px;
+    }
+
+    /* Right column: form */
+    aside{
+      position:sticky;
+      top:36px;
+      align-self:start;
+    }
+    .card{
+      background: linear-gradient(180deg, rgba(255,255,255,0.01), rgba(255,255,255,0.02));
+      padding:18px;
+      border-radius:12px;
+      box-shadow: var(--shadow);
+    }
+    label{display:block;font-size:13px;margin-bottom:6px;color:#d6e6ff}
+    input[type="text"], input[type="email"], textarea{
+      width:100%;
+      padding:10px 12px;
+      border-radius:10px;
+      border:1px solid rgba(255,255,255,0.04);
+      background: rgba(255,255,255,0.02);
+      color: #e9f2ff;
+      font-size:14px;
+      outline:none;
+    }
+    textarea{min-height:110px; resize:vertical}
+    .btn{
+      display:inline-block;
+      padding:10px 14px;
+      border-radius:10px;
+      background: linear-gradient(90deg,var(--accent4),var(--accent1));
+      color:white;
+      font-weight:700;
+      border:none;
+      cursor:pointer;
+      box-shadow: 0 8px 20px rgba(124,58,237,0.18);
+    }
+    .muted-small{font-size:12px;color:var(--muted);margin-top:8px}
+
+    .status {
+      margin-top:10px;
+      font-size:13px;
+    }
+
+    footer{
+      grid-column:1/-1;
+      margin-top:22px;
+      color:var(--muted);
+      font-size:13px;
+      text-align:center;
+    }
+
+    /* Responsive */
+    @media (max-width:980px){
+      .container{grid-template-columns:1fr; padding:0 12px}
+      .subtitle{display:block}
+      aside{position:static}
+    }
+
+/* --- Reset & base --- */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  font-family: 'Poppins', sans-serif;
+}
+body {
+  background: #0b0f1a;
+  color: #e6eef8;
+  overflow-x: hidden;
+}
+
+/* --- Icons / Header --- */
+.icons {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.cart-btn, .menu-btn {
+  background: transparent;
+  border: none;
+  color: #e6eef8;
+  font-size: 20px;
+  cursor: pointer;
+  padding: 8px;
+  border-radius: 8px;
+  transition: background 0.2s;
+}
+.cart-btn:hover, .menu-btn:hover {
+  background: rgba(124,58,237,0.2);
+}
+
+/* --- Side Menu --- */
+.side-menu {
+  position: fixed;
+  top: 0;
+  right: -320px; /* hidden by default */
+  width: 300px;
+  height: 100vh;
+  background: linear-gradient(180deg,#0f1724,#1a1f34);
+  box-shadow: -6px 0 24px rgba(0,0,0,0.6);
+  padding: 20px;
+  transition: right 0.3s ease-in-out;
+  z-index: 9999;
+  overflow-y: auto;
+}
+.side-menu.open {
+  right: 0;
+}
+
+.side-menu .close-btn {
+  background: transparent;
+  border: none;
+  font-size: 28px;
+  color: #e6eef8;
+  cursor: pointer;
+  float: right;
+}
+.side-menu ul {
+  list-style: none;
+  margin-top: 40px;
+}
+.side-menu ul li {
+  margin-bottom: 16px;
+  position: relative;
+}
+.side-menu ul li a {
+  color: #e6eef8;
+  text-decoration: none;
+  font-weight: 500;
+  transition: color 0.2s;
+}
+.side-menu ul li a:hover {
+  color: #7c3aed;
+}
+
+/* --- Submenu --- */
+.submenu {
+  list-style: none;
+  margin-top: 8px;
+  margin-left: 15px;
+  display: none;
+}
+.submenu li {
+  margin-bottom: 10px;
+}
+.support-item:hover .submenu {
+  display: block;
+}
+
+/* --- Cart Panel --- */
+.cart-panel {
+  position: fixed;
+  top: 0;
+  right: -320px; /* hidden by default */
+  width: 300px;
+  height: 100vh;
+  background: linear-gradient(180deg,#0f1724,#1a1f34);
+  box-shadow: -6px 0 24px rgba(0,0,0,0.6);
+  padding: 20px;
+  transition: right 0.3s ease-in-out;
+  z-index: 9998;
+  overflow-y: auto;
+}
+.cart-panel.open {
+  right: 0;
+}
+.cart-panel h3 {
+  margin-bottom: 12px;
+}
+.cart-panel p {
+  color: #98a0b3;
+  font-size: 14px;
+}
+.cart-panel .close-btn {
+  background: transparent;
+  border: none;
+  font-size: 28px;
+  color: #e6eef8;
+  cursor: pointer;
+  float: right;
+}
+
+/* --- Scrollbar (optional, modern) --- */
+.side-menu::-webkit-scrollbar,
+.cart-panel::-webkit-scrollbar {
+  width: 6px;
+}
+.side-menu::-webkit-scrollbar-thumb,
+.cart-panel::-webkit-scrollbar-thumb {
+  background: rgba(124,58,237,0.4);
+  border-radius: 3px;
+}
+
+/* --- Media Queries --- */
+@media (max-width: 768px) {
+  .side-menu, .cart-panel {
+    width: 260px;
+  }
+}
+  </style>
+</head>
+<body>
+  <div class="icons">
+    <button class="cart-btn" id="openCart"><i class="fa-solid fa-cart-shopping"></i></button>
+    <button class="menu-btn" id="openMenu">☰</button>
+  </div>
+</header>
+
+<div class="side-menu" id="sideMenu">
+  <button class="close-btn" id="closeMenu">×</button>
+  <ul>
+    <li><a href="admin/login.html">Connexion</a></li>
+    <li><a href="index.html">Accueil</a></li>
+    <li><a href="Apple.html">Apple Card</a></li>
+    <li><a href="exchange.html">Exchange</a></li>
+    <li><a href="wallet.html">Mon Portefeuille</a></li>
+    <li><a href="admin/login.html">Paramètres</a></li>
+    <li class="support-item">
+      <a href="#" id="supportLink">Support ▼</a>
+      <ul class="submenu" id="supportSubmenu" style="display:none; margin-left:15px;">
+        <li><a href="tuto.html">Tutoriel</a></li>
+        <li><a href="assistant.html">Assistant</a></li>
+        <li><a href="politique.html">Politique & Confidentialité</a></li>
+      </ul>
+    </li>
+  </ul>
+</div>
+
+<div class="cart-panel" id="cartPanel">
+  <button class="close-btn" id="closeCart">×</button>
+  <h3>Votre Panier</h3>
+  <p>Aucun article ajouté.</p>
+</div>
+
+
+  <div class="container">
+    <header>
+      <div class="title-wrap">
+        <h1>Tutoriel</h1>
+        <div class="subtitle">Tutoriels — Comment utiliser DavToUp</div>
+      </div>
+
+      <div class="intro">
+        <strong>Apprenez étape par étape comment utiliser le site, acheter vos packs et gérer votre compte.</strong>
+        <p style="margin:8px 0 0;color:var(--muted)">
+          Ce guide montre les actions essentielles pour commencer: création de compte, achat sécurisé, gestion de commandes et support. Suivez chaque vidéo-modèle ci-dessous pour une démonstration visuelle — chaque modèle est court, clair et prêt à être remplacé par vos propres fichiers ou liens YouTube.
+        </p>
+      </div>
+    </header>
+
+    <main>
+      <section class="videos" aria-label="Liste des tutoriels vidéo">
+        <!-- Video model 1 -->
+        <article class="video-card">
+          <div class="video-thumb">
+            <!-- Remplacez src par le chemin de votre vidéo locale ou utilisez un <iframe> YouTube -->
+            <video controls preload="metadata" poster="poster1.jpg">
+              <source src="videos/model1.mp4" type="video/mp4">
+              Votre navigateur ne supporte pas la vidéo HTML5.
+            </video>
+          </div>
+          <div class="video-info">
+            <h3>1 — Créer un compte (Étape par étape)</h3>
+            <p>Inscription, vérification de l'email, paramètres de sécurité et premières configurations du profil.</p>
+          </div>
+        </article>
+
+        <!-- Video model 2 -->
+        <article class="video-card">
+          <div class="video-thumb">
+            <video controls preload="metadata" poster="poster2.jpg">
+              <source src="videos/model2.mp4" type="video/mp4">
+            </video>
+          </div>
+          <div class="video-info">
+            <h3>2 — Acheter un pack</h3>
+            <p>Choisir un pack, ajouter au panier, passer au paiement (Stripe / CashApp), et recevoir confirmation par email.</p>
+          </div>
+        </article>
+
+        <!-- Video model 3 -->
+        <article class="video-card">
+          <div class="video-thumb">
+            <video controls preload="metadata" poster="poster3.jpg">
+              <source src="videos/model3.mp4" type="video/mp4">
+            </video>
+          </div>
+          <div class="video-info">
+            <h3>3 — Gérer vos commandes</h3>
+            <p>Voir l'historique, suivre un ordre, demander un remboursement ou une assistance.</p>
+          </div>
+        </article>
+
+        <!-- Video model 4 -->
+        <article class="video-card">
+          <div class="video-thumb">
+            <video controls preload="metadata" poster="poster4.jpg">
+              <source src="videos/model4.mp4" type="video/mp4">
+            </video>
+          </div>
+          <div class="video-info">
+            <h3>4 — Sécurité et bonnes pratiques</h3>
+            <p>Comment protéger votre compte, utiliser des mots de passe forts et activer 2FA.</p>
+          </div>
+        </article>
+
+        <!-- Video model 5 -->
+        <article class="video-card">
+          <div class="video-thumb">
+            <video controls preload="metadata" poster="poster5.jpg">
+              <source src="videos/model5.mp4" type="video/mp4">
+            </video>
+          </div>
+          <div class="video-info">
+            <h3>5 — Support & contact</h3>
+            <p>Où trouver l'aide, ouvrir un ticket, et exemples de demandes pour obtenir une réponse rapide.</p>
+          </div>
+        </article>
+      </section>
+    </main>
+
+    <aside>
+      <div class="card">
+        <h3 style="margin:0 0 10px 0">Laisser un commentaire / demande</h3>
+        <p class="muted-small">Remplissez ce formulaire — les messages seront envoyés directement à l'administrateur (email).</p>
+
+        <form id="commentForm">
+          <label for="name">Nom</label>
+          <input id="name" name="name" type="text" placeholder="Ex: Jean Dupont" required>
+
+          <label for="email" style="margin-top:10px">Email</label>
+          <input id="email" name="email" type="email" placeholder="exemple@mail.com" required>
+
+          <label for="site" style="margin-top:10px">Site (optionel)</label>
+          <input id="site" name="site" type="text" placeholder="https://votresite.com">
+
+          <label for="message" style="margin-top:10px">Message / Commentaire</label>
+          <textarea id="message" name="message" placeholder="Écrivez votre question, suggestion ou preuve d'achat..." required></textarea>
+
+          <div style="margin-top:12px;display:flex;gap:8px;align-items:center">
+            <button type="submit" class="btn">Envoyer au admin</button>
+            <div id="formStatus" class="status muted-small" aria-live="polite"></div>
+          </div>
+
+          <p class="muted-small" style="margin-top:12px">Si vous avez un appareil mobile, le système ouvrira votre application email si le serveur n'est pas configuré.</p>
+        </form>
+      </div>
+    </aside>
+
+    <footer>
+      © DavToUp — Dawens Boy.
+    </footer>
+  </div>
+
+  <script>
+    // CHANGE THIS to your admin email:
+    const ADMIN_EMAIL = "beeryxoe@gmail.com";
+
+    // The form behaviour:
+    const form = document.getElementById('commentForm');
+    const statusEl = document.getElementById('formStatus');
+const sideMenu = document.getElementById('sideMenu');
+const openMenu = document.getElementById('openMenu');
+const closeMenu = document.getElementById('closeMenu');
+
+openMenu.addEventListener('click', ()=> sideMenu.classList.add('open'));
+closeMenu.addEventListener('click', ()=> sideMenu.classList.remove('open'));
+
+const cartPanel = document.getElementById('cartPanel');
+const openCart = document.getElementById('openCart');
+const closeCart = document.getElementById('closeCart');
+
+openCart.addEventListener('click', ()=> cartPanel.classList.add('open'));
+closeCart.addEventListener('click', ()=> cartPanel.classList.remove('open'));
+
+/* Toggle submenu */
+const supportLink = document.getElementById('supportLink');
+const supportSubmenu = document.getElementById('supportSubmenu');
+supportLink.addEventListener('click', (e)=>{
+  e.preventDefault();
+  supportSubmenu.style.display = supportSubmenu.style.display === 'block' ? 'none' : 'block';
+});
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      statusEl.textContent = "Traitement...";
+      const data = {
+        name: form.name.value.trim(),
+        email: form.email.value.trim(),
+        site: form.site.value.trim(),
+        message: form.message.value.trim(),
+        date: new Date().toISOString()
+      };
+
+      // Try to POST to an API endpoint first (if you have backend)
+      try {
+        const resp = await fetch('/api/send-comment', {
+          method: 'POST',
+          headers: {'Content-Type':'application/json'},
+          body: JSON.stringify(data),
+        });
+
+        if (resp.ok) {
+          statusEl.style.color = "#b7ffd9";
+          statusEl.textContent = "Message envoyé — l'administrateur a été notifié.";
+          form.reset();
+          return;
+        } else {
+          // server returned error; fallback to mailto
+          console.warn('Server error while sending comment:', resp.status);
+        }
+      } catch (err) {
+        // network or no backend: fallback to mailto
+        console.warn('No backend, falling back to mailto:', err);
+      }
+
+      // MAILTO fallback: open user's email client with prefilled content
+      try {
+        const subject = encodeURIComponent("[Commentaire Tutoriel] " + data.name);
+        const bodyLines = [
+          "Nom: " + data.name,
+          "Email: " + data.email,
+          "Site: " + (data.site || "-"),
+          "Date: " + data.date,
+          "",
+          "Message:",
+          data.message
+        ];
+        const body = encodeURIComponent(bodyLines.join('\n'));
+        const mailto = `mailto:${encodeURIComponent(ADMIN_EMAIL)}?subject=${subject}&body=${body}`;
+        window.location.href = mailto;
+        statusEl.style.color = "#ffd7b7";
+        statusEl.textContent = "Votre client email s'ouvrira pour envoyer le message. Si rien ne s'ouvre, copiez-collez votre message et envoyez-le manuellement à " + ADMIN_EMAIL;
+        form.reset();
+      } catch (err) {
+        statusEl.style.color = "#ffb3b3";
+        statusEl.textContent = "Impossible d'ouvrir le client email. Veuillez contacter " + ADMIN_EMAIL + " manuellement.";
+      }
+    });
+  </script>
+</body>
+</html>

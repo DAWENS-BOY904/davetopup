@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="ht">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Report Bug — Dave</title>
+<style>
+body { font-family: system-ui, sans-serif; max-width:800px; margin:auto; padding:16px; }
+h1 { font-size:1.5rem; margin-bottom:12px; }
+label { display:block; margin-top:12px; font-weight:600; }
+textarea { width:100%; min-height:120px; padding:8px; margin-top:4px; font-size:0.95rem; }
+button { padding:10px 14px; margin-top:12px; border-radius:8px; border:0; background:#0b78e3; color:white; cursor:pointer; }
+button:disabled { opacity:0.6; cursor:not-allowed; }
+img { max-width:100%; margin-top:8px; border:1px solid #ccc; border-radius:8px; }
+.toggle-container { margin-top:10px; display:flex; align-items:center; gap:6px; }
+.note { font-size:0.85rem; color:#b33; margin-top:6px; }
+#status { margin-top:8px; font-weight:600; color:green; }
+</style>
+</head>
+<body>
+
+<h1>Rapò Bug ak Screenshot</h1>
+<p>Preview screenshot otomatik. Aksepte li avan voye rapò a.</p>
+
+<form id="bugForm">
+  <label for="description">Dekri bug la:</label>
+  <textarea id="description" placeholder="Ekri mesaj la isit..."></textarea>
+
+  <div class="toggle-container">
+    <input type="checkbox" id="acceptScreenshot">
+    <label for="acceptScreenshot">Mwen aksepte voye screenshot</label>
+  </div>
+
+  <div id="screenshotArea">
+    <strong>Screenshot preview:</strong>
+    <img id="screenshotPreview" src="" alt="Screenshot preview">
+  </div>
+
+  <button type="button" id="sendBtn">Voye Rapò</button>
+  <div id="status"></div>
+</form>
+
+<script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+<script>
+const screenshotPreview = document.getElementById('screenshotPreview');
+const acceptScreenshot = document.getElementById('acceptScreenshot');
+const sendBtn = document.getElementById('sendBtn');
+const status = document.getElementById('status');
+const description = document.getElementById('description');
+
+// Capture screenshot
+html2canvas(document.body).then(canvas => {
+  screenshotPreview.src = canvas.toDataURL("image/png");
+});
+
+// Shake detection
+let lastX=0, lastY=0, lastZ=0, lastTime=0;
+const shakeThreshold = 15; // adjust sensitivity
+
+window.addEventListener('devicemotion', function(event){
+  const acc = event.accelerationIncludingGravity;
+  const curTime = Date.now();
+  if ((curTime - lastTime) > 100){
+    const deltaTime = curTime - lastTime;
+    lastTime = curTime;
+    const deltaX = acc.x - lastX;
+    const deltaY = acc.y - lastY;
+    const deltaZ = acc.z - lastZ;
+    const speed = Math.abs(deltaX + deltaY + deltaZ) / deltaTime * 10000;
+    if(speed > shakeThreshold){
+      if(confirm("Ou fè shake phone! Vle voye rapò bug la ak screenshot?")){
+        sendBugReport();
+      }
+    }
+    lastX = acc.x;
+    lastY = acc.y;
+    lastZ = acc.z;
+  }
+});
+
+// Send button handler
+sendBtn.addEventListener('click', () => {
+  sendBugReport();
+});
+
+function sendBugReport(){
+  if(acceptScreenshot.checked === false){
+    alert("Tanpri aksepte voye screenshot la anvan voye rapò a!");
+    return;
+  }
+  const desc = description.value.trim();
+  if(!desc){
+    alert("Tanpri ekri yon ti deskripsyon sou bug la!");
+    return;
+  }
+
+  // Example: fallback mailto (simplest)
+  const mailto = `mailto:youremail@example.com?subject=Rapò Bug&body=${encodeURIComponent(desc)}`;
+  window.location.href = mailto;
+
+  status.textContent = "Rapò a pare pou voye via email!";
+}
+</script>
+</body>
+</html>
