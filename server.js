@@ -16,9 +16,9 @@ const fs = require('fs');
 const fetch = require('node-fetch'); // si ou bezwen pou Node <18
 
 // ====== CONFIG ======
-const app = express();
 app.use(cors());
 app.use(bodyParser.json());
+app.use(express.static('public'));
 const upload = multer({ dest: 'uploads/' });
 
 const stripe = Stripe(process.env.STRIPE_SECRET_KEY);
@@ -71,7 +71,9 @@ function adminAuth(req,res,next){
 // ====== ROUTES ======
 
 // Home
-app.get('/', (req,res)=>res.sendFile(path.join(__dirname,'index.html')));
+app.get('/', (req, res) => {
+  res.sendFile(__dirname + 'index.html');
+});
 
 // --- Account ---
 app.post('/api/account/update',(req,res)=>{
