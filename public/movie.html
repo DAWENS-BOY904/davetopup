@@ -1,0 +1,2743 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>DawensFlix — Movie Page</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+<!-- Firebase App (core SDK) -->
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
+<style>
+  body{
+    margin:0;
+    font-family: Inter, sans-serif;
+    background:#000;
+    color:#fff;
+  }
+  /* ==========================
+   HEADER
+========================== */
+header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 18px;
+  color: white;
+  position: relative;
+  z-index: 2005;
+}
+
+/* LEFT SECTION: LOGO */
+.left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+/* LOGO IMAGE */
+.logo-img {
+  width: 40px;
+  height: 40px;
+  border-radius: 8px;
+  object-fit: cover;
+  filter: drop-shadow(0 0 8px red);
+}
+
+/* LOGO TEXT */
+.logo-text {
+  font-size: 22px;
+  font-weight: 800;
+  letter-spacing: 1px;
+  background: linear-gradient(to right, red 0 67%, #ffffff 45% 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* ==========================
+   SEARCH BUTTON
+========================== */
+/* SEARCH BUTTON */
+.search {
+  position: absolute;  /* ajoute sa pou ka pozisyone */
+  top: 14px;
+  right: 60px;         /* lwen kwen pou hamburger rete nan 18px */
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.15);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  backdrop-filter: blur(6px);
+  color: white;
+  font-size: 18px;
+  transition: 0.25s ease;
+  border: 2px solid #ff004c;
+  z-index: 2002;       /* toujou pi wo pase hamburger */
+}
+
+.search:hover {
+  background: rgba(255,255,255,0.25);
+  transform: scale(1.06);
+  border-color: #ff2b65;
+}
+
+/* ==========================
+   HAMBURGER BUTTON
+========================== */
+/* ==========================
+   HAMBURGER BUTTON (SIDE MENU)
+========================== */
+.hamburger {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.15);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 5px;
+  align-items: center;
+  cursor: pointer;
+  backdrop-filter: blur(6px);
+  border: 2px solid #ff004c;
+  transition: 0.25s ease;
+  position: absolute;
+  right: 5px; /* kole ak kwen dwat header */
+  top: 14px;
+  z-index: 2001; /* anba search */
+}
+
+.hamburger:hover {
+  transform: scale(1.06);
+  border-color: #ff2b65;
+}
+
+.hamburger span {
+  width: 22px;
+  height: 3px;
+  background: white;
+  border-radius: 4px;
+  transition: 0.3s;
+}
+
+/* Hamburger X animation */
+.hamburger.active span:nth-child(1) {
+  transform: translateY(8px) rotate(45deg);
+}
+.hamburger.active span:nth-child(2) {
+  opacity: 0;
+}
+.hamburger.active span:nth-child(3) {
+  transform: translateY(-8px) rotate(-45deg);
+}
+
+/* ==========================
+   SIDE MENU
+========================== */
+.side-menu {
+  position: fixed;
+  top: 0;
+  left: -300px;
+  width: 260px;
+  height: 100%;
+  background: rgba(20,20,20,0.98);
+  border-right: 2px solid rgba(255,0,76,0.45);
+  box-shadow: 0 0 25px rgba(255,0,76,0.35);
+  backdrop-filter: blur(8px);
+  padding: 18px;
+  transition: 0.35s ease;
+  z-index: 2000;
+}
+
+.side-menu.open {
+  left: 0;
+}
+
+/* SIDE HEADER */
+.side-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.side-logo {
+  width: 60px;
+  filter: drop-shadow(0 0 8px #ff004c);
+}
+
+.close-side {
+  font-size: 30px;
+  color: white;
+  cursor: pointer;
+  transition: 0.25s;
+}
+
+.close-side:hover {
+  color: #ff004c;
+}
+
+/* PROFILE */
+.side-profile {
+  display: flex;
+  align-items: center;
+  margin: 20px 0;
+  gap: 12px;
+}
+
+.profile-img {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid #ff004c;
+}
+
+.profile-name {
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.profile-tag {
+  font-size: 13px;
+  opacity: 0.7;
+}
+
+/* NAV LINKS */
+.side-links {
+  list-style: none;
+  padding: 0;
+  margin: 10px 0;
+}
+
+.side-links li {
+  padding: 10px 0;
+  color: white;
+  font-size: 15px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  cursor: pointer;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+  transition: 0.25s;
+}
+
+.side-links li:hover {
+  color: #ff004c;
+  text-shadow: 0 0 8px #ff004c;
+}
+
+/* LOGOUT BUTTON */
+.logout-btn {
+  width: 100%;
+  padding: 12px 0;
+  margin-top: 20px;
+  border: none;
+  background: #ff004c;
+  color: white;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 15px;
+  transition: 0.25s;
+}
+
+.logout-btn:hover {
+  background: #ff2b65;
+  box-shadow: 0 0 15px #ff2b65;
+}
+
+/* ==========================
+   FULLSCREEN SEARCH MODAL
+========================== */
+.search-modal {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.95);
+  z-index: 9999;
+  overflow-y: auto;
+  backdrop-filter: blur(6px);
+  padding: 0;
+  font-family: 'Inter', sans-serif;
+}
+
+.modal-header {
+  position: sticky;
+  top: 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 24px;
+  background: rgba(0,0,0,0.85);
+  z-index: 10;
+  border-bottom: 1px solid rgba(255,0,76,0.4);
+}
+
+.modal-logo {
+  width: 50px;
+  height: 50px;
+  border-radius: 8px;
+  filter: drop-shadow(0 0 8px red);
+}
+
+.close {
+  font-size: 28px;
+  cursor: pointer;
+  color: white;
+  transition: 0.25s;
+}
+
+.close:hover {
+  color: #ff004c;
+}
+
+.search-modal-content {
+  max-width: 900px;
+  margin: 20px auto;
+  padding: 30px;
+  background: rgba(30,30,30,0.95);
+  border-radius: 12px;
+  color: white;
+  text-align: center;
+}
+
+.modal-message {
+  font-size: 16px;
+  opacity: 0.7;
+  margin-bottom: 20px;
+}
+
+.modal-search-input {
+  width: 90%;
+  padding: 12px 16px;
+  font-size: 16px;
+  border-radius: 8px;
+  border: 2px solid rgba(255,0,76,0.5);
+  box-shadow: 0 0 10px rgba(255,0,76,0.4);
+  outline: none;
+  margin-bottom: 30px;
+  background: rgba(255,255,255,0.1);
+  color: #fff;
+  transition: 0.25s ease;
+}
+
+.modal-search-input:focus {
+  border-color: #ff004c;
+  box-shadow: 0 0 15px #ff004c;
+  background: rgba(255,255,255,0.15);
+}
+
+/* SEARCH RESULTS GRID */
+.search-results {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  justify-content: center;
+  padding-bottom: 20px;
+}
+
+/* SINGLE MOVIE RESULT */
+.movie-result {
+  width: 140px;
+  height: 230px;
+  background: #222;
+  border-radius: 10px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  cursor: pointer;
+  transition: transform 0.25s, box-shadow 0.25s;
+  text-align: center;
+  color: #fff;
+}
+
+.movie-result:hover {
+  transform: scale(1.05);
+  box-shadow: 0 10px 25px rgba(255,0,76,0.4);
+}
+
+/* IMAGE OF MOVIE */
+.result-img {
+  width: 100%;
+  height: 140px;
+  object-fit: cover;
+  border-bottom: 1px solid rgba(255,255,255,0.1);
+}
+
+/* INFO BELOW IMAGE */
+.result-info {
+  padding: 8px 6px;
+  font-size: 13px;
+}
+
+.result-title {
+  font-weight: 600;
+  margin: 4px 0;
+  color: #fff;
+}
+
+.result-type {
+  font-size: 12px;
+  opacity: 0.7;
+  margin-bottom: 4px;
+}
+
+.result-rating {
+  font-size: 12px;
+  color: #ffdd00;
+}
+
+/* RESPONSIVE */
+@media (max-width: 600px){
+  .movie-result { width: 120px; height: 200px; }
+  .result-img { height: 110px; }
+  header { padding: 10px 12px; }
+  .logo-text { font-size: 20px; }
+  .search, .hamburger { width: 38px; height: 38px; font-size: 16px; }
+}
+
+  /* HERO SECTION */
+.hero {
+    position: relative;
+    width: 100%;
+    height: 390px;
+    background: rgba(255, 255, 255, 0.15);
+    color: white;
+    backdrop-filter: blur(6px);
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+
+    border: 2px solid rgba(255, 0, 0, 0.4); /* soft red border */
+    border-radius: 15px;
+    box-sizing: border-box;
+    transition: background-image 1s ease-in-out;
+    overflow: hidden;
+}
+
+/* Overlay pou depth + smooth effect */
+.hero-overlay {
+  position: absolute;
+  left: 0; top: 0;
+  width: 100%; height: 100%;
+  background: linear-gradient(to top, rgba(0,0,0,0.5), rgba(0,0,0,0.1));
+  pointer-events: none;
+  z-index: 1;
+}
+
+
+/* Title & desc smooth fade + slide */
+#hero-title, #hero-desc {
+  transition: opacity 0.8s ease, transform 0.8s ease;
+}
+
+
+.hero::after {
+    content: "";
+    position: absolute;
+    left: 0; right: 0; top: 0; bottom: 0;
+    background: linear-gradient(to top, #000, transparent);
+}
+
+.hero-content {
+    position: absolute;
+    bottom: 20px;
+    left: 20px;
+    z-index: 2;
+    text-align: left;
+  transition: transform 1s ease;
+}
+
+.hero-content h1 {
+    font-size: 30px;
+    font-weight: 700;
+    margin: 0 0 8px;
+}
+
+.hero-content p {
+    font-size: 16px;
+    opacity: 0.8;
+}
+
+/* BUTTONS */
+.buttons {
+    display: flex;
+    gap: 12px;
+    margin-top: 15px;
+}
+
+/* Buttons smooth hover */
+.btn {
+  padding: 10px 18px;
+  border-radius: 8px;
+  font-size: 15px;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.3s ease;
+}
+
+.btn.play {
+    background: #ff004c;
+    color: white;
+}
+
+.btn.info {
+    background: rgba(255,255,255,0.2);
+    color: white;
+    backdrop-filter: blur(6px);
+}
+
+.btn:hover {
+    opacity: 0.85;
+    transform: scale(1.05);
+}
+
+.info {
+    background: #333;
+    color: #fff;
+}
+
+/* SECTION GENERAL */
+.section {
+    padding: 20px;
+    color: white;
+
+    border: 2px solid rgba(255, 0, 0, 0.4); /* soft red border */
+    border-radius: 10px;
+    box-sizing: border-box;
+    background: rgba(128,128,128,0.2); /* soft grey background */
+    position: relative;
+}
+
+/* GENRES */
+.genres {
+  display: flex;
+  gap: 12px;
+  overflow-x: auto;
+  padding-bottom: 10px;
+  scrollbar-width: none;
+}
+
+.genres::-webkit-scrollbar {
+  display: none;
+}
+
+.genre-btn {
+  background: rgba(255,255,255,0.1);
+  border: none;
+  padding: 10px 16px;
+  border-radius: 25px;
+  color: white;
+  font-size: 14px;
+  white-space: nowrap;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  transition: .25s ease;
+  backdrop-filter: blur(5px);
+}
+
+.genre-btn i {
+  font-size: 16px;
+}
+
+.genre-btn:hover {
+  background: rgba(255,255,255,0.25);
+  transform: translateY(-2px);
+}
+
+.genre-btn.active {
+  background: #ff0055;
+  box-shadow: 0 0 10px #ff0055;
+}
+
+.section h2 i.fas.fa-th-large {
+    color: red; /* mete koulè wouj pou icon nan */
+}
+
+.footer {
+  background: #111;
+  color: #fff;
+  padding: 40px 20px 20px;
+  font-family: 'Inter', sans-serif;
+}
+
+.footer-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 40px;
+  max-width: 1200px;
+  margin: 0 auto;
+  justify-content: space-between;
+}
+
+/* HandyFlix Info */
+.footer-about .footer-logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.footer-about .footer-logo img {
+  width: 40px;
+  height: 40px;
+  object-fit: cover;
+  border-radius: 8px;
+  filter: drop-shadow(0 0 8px #ff004c);
+}
+
+.footer-about h2 {
+  font-size: 24px;
+  color: #ff004c;
+  margin: 0;
+}
+
+.footer-about p {
+  opacity: 0.7;
+  line-height: 1.5;
+}
+
+/* Titles */
+.footer-links h3,
+.footer-categories h3,
+.footer-contact h3 {
+  font-size: 18px;
+  margin-bottom: 12px;
+  color: #ff004c;
+}
+
+/* Underline / Red line */
+.footer-underline {
+  width: 40px; 
+  height: 3px;
+  background: #ff004c; 
+  margin: 5px 0 15px 0;
+  border-radius: 2px;
+}
+
+/* Lists */
+.footer-links ul,
+.footer-categories ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.footer-links li,
+.footer-categories li {
+  margin-bottom: 8px;
+}
+
+/* Links */
+.footer-links a,
+.footer-categories a,
+.footer-contact a {
+  color: #fff;
+  text-decoration: none;
+  transition: 0.25s;
+}
+
+.footer-links a:hover,
+.footer-categories a:hover,
+.footer-contact a:hover {
+  color: #ff004c;
+}
+
+/* Contact email + icon */
+.footer-contact p {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  opacity: 0.8;
+  border: 2px solid #ff004c;
+  padding: 6px 10px;
+  border-radius: 6px;
+}
+
+.footer-contact p i {
+  color: #ff004c;
+}
+
+/* Social icons (gwo ak glow) */
+.footer-social {
+  margin-top: 10px;
+  display: flex;
+  gap: 16px; /* plis espas */
+}
+
+.footer-social a {
+  color: #fff;
+  font-size: 24px; /* pi gwo */
+  transition: 0.3s;
+  filter: drop-shadow(0 0 6px #ff004c); /* ti glow */
+}
+
+.footer-social a:hover {
+  color: #ff004c;
+  transform: scale(1.2); /* hover effect */
+}
+
+/* Footer bottom */
+.footer-bottom {
+  text-align: center;
+  padding-top: 20px;
+  border-top: 1px solid rgba(255,0,76,0.4);
+  font-size: 14px;
+  opacity: 0.7;
+  line-height: 1.6;
+}
+
+.footer-bottom .footer-copy {
+  margin: 0 0 5px 0;
+}
+
+.footer-bottom .footer-policies {
+  margin: 0;
+}
+
+.footer-bottom .footer-policies a {
+  color: #fff;
+  text-decoration: none;
+  margin: 0 5px;
+  transition: 0.25s;
+}
+
+.footer-bottom .footer-policies a:hover {
+  color: #ff004c;
+}
+
+/* Responsive */
+@media(max-width: 768px){
+  .footer-container {
+    flex-direction: column;
+    gap: 30px;
+  }
+  .footer-bottom {
+    font-size: 13px;
+  }
+  .footer-social a {
+    font-size: 20px; /* pi piti sou mobile */
+  }
+}
+
+#genre-gallery {
+  margin-top: 20px;
+  padding: 0 10px; /* Ti padding bò pou li pa kole ak kwen ekran */
+}
+
+.cards {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+}
+
+.card {
+  position: relative; 
+  background: #111;
+  border-radius: 12px;
+  overflow: hidden;
+  color: white;
+  transition: transform 0.3s ease, box-shadow 0.3s ease; /* Animasyon lè hover */
+  cursor: pointer; /* Pi enteresan lè itilizatè a ka klike */
+  position: relative; /* Pou pseudo-element */
+}
+
+.card:hover {
+  transform: translateY(-5px); /* Leve ti kras sou hover */
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.5); /* Ajoute lonbraj pwofondè */
+}
+
+.card img {
+  width: 100%;
+  height: 170px;
+  object-fit: cover;
+  transition: transform 0.3s ease;
+}
+
+.card:hover img {
+  transform: scale(1.05); /* Zoom imaj lè hover */
+}
+
+.card p {
+  padding: 12px;
+  font-size: 0.95rem;
+  line-height: 1.4;
+}
+
+/* Liy wouj anba lè li klike */
+.card.active::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 4px; /* Wotè liy la */
+  background-color: #ff1a1a;
+  border-radius: 0 0 12px 12px; /* Fè liy la swiv kwen kat la */
+}
+
+/* Bouton jan li te ye deja */
+.genre-btn {
+  transition: background 0.3s ease, color 0.3s ease;
+}
+
+.genre-btn.active {
+  background: #ff1a1a !important;
+  color: white !important;
+  box-shadow: 0 4px 10px rgba(255, 26, 26, 0.5);
+  border-radius: 8px;
+}
+
+.genre-title {
+  font-size: 1.5rem;
+  color: #ff1a1a;
+  margin-bottom: 15px;
+  font-weight: bold;
+}
+.card .badge {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  background: #ff1a1a;
+  color: white;
+  font-size: 0.75rem;
+  font-weight: bold;
+  padding: 4px 8px;
+  border-radius: 8px;
+  z-index: 2;
+  text-transform: uppercase;
+}
+
+.logo-link {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  text-decoration: none;
+  color: inherit;
+}
+
+.genre-title {
+  font-size: 20px;
+  margin: 20px 0 10px;
+  color: #ff004c;
+}
+
+.movie-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 12px;
+}
+
+.movie-card {
+  position: relative;
+  border-radius: 10px;
+  overflow: hidden;
+  cursor: pointer;
+  transition: 0.25s;
+}
+
+.movie-card img {
+  width: 100%;
+  height: 200px;
+  object-fit: cover;
+}
+
+.movie-card:hover {
+  transform: scale(1.06);
+}
+
+.see-more {
+  margin: 10px 0 20px;
+  padding: 8px 16px;
+  background: #ff004c;
+  border: none;
+  color: #fff;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: 0.25s;
+}
+
+.see-more:hover {
+  background: #ff2a6d;
+}
+
+/* ================================
+   LOGIN PAGE
+===================================*/
+
+/* Container */
+.loader-root, .login-container {
+  height:100vh;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-family: 'Inter', sans-serif;
+  background: radial-gradient(1200px 600px at 20% 20%, rgba(255,0,0,0.06), transparent 8%),
+              linear-gradient(180deg, #0b0003, #230606);
+  color:#fff;
+  position:fixed;
+  top:0;
+  left:0;
+  width:100%;
+  z-index:9999;
+  overflow:hidden;
+}
+
+.loader-root.hidden, .login-container.hidden {
+  opacity:0;
+  pointer-events:none;
+  transition: opacity 0.5s ease;
+}
+
+/* LOGIN CARD */
+.login-card {
+  background: rgba(20,20,20,0.95);
+  border-radius: 18px;
+  padding: 36px 28px;
+  width: min(400px, 90vw);
+  text-align: center;
+  box-shadow: 0 0 30px rgba(255,0,0,0.25);
+}
+
+/* LOGO */
+.login-logo {
+  width:90px;
+  height:90px;
+  margin:0 auto 12px;
+  border-radius:14px;
+  object-fit:contain;
+  filter: drop-shadow(0 4px 18px rgba(255,0,0,0.35));
+}
+
+/* TITLE */
+.login-title {
+  font-size:36px;
+  font-weight:700;
+  margin:8px 0 6px;
+  text-shadow:0 4px 15px rgba(255,0,0,0.2);
+}
+.login-title .handy { color:#ff1e1e; }
+.login-title .flix { color:#fff; margin-left:4px; }
+
+/* SUBTITLE */
+.login-sub {
+  font-size:16px;
+  color:#d9d9d9;
+  letter-spacing:1px;
+  margin-bottom:20px;
+  opacity:0.9;
+}
+
+/* FORM INPUTS */
+.login-form {
+  display:flex;
+  flex-direction:column;
+  gap:12px;
+}
+
+.login-input {
+  padding:10px 14px;
+  border-radius:10px;
+  font-size:15px;
+  border:2px solid #e50914;
+  background:#111;
+  color:#fff;
+  outline:none;
+  transition:all 0.25s ease;
+}
+
+.login-input:focus {
+  border-color:#ff4b5c;
+  box-shadow:0 0 8px #e50914;
+}
+
+/* BUTTONS */
+.login-btn, .social-btn {
+  padding:10px 14px;
+  border:none;
+  border-radius:10px;
+  font-size:14px;
+  background:#e50914;
+  color:#fff;
+  cursor:pointer;
+  transition:all 0.25s ease;
+}
+
+.login-btn:hover, .social-btn:hover {
+  background:#ff1e1e;
+  box-shadow:0 0 8px #ff1e1e;
+}
+
+/* SOCIAL BUTTONS */
+.social-login {
+  display:flex;
+  gap:8px;
+  justify-content:center;
+  margin-top:10px;
+}
+
+.social-btn img {
+  width:18px;
+  margin-right:6px;
+  vertical-align:middle;
+}
+
+/* TOGGLE FORM LINK */
+#toggleForm {
+  margin-top:12px;
+  font-size:13px;
+  color:#00aaff;
+  cursor:pointer;
+  display:block;
+}
+
+/* ================================
+   LOADER
+===================================*/
+
+.loader-card{
+  text-align:center;
+  width:min(420px,80vw);
+  padding:28px 20px;
+}
+
+.loader-logo-box{
+  width:80px;
+  height:80px;
+  margin:0 auto 12px;
+  border-radius:16px;
+  background: linear-gradient(180deg, rgba(255,0,0,0.06), rgba(0,0,0,0.25));
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  box-shadow:0 0 40px rgba(255,0,0,0.15), inset 0 2px 4px rgba(0,0,0,0.6);
+}
+
+.loader-logo-box img{
+  width:50px;
+  height:50px;
+  object-fit:contain;
+  filter: drop-shadow(0 4px 12px rgba(255,0,0,0.35));
+  border-radius:10px;
+}
+
+.loader-title{
+  font-size:32px;
+  font-weight:700;
+  margin:6px 0 4px;
+  letter-spacing:0.5px;
+  text-shadow:0 4px 20px rgba(255,0,0,0.18);
+}
+
+.loader-title .handy{ color:#ff1e1e; }
+.loader-title .flix{ color:white; margin-left:4px; }
+
+.loader-sub{
+  font-size:14px;
+  color:#bdb6b6;
+  margin-bottom:16px;
+}
+
+.loader-spinner{
+  width:56px;
+  height:56px;
+  border-radius:50%;
+  margin:0 auto 12px;
+  position:relative;
+  display:grid;
+  place-items:center;
+}
+
+.loader-ring{
+  width:46px;
+  height:46px;
+  border-radius:50%;
+  border:3px solid rgba(255,255,255,0.06);
+  border-left-color: rgba(255,0,0,0.95);
+  animation:spin 1.2s linear infinite;
+}
+
+@keyframes spin{to{transform:rotate(360deg)}}
+
+.loader-progress-wrap{
+  width:80%;
+  max-width:400px;
+  height:6px;
+  background:rgba(255,255,255,0.06);
+  margin:6px auto 6px;
+  border-radius:999px;
+  overflow:hidden;
+}
+
+.loader-progress{
+  height:100%;
+  width:0%;
+  background:linear-gradient(90deg, rgba(255,30,30,0.95), rgba(255,80,80,0.95));
+  transition:width 200ms linear;
+}
+
+.loader-text{
+  color:#bdb6b6;
+  margin-top:6px;
+  font-size:14px;
+}
+
+/* RED DOTS */
+.loader-dot{
+  position:absolute;
+  width:6px;
+  height:6px;
+  border-radius:50%;
+  background:rgba(255,20,20,0.7);
+  box-shadow:0 0 10px rgba(255,20,20,0.18);
+}
+
+.loader-dot.d1{ left:6%; top:16%; }
+.loader-dot.d2{ right:6%; top:48%; }
+.loader-dot.d3{ left:28%; bottom:10%; }
+
+@media(max-width:420px){
+  .login-card { width:90%; padding:24px 16px; }
+  .login-title { font-size:28px; }
+  .loader-logo-box { width:70px; height:70px; }
+  .loader-spinner { width:46px; height:46px; }
+}
+
+/* ================================
+   WELCOME SCREEN
+===================================*/
+
+.welcome-screen {
+  position: fixed;
+  inset: 0;
+  background: rgba(17,17,17,0.95);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.4s ease;
+}
+
+.welcome-screen.show {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.welcome-card {
+  text-align: center;
+  width: min(420px, 80vw);
+  padding: 28px 20px;
+  background: linear-gradient(180deg, rgba(255,0,0,0.06), rgba(0,0,0,0.25));
+  border-radius: 16px;
+  box-shadow: 0 0 40px rgba(255,0,0,0.15), inset 0 2px 4px rgba(0,0,0,0.6);
+}
+
+.welcome-card h1 {
+  font-size: 32px;
+  font-weight: 700;
+  margin: 6px 0 12px;
+  letter-spacing: 0.5px;
+  text-shadow: 0 4px 20px rgba(255,0,0,0.18);
+}
+
+.welcome-card h1 .handy { color: #ff1e1e; }
+.welcome-card h1 .flix { color: white; margin-left: 4px; }
+
+.welcome-card p {
+  font-size: 14px;
+  color: #bdb6b6;
+  margin-bottom: 20px;
+}
+
+.welcome-card button {
+  padding: 12px 25px;
+  font-size: 16px;
+  font-weight: 600;
+  color: #111;
+  background: linear-gradient(90deg, rgba(255,30,30,0.95), rgba(255,80,80,0.95));
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  box-shadow: 0 4px 15px rgba(255,0,0,0.35);
+  transition: all 0.2s ease;
+}
+
+.welcome-card button:hover {
+  background: linear-gradient(90deg, rgba(255,60,60,0.95), rgba(255,100,100,0.95));
+  transform: translateY(-2px);
+}
+
+@media(max-width:420px){
+  .welcome-card { width: 90%; padding: 24px 16px; }
+  .welcome-card h1 { font-size: 28px; }
+}
+
+/* BADGE */
+.badge {
+  position: absolute;
+  top: -6px;
+  right: -6px;
+  background: #ff1744;
+  color: white;
+  font-size: 10px;
+  padding: 2px 6px;
+  border-radius: 8px;
+  font-weight: bold;
+  animation: pop 0.4s ease;
+}
+
+/* Cute pop animation */
+@keyframes pop {
+  0% { transform: scale(0); }
+  70% { transform: scale(1.2); }
+  100% { transform: scale(1); }
+}
+
+.promo-dot {
+  width: 9px;
+  height: 9px;
+  background: #ff1744;
+  border-radius: 50%;
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  box-shadow: 0 0 10px #ff1744;
+  animation: pulse 1.2s infinite ease-in-out;
+}
+
+@keyframes pulse {
+  0% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.5); opacity: 0.6; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+/* Save Me Button Style */
+.save-btn {
+  background-color: #333;
+  color: #fff;
+  border: 2px solid #e50914;
+  border-radius: 12px;
+  padding: 12px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.save-btn.active {
+  background-color: #e50914;
+  color: #fff;
+  transform: scale(1.05);
+}
+
+
+</style>
+</head>
+<body>
+<!-- LOGIN / SIGNUP PAGE -->
+<div class="loader-root" id="loginRoot">
+  <div class="loader-card">
+    <div class="loader-logo-box">
+      <img src="https://files.catbox.moe/fvuq13.png" alt="Logo">
+    </div>
+    <h1 class="loader-title"><span class="handy">Dawens</span><span class="flix">Flix</span></h1>
+    <p class="loader-sub" id="formSubtitle">Login to your account</p>
+
+    <div class="login-form">
+      <input type="text" id="displayName" placeholder="Your name" class="login-input" />
+      <input type="file" id="profilePhoto" class="login-input" accept="image/*" />
+      <input type="email" id="email" placeholder="Email" class="login-input" />
+      <input type="password" id="password" placeholder="Password" class="login-input" />
+
+      <!-- Phone login fields -->
+      <div id="phoneLoginSection" style="display:none;">
+        <input type="tel" id="phoneNumber" placeholder="Enter phone number" class="login-input" />
+        <div id="recaptcha-container"></div>
+        <button id="sendCodeBtn" class="login-btn">Send Code</button>
+        <input type="text" id="phoneCode" placeholder="Enter verification code" class="login-input" style="display:none;" />
+        <button id="verifyCodeBtn" class="login-btn" style="display:none;">Verify Code</button>
+      </div>
+
+      <!-- Login & Signup Buttons -->
+      <button id="emailLoginBtn" class="login-btn">Login with Email</button>
+      <button id="emailSignupBtn" class="login-btn" style="display:none;">Signup with Email</button>
+      <button id="phoneLoginBtn" class="login-btn">Login with Phone</button>
+
+      <div class="social-login">
+        <button id="googleLoginBtn" class="social-btn">
+          <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google Icon">
+          Login with Google
+        </button>
+        <button id="googleSignupBtn" class="social-btn" style="display:none;">
+          <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google Icon">
+          Signup with Google
+        </button>
+        <button id="githubLoginBtn" class="social-btn">
+  <img src="https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png" alt="GitHub Icon" style="width:20px; height:20px; margin-right:8px;">
+  Login with GitHub
+</button>
+      </div>
+
+      <p style="margin-top:10px; text-align:center;">
+        <span id="toggleForm" style="color:#0070f3; cursor:pointer;">Don't have an account? Signup</span>
+      </p>
+
+      <button id="saveMeBtn" class="login-btn" style="margin-top:10px;">Save Info</button>
+    </div>
+  </div>
+</div>
+
+<!-- LOADER -->
+<div class="loader-root hidden" id="loader">
+  <div class="loader-dot d1"></div>
+  <div class="loader-dot d2"></div>
+  <div class="loader-dot d3"></div>
+
+  <div class="loader-card">
+    <div class="loader-logo-box">
+      <img src="https://files.catbox.moe/fvuq13.png" alt="">
+    </div>
+    <h1 class="loader-title"><span class="handy">Dawens</span><span class="flix">Flix</span></h1>
+    <div class="loader-sub">YOUR ULTIMATE ENTERTAINMENT HUB</div>
+
+    <div class="loader-spinner"><div class="loader-ring"></div></div>
+
+    <div class="loader-progress-wrap">
+      <div class="loader-progress" id="progressBar"></div>
+    </div>
+    <div class="loader-text" id="loadingText">Loading amazing content...</div>
+  </div>
+</div>
+
+<!-- WELCOME SCREEN -->
+<div class="welcome-screen hidden" id="welcomeScreen">
+  <div class="welcome-card">
+    <h1>Welcome to <span class="handy">Dawens</span><span class="flix">Flix</span>!</h1>
+    <p>Get ready to explore your ultimate entertainment hub.</p>
+    <button id="welcomeOk">OK</button>
+  </div>
+</div>
+
+<!-- HEADER -->
+<header>
+  <div class="left">
+    <a href="movie.html" class="logo-link">
+      <img src="https://files.catbox.moe/fvuq13.png" alt="logo" class="logo-img">
+      <span class="logo-text">DawensFlix</span>
+    </a>
+  </div>
+
+  <!-- SEARCH -->
+  <div class="search" id="searchBtn"><i class="fas fa-search"></i></div>
+
+  <!-- HAMBURGER -->
+  <div class="hamburger" id="menuBtn">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+
+  <!-- SIDE MENU -->
+  <div class="side-menu" id="sideMenu">
+    <div class="side-header">
+      <img src="https://files.catbox.moe/fvuq13.png" class="side-logo">
+      <span class="close-side" id="closeSide">&times;</span>
+    </div>
+
+    <div class="side-profile">
+      <img src="https://files.catbox.moe/iufn3o.jpg" class="profile-img" id="menuPhoto">
+      <div>
+        <div class="profile-name" id="menuName">Welcome, User</div>
+        <div class="profile-tag">@dawensflix</div>
+      </div>
+    </div>
+
+    <ul class="side-links">
+      <li><i class="fas fa-home"></i> Home</li>
+      <li><i class="fas fa-film"></i> Movies</li>
+      <li><i class="fas fa-tv"></i> Series</li>
+      <li><i class="fas fa-fire"></i> Trending</li>
+      <li><i class="fas fa-star"></i> Top Rated</li>
+      <li><i class="fas fa-heart"></i> Favorites</li>
+      <li><i class="fas fa-cog"></i> Settings</li>
+    </ul>
+
+    <button class="logout-btn" id="logoutBtn"><i class="fas fa-sign-out-alt"></i> Logout</button>
+  </div>
+
+  <!-- BACKDROP -->
+  <div class="backdrop" id="backdrop"></div>
+
+  <!-- FULLSCREEN SEARCH MODAL -->
+  <div id="searchModal" class="search-modal">
+    <div class="modal-header">
+      <img src="https://files.catbox.moe/fvuq13.png" alt="logo" class="modal-logo">
+      <span class="close" id="closeSearch">&times;</span>
+    </div>
+    <div class="search-modal-content">
+      <p class="modal-message">Start typing to discover amazing content</p>
+      <input type="text" placeholder="Search for movies, series..." class="modal-search-input">
+      <div class="search-results"></div>
+    </div>
+  </div>
+</header>
+
+<section class="hero" id="hero">
+  <div class="hero-content">
+    <h1 id="hero-title">Last Prisoner</h1>
+    <p id="hero-desc">Discover amazing movies and series</p>
+    <div class="buttons">
+      <button class="btn play" id="playBtn"><i class="fas fa-play"></i> Play Now</button>
+      <button class="btn info"><i class="fas fa-circle-info"></i> More Info</button>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <h2><i class="fas fa-th-large"></i> Browse by Genre</h2>
+
+  <div class="genres">
+
+    <button class="genre-btn active"><i class="fas fa-layer-group"></i> All</button>
+
+    <button class="genre-btn promo-btn">
+  <i class="fas fa-fire"></i>
+  Porno
+  <span class="promo-dot"></span>
+</button>
+
+    <button class="genre-btn promo-btn">
+  <i class="fas fa-star"></i>
+  News
+  <span class="promo-dot"></span>
+</button>
+
+<button class="genre-btn"><i class="fas fa-bell"></i> Haitian-Porn</button>
+
+    <button class="genre-btn"><i class="fas fa-bolt"></i> Action</button>
+
+    <button class="genre-btn"><i class="fas fa-laugh"></i> Comedy</button>
+
+    <button class="genre-btn"><i class="fas fa-theater-masks"></i> Drama</button>
+
+    <button class="genre-btn"><i class="fas fa-ghost"></i> Horror</button>
+
+    <button class="genre-btn"><i class="fas fa-rocket"></i> Sci-Fi</button>
+
+    <button class="genre-btn"><i class="fas fa-wind"></i> Anime</button>
+
+    <button class="genre-btn"><i class="fas fa-heart"></i> K-Drama</button>
+
+    <button class="genre-btn"><i class="fas fa-film"></i> Nollywood</button>
+
+    <button class="genre-btn"><i class="fas fa-star"></i> Bollywood</button>
+
+    <button class="genre-btn"><i class="fas fa-yin-yang"></i> Chinese</button>
+
+    <button class="genre-btn"><i class="fas fa-kiss-wink-heart"></i> Romanse</button>
+
+    <button class="genre-btn"><i class="fas fa-users"></i> Teen Movies</button>
+
+    <button class="genre-btn"><i class="fas fa-tv"></i> Teen Series</button>
+
+    <button class="genre-btn"><i class="fas fa-hat-wizard"></i> Disney</button>
+
+    <button class="genre-btn"><i class="fas fa-user"></i> Marvel</button>
+
+  </div>
+</section>
+
+
+<div id="genre-gallery"></div>
+
+  <!-- CONTENT AREA -->
+  <div id="genre-content">
+
+    <!-- DEFAULT: ALL -->
+    <div class="genre-block" data-block="all">
+
+<!-- Anime Section -->
+<h3 class="genre-title">Anime</h3>
+<div class="movie-grid">
+  <div class="movie-card" onclick="goTo('Movie/anime1.html')">
+    <img src="https://files.catbox.moe/knwbxp.jpeg">
+    <span class="badge">Series • 12 eps</span>
+  </div>
+  <div class="movie-card" onclick="goTo('Movie/anime2.html')">
+    <img src="https://files.catbox.moe/xccrbs.jpeg">
+    <span class="badge">Movie • 1h 52m</span>
+  </div>
+  <div class="movie-card" onclick="goTo('Movie/anime3.html')">
+    <img src="https://files.catbox.moe/s8h08j.jpeg">
+    <span class="badge">Movie • 2h 03m</span>
+  </div>
+  <div class="movie-card" onclick="goTo('Movie/anime4.html')">
+    <img src="https://files.catbox.moe/9b8dki.jpeg">
+    <span class="badge">Series • 5 eps</span>
+  </div>
+</div>
+<button class="see-more" onclick="goTo('Movie/anime-all.html')">See More</button>
+
+<!-- Standard Section -->
+<h3 class="genre-title">Standard</h3>
+<div class="movie-grid">
+  <div class="movie-card" onclick="goTo('Movie/standard1.html')">
+    <img src="https://files.catbox.moe/w1m0qm.jpeg"><span class="badge">Movie • 1h 40m</span>
+  </div>
+  <div class="movie-card" onclick="goTo('Movie/standard2.html')">
+    <img src="https://files.catbox.moe/u62he7.jpeg"><span class="badge">Series • 1 eps</span>
+  </div>
+  <div class="movie-card" onclick="goTo('Movie/standard3.html')">
+    <img src="https://files.catbox.moe/k8xrpv.jpeg"><span class="badge">Movie • 2h 12m</span>
+  </div>
+  <div class="movie-card" onclick="goTo('Movie/standard4.html')">
+    <img src="https://files.catbox.moe/g3wmr0.jpeg"><span class="badge">Movie • 1h 58m</span>
+  </div>
+</div>
+<button class="see-more" onclick="goTo('Movie/standard-all.html')">See More</button>
+
+<!-- Top Trending Section -->
+<h3 class="genre-title">Top Trending</h3>
+<div class="movie-grid">
+  <div class="movie-card" onclick="goTo('Movie/trendin1.html')">
+    <img src="https://files.catbox.moe/x6juqb.jpeg">
+    <span class="badge">Movie • 1h 47m</span>
+  </div>
+  <div class="movie-card" onclick="goTo('Movie/trending2.html')">
+    <img src="https://files.catbox.moe/2gasar.jpeg">
+    <span class="badge">Series • 8 eps</span>
+  </div>
+  <div class="movie-card" onclick="goTo('Movie/trending3.html')">
+    <img src="https://files.catbox.moe/voxrwq.jpeg">
+    <span class="badge">Movie • 2h 03m</span>
+  </div>
+  <div class="movie-card" onclick="goTo('Movie/trending4.html')">
+    <img src="https://files.catbox.moe/a1xdcn.jpeg">
+    <span class="badge">Movie • 1h 33m</span>
+  </div>
+</div>
+<button class="see-more" onclick="goTo('Movie/trending-all.html')">See More</button>
+
+<!-- Nollywood Section -->
+<h3 class="genre-title">Nollywood</h3>
+<div class="movie-grid">
+  <div class="movie-card" onclick="goTo('Movie/nolly1.html')">
+    <img src="https://files.catbox.moe/o1l79v.webp"><span class="badge">N/A</span>
+  </div>
+  <div class="movie-card" onclick="goTo('Movie/nolly2.html')">
+    <img src="https://files.catbox.moe/cbsnn3.webp"><span class="badge">N/A</span>
+  </div>
+  <div class="movie-card" onclick="goTo('Movie/nolly3.html')">
+    <img src="https://files.catbox.moe/7ef9sf.webp"><span class="badge">N/A</span>
+  </div>
+  <div class="movie-card" onclick="goTo('Movie/nolly4.html')">
+    <img src="https://files.catbox.moe/gcn9i1.webp"><span class="badge">N/A</span>
+  </div>
+</div>
+<button class="see-more" onclick="goTo('Movie/nollywood-all.html')">See More</button>
+
+<!-- Chinese Movies Section -->
+<h3 class="genre-title">Chinese Movies</h3>
+<div class="movie-grid">
+  <div class="movie-card" onclick="goTo('Movie/chinese1.html')">
+    <img src="https://files.catbox.moe/gks4us.jpeg"><span class="badge">Movie • 1h 36m</span>
+  </div>
+  <div class="movie-card" onclick="goTo('Movie/chinese2.html')">
+    <img src="https://files.catbox.moe/17tn5p.jpeg"><span class="badge">Series • 32 eps</span>
+  </div>
+  <div class="movie-card" onclick="goTo('Movie/chinese3.html')">
+    <img src="https://files.catbox.moe/nypkee.jpeg"><span class="badge">Series • 8 eps</span>
+  </div>
+  <div class="movie-card" onclick="goTo('Movie/chinese4.html')">
+    <img src="https://files.catbox.moe/yf4fkq.jpeg"><span class="badge">Series • 24 eps</span>
+  </div>
+</div>
+<button class="see-more" onclick="goTo('Movie/chinese-all.html')">See More</button>
+
+<!-- Romance Section -->
+<h3 class="genre-title">Romance</h3>
+<div class="movie-grid">
+  <div class="movie-card" onclick="goTo('Movie/romance1.html')">
+    <img src="https://files.catbox.moe/ti4mt3.jpeg"><span class="badge">Movie • 1h 36m</span>
+  </div>
+  <div class="movie-card" onclick="goTo('Movie/romance2.html')">
+    <img src="https://files.catbox.moe/bsblem.jpeg"><span class="badge">Movie • 1h 36m</span>
+  </div>
+  <div class="movie-card" onclick="goTo('Movie/romance3.html')">
+    <img src="https://files.catbox.moe/viyei6.jpeg"><span class="badge">Series • 7 eps</span>
+  </div>
+  <div class="movie-card" onclick="goTo('Movie/romance4.html')">
+    <img src="https://files.catbox.moe/pbabpq.jpeg"><span class="badge">Series • 7 eps</span>
+  </div>
+</div>
+<button class="see-more" onclick="goTo('Movie/romance-all.html')">See More</button>
+
+<!-- Teen Movies Section -->
+<h3 class="genre-title">Teen Movies</h3>
+<div class="movie-grid">
+  <div class="movie-card" onclick="goTo('Movie/teenm1.html')">
+    <img src="https://files.catbox.moe/wuvamq.jpeg"><span class="badge">Movie • 2h 20m</span>
+  </div>
+  <div class="movie-card" onclick="goTo('Movie/teenm2.html')">
+    <img src="https://files.catbox.moe/rkx25u.jpeg"><span class="badge">Movie • 2h 6m</span>
+  </div>
+  <div class="movie-card" onclick="goTo('Movie/teenm3.html')">
+    <img src="https://files.catbox.moe/8z5laf.jpeg"><span class="badge">Series • 10 eps</span>
+  </div>
+  <div class="movie-card" onclick="goTo('Movie/teenm4.html')">
+    <img src="https://files.catbox.moe/4kwx1r.jpeg"><span class="badge">Series • 7 eps</span>
+  </div>
+</div>
+<button class="see-more" onclick="goTo('Movie/teen-all.html')">See More</button>
+
+<!-- Halloween Movies Section -->
+<h3 class="genre-title">Halloween Movies</h3>
+<div class="movie-grid">
+  <div class="movie-card" onclick="goTo('Movie/hallowen1.html')">
+    <img src="https://files.catbox.moe/rimnme.jpeg"><span class="badge">Movie • 1h 24m</span>
+  </div>
+  <div class="movie-card" onclick="goTo('Movie/hallowen2.html')">
+    <img src="https://files.catbox.moe/sl3fk2.jpeg"><span class="badge">N/A</span>
+  </div>
+  <div class="movie-card" onclick="goTo('Movie/hallowen3.html')">
+    <img src="https://files.catbox.moe/7y3d41.jpeg"><span class="badge">Movie • 0h 26m</span>
+  </div>
+  <div class="movie-card" onclick="goTo('Movie/hallowen4.html')">
+    <img src="https://files.catbox.moe/ap0w4z.jpeg"><span class="badge">Movie • 0h 6m</span>
+  </div>
+</div>
+<button class="see-more" onclick="goTo('Movie/halloween-all.html')">See More</button>
+
+<!-- Disney Movies Section -->
+<h3 class="genre-title">Disney Movies</h3>
+<div class="movie-grid">
+  <div class="movie-card" onclick="goTo('Movie/disney1.html')">
+    <img src="https://files.catbox.moe/36jt5e.jpeg"><span class="badge">Movie • 1h 24m</span>
+  </div>
+  <div class="movie-card" onclick="goTo('Movie/disney2.html')">
+    <img src="https://files.catbox.moe/6pu8wq.jpeg"><span class="badge">N/A</span>
+  </div>
+  <div class="movie-card" onclick="goTo('Movie/disney3.html')">
+    <img src="https://files.catbox.moe/bpaoll.jpeg"><span class="badge">Movie • 0h 26m</span>
+  </div>
+  <div class="movie-card" onclick="goTo('Movie/disney4.html')">
+    <img src="https://files.catbox.moe/yl0ohi.jpeg"><span class="badge">Movie • 0h 6m</span>
+  </div>
+</div>
+<button class="see-more" onclick="goTo('Movie/disney-all.html')">See More</button>
+
+<!-- Action Only Section -->
+<div class="genre-block" data-block="action" style="display:none;">
+  <h3 class="genre-title">Action Movies</h3>
+  <div class="movie-grid">
+    <div class="movie-card" onclick="goTo('Movie/action1.html')">
+      <img src="act1.jpg"><span class="badge">Movie • 2h 10m</span>
+    </div>
+    <div class="movie-card" onclick="goTo('Movie/action2.html')">
+      <img src="act2.jpg"><span class="badge">Series • 10 eps</span>
+    </div>
+    <div class="movie-card" onclick="goTo('Movie/action3.html')">
+      <img src="act3.jpg"><span class="badge">Movie • 1h 50m</span>
+    </div>
+    <div class="movie-card" onclick="goTo('Movie/action4.html')">
+      <img src="act4.jpg"><span class="badge">Movie • 2h 05m</span>
+    </div>
+  </div>
+</div>
+
+
+<footer class="footer">
+  <div class="footer-container">
+
+    <!-- HandyFlix Info -->
+<div class="footer-about">
+  <div class="footer-logo">
+    <img src="https://files.catbox.moe/fvuq13.png" alt="HandyFlix Logo">
+    <h2>DawensFlix</h2>
+  </div>
+  <p>Your ultimate destination for movies and series</p>
+</div>
+
+<!-- Quick Links -->
+<div class="footer-links">
+  <h3>Quick Links</h3>
+  <div class="footer-underline"></div>
+  <ul>
+    <li><a href="movie.html">Home</a></li>
+    <li><a href="#trending">Trending</a></li>
+    <li><a href="#">New Releases</a></li>
+    <li><a href="#search">Search</a></li>
+  </ul>
+</div>
+
+<!-- Categories -->
+<div class="footer-categories">
+  <h3>Categories</h3>
+  <div class="footer-underline"></div>
+  <ul>
+    <li><a href="#action">Action</a></li>
+    <li><a href="#anime">Anime</a></li>
+    <li><a href="#romance">Romance</a></li>
+    <li><a href="#standard">Horror</a></li>
+  </ul>
+</div>
+
+<!-- Contact -->
+<div class="footer-contact">
+  <h3>Contact Us</h3>
+  <div class="footer-underline"></div> <!-- red line -->
+  <p>
+    <i class="fas fa-envelope"></i>
+    <a href="mailto:contact@dawensflix.com">contact@dawensflix.com</a>
+  </p>
+  <div class="footer-social">
+    <a href="#" target="_blank"><i class="fab fa-facebook-f"></i></a>
+    <a href="#" target="_blank"><i class="fab fa-twitter"></i></a>
+    <a href="#" target="_blank"><i class="fab fa-instagram"></i></a>
+    <a href="#" target="_blank"><i class="fab fa-whatsapp"></i></a>
+    <a href="#" target="_blank"><i class="fab fa-youtube"></i></a>
+  </div>
+</div>
+
+
+<div class="footer-bottom">
+  <p class="footer-copy">© 2025 DawensFlix Studio. All rights reserved.</p>
+  <p class="footer-policies">
+    <a href="#">Privacy Policy</a> • 
+    <a href="#">Terms of Service</a> • 
+    <a href="#">Cookie Policy</a>
+  </p>
+</div>
+
+<script>
+// ======= FIREBASE CONFIG =======
+const firebaseConfig = {
+  apiKey: "AIzaSyBT_d6f9kVwEpytfzo7ZbeBoTGoCMCGHRg",
+  authDomain: "dawensflix.firebaseapp.com",
+  projectId: "dawensflix",
+  storageBucket: "dawensflix.firebasestorage.app",
+  messagingSenderId: "767303159744",
+  appId: "1:767303159744:web:8ab33247b2cb8361e24225",
+  measurementId: "G-C0V46JTDVH"
+};
+firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+
+// ======= ELEMENTS =======
+const toggleForm = document.getElementById('toggleForm');
+const emailLoginBtn = document.getElementById('emailLoginBtn');
+const emailSignupBtn = document.getElementById('emailSignupBtn');
+const googleLoginBtn = document.getElementById('googleLoginBtn');
+const googleSignupBtn = document.getElementById('googleSignupBtn');
+const phoneLoginBtn = document.getElementById("phoneLoginBtn");
+const phoneLoginSection = document.getElementById("phoneLoginSection");
+const sendCodeBtn = document.getElementById("sendCodeBtn");
+const verifyCodeBtn = document.getElementById("verifyCodeBtn");
+const phoneNumberInput = document.getElementById("phoneNumber");
+const phoneCodeInput = document.getElementById("phoneCode");
+const numberInput = document.getElementById('number');
+const formSubtitle = document.getElementById('formSubtitle');
+const loginRoot = document.getElementById("loginRoot");
+const profilePhotoInput = document.getElementById("profilePhoto");
+const displayNameInput = document.getElementById("displayName");
+const menuPhoto = document.getElementById("menuPhoto");
+const menuName = document.getElementById("menuName");
+const logoutBtn = document.getElementById("logoutBtn");
+const saveBtn = document.getElementById('saveMeBtn');
+
+let isSignup = false;
+
+// ======= TOGGLE LOGIN/SIGNUP =======
+toggleForm.addEventListener('click', () => {
+  isSignup = !isSignup;
+  if(isSignup){
+    emailLoginBtn.style.display = 'none';
+    emailSignupBtn.style.display = 'block';
+    googleLoginBtn.style.display = 'none';
+    googleSignupBtn.style.display = 'block';
+    numberInput.style.display = 'block';
+    formSubtitle.innerText = 'Create a new account';
+    toggleForm.innerText = 'Already have an account? Login';
+  } else {
+    emailLoginBtn.style.display = 'block';
+    emailSignupBtn.style.display = 'none';
+    googleLoginBtn.style.display = 'block';
+    googleSignupBtn.style.display = 'none';
+    numberInput.style.display = 'none';
+    formSubtitle.innerText = 'Login to your account';
+    toggleForm.innerText = "Don't have an account? Signup";
+  }
+});
+
+// ======= PHONE LOGIN / SIGNUP =======
+phoneLoginBtn.addEventListener("click", () => {
+  phoneLoginSection.style.display = "block";
+  phoneNumberInput.style.display = "block";
+  sendCodeBtn.style.display = "block";
+  phoneCodeInput.style.display = "none";
+  verifyCodeBtn.style.display = "none";
+});
+
+// Firebase reCAPTCHA
+window.recaptchaVerifier = new firebase.auth.RecaptchaVerifier('recaptcha-container', {
+  'size': 'invisible',
+  'callback': (response) => { console.log("reCAPTCHA solved"); }
+});
+
+// Send SMS code
+sendCodeBtn.addEventListener("click", async () => {
+  const phone = phoneNumberInput.value.trim();
+  if (!phone) { alert("Please enter your phone number"); return; }
+
+  try {
+    const confirmationResult = await auth.signInWithPhoneNumber(phone, window.recaptchaVerifier);
+    window.confirmationResult = confirmationResult;
+    alert("SMS sent! Enter the code below.");
+    phoneCodeInput.style.display = "block";
+    verifyCodeBtn.style.display = "block";
+  } catch(err) {
+    alert(err.message);
+  }
+});
+
+// Verify code
+verifyCodeBtn.addEventListener("click", async () => {
+  const code = phoneCodeInput.value.trim();
+  if (!code) { alert("Enter the verification code"); return; }
+
+  try {
+    const result = await window.confirmationResult.confirm(code);
+    const user = result.user;
+    const name = displayNameInput.value || user.phoneNumber || "User";
+    updateSideMenu(name, "https://files.catbox.moe/iufn3o.jpg");
+    showLoader(() => { document.getElementById("mainContent").style.display = "block"; });
+  } catch(err) {
+    alert("Invalid code: " + err.message);
+  }
+});
+
+// ======= EMAIL SIGNUP =======
+emailSignupBtn.addEventListener('click', async () => {
+  const email = document.getElementById('email').value;
+  const password = document.getElementById('password').value;
+  const name = displayNameInput.value || "User";
+  let photoURL = "https://files.catbox.moe/iufn3o.jpg";
+  if(profilePhotoInput.files && profilePhotoInput.files[0]){
+    photoURL = URL.createObjectURL(profilePhotoInput.files[0]);
+  }
+
+  try {
+    await auth.createUserWithEmailAndPassword(email, password);
+    updateSideMenu(name, photoURL);
+    showLoader(() => { document.getElementById("mainContent").style.display = "block"; });
+  } catch(err) { alert(err.message); }
+});
+
+// ======= EMAIL LOGIN =======
+emailLoginBtn.addEventListener('click', async () => {
+  const email = document.getElementById('email').value;
+  const password = document.getElementById('password').value;
+
+  try {
+    await auth.signInWithEmailAndPassword(email, password);
+    const name = displayNameInput.value || "User";
+    let photoURL = "https://files.catbox.moe/iufn3o.jpg";
+    if(profilePhotoInput.files && profilePhotoInput.files[0]){
+      photoURL = URL.createObjectURL(profilePhotoInput.files[0]);
+    }
+    updateSideMenu(name, photoURL);
+    showLoader(() => { document.getElementById("mainContent").style.display = "block"; });
+  } catch(err) { alert(err.message); }
+});
+
+// ======= GOOGLE LOGIN/SIGNUP =======
+const googleProvider = new firebase.auth.GoogleAuthProvider();
+[googleSignupBtn, googleLoginBtn].forEach(btn => {
+  btn.addEventListener('click', async () => {
+    try {
+      const result = await auth.signInWithPopup(googleProvider);
+      const user = result.user;
+      updateSideMenu(user.displayName, user.photoURL);
+      showLoader(() => { document.getElementById("mainContent").style.display = "block"; });
+    } catch(err){ alert(err.message); }
+  });
+});
+
+// ======= GITHUB LOGIN =======
+const githubProvider = new firebase.auth.GithubAuthProvider();
+document.getElementById('githubLoginBtn').addEventListener('click', async () => {
+  try{
+    const result = await auth.signInWithPopup(githubProvider);
+    const user = result.user;
+    updateSideMenu(user.displayName, user.photoURL);
+    showLoader(() => { document.getElementById("mainContent").style.display = "block"; });
+  } catch(err){ alert(err.message); }
+});
+
+// ======= LOGOUT =======
+logoutBtn.addEventListener('click', () => {
+  updateSideMenu("User", "https://files.catbox.moe/iufn3o.jpg");
+  location.reload();
+});
+
+// ======= SAVE INFO LOCALSTORAGE =======
+saveBtn.addEventListener('click', () => {
+  localStorage.setItem('savedName', displayNameInput.value);
+  localStorage.setItem('savedEmail', document.getElementById('email').value);
+  localStorage.setItem('savedPassword', document.getElementById('password').value);
+  localStorage.setItem('savedNumber', numberInput.value);
+  alert('Your info has been saved!');
+});
+
+// Load saved info
+window.addEventListener('load', () => {
+  if(localStorage.getItem('savedName')){
+    displayNameInput.value = localStorage.getItem('savedName');
+    document.getElementById('email').value = localStorage.getItem('savedEmail');
+    document.getElementById('password').value = localStorage.getItem('savedPassword');
+    numberInput.value = localStorage.getItem('savedNumber');
+  }
+});
+
+// ======= LOADER FUNCTION + WELCOME SCREEN =======
+function showLoader(onComplete) {
+  const loader = document.getElementById("loader");
+  const loginRoot = document.getElementById("loginRoot"); // main content
+  const welcomeScreen = document.getElementById("welcomeScreen");
+  const welcomeOk = document.getElementById("welcomeOk");
+
+  if(loginRoot) loginRoot.style.display = 'none';
+  loader.classList.remove("hidden");
+  loader.classList.add("show");
+
+  const progress = document.getElementById("progressBar");
+  const text = document.getElementById("loadingText");
+
+  let pct = 0;
+  let loading = true;
+
+  function tick() {
+    if(!loading) return;
+    pct = Math.min(100, pct + 1.5 + Math.random()*2);
+    progress.style.width = pct + "%";
+
+    if (pct < 30) text.textContent = "Preparing awesome picks...";
+    else if (pct < 70) text.textContent = "Loading amazing content...";
+    else if (pct < 99) text.textContent = "Almost there...";
+    else text.textContent = "Finishing...";
+
+    if (pct >= 100) {
+      loading = false;
+
+      // Fade out loader
+      loader.classList.remove("show");
+      setTimeout(() => {
+        loader.remove();
+        if(loginRoot) loginRoot.remove();
+
+        // Show welcome screen with animation
+        welcomeScreen.classList.remove("hidden");
+        setTimeout(() => {
+          welcomeScreen.classList.add("show");
+        }, 50); // slight delay for CSS transition
+
+        // OK button closes welcome and reveals main content
+        welcomeOk.addEventListener('click', () => {
+          welcomeScreen.classList.remove("show");
+          setTimeout(() => {
+            welcomeScreen.remove();
+            if(loginRoot) loginRoot.style.display = 'block';
+            if(onComplete) onComplete();
+          }, 500); // wait for fade out
+        });
+
+      }, 500);
+    }
+  }
+
+  const interval = setInterval(tick, 80);
+
+  // Online / offline events
+  window.addEventListener("online", () => { text.textContent = "Internet reconnected! Loading..."; });
+  window.addEventListener("offline", () => { text.textContent = "No internet connection..."; });
+}
+
+// ======= UPDATE SIDE MENU =======
+function updateSideMenu(name, photoURL){
+  menuName.textContent = `Welcome, ${name || "User"}`;
+  menuPhoto.src = photoURL || "https://files.catbox.moe/iufn3o.jpg";
+}
+
+// List movies
+const heroMovies = [
+  {
+    title: 'Last Prisoner',
+    desc: 'Discover amazing movies and series',
+    img: 'https://files.catbox.moe/voxrwq.jpeg',
+    page: 'Movie/last-prisoner.html'
+  },
+  {
+    title: 'Black Panther',
+    desc: 'Long live the king',
+    img: 'https://pacdn.aoneroom.com/image/2025/10/04/a69345e36055e6357d34f6fc32c70c6a.jpg',
+    page: 'Movie/black-panther.html'
+  },
+  {
+    title: 'BREAKOUT',
+    desc: 'BREAKING OUT IS AN INSIDE JOB',
+    img: 'https://files.catbox.moe/pn1bon.jpeg',
+    page: 'Movie/breakout.html'
+  },
+    {
+    title: 'TROUBLE MAN',
+    desc: 'A Film by Michael Jai White',
+    img: 'https://files.catbox.moe/a1xdcn.jpeg',
+    page: 'Movie/trouble-man.html'
+  },
+    {
+    title: 'Ruzgara Birake',
+    desc: 'NETFLIX | 14 SUBAT',
+    img: 'https://files.catbox.moe/ti4mt3.jpeg',
+    page: 'Movie/ruzgara-birake.html'
+  },
+    {
+    title: 'Aladdin',
+    desc: '(2019)',
+    img: 'https://files.catbox.moe/4qip2r.jpeg',
+    page: 'Movie/aladdin.html'
+  },
+    {
+    title: 'PREDATOR BADLANDS',
+    desc: 'IN THEATERS NOVEMBER 7',
+    img: 'https://files.catbox.moe/x6juqb.jpeg',
+    page: 'Movie/predator-badlands.html'
+  },
+    {
+    title: 'NE ZHA',
+    desc: 'THE GLOBAL PHENOMENON RETURNS TO THEATERS',
+    img: 'https://files.catbox.moe/txalt2.jpeg',
+    page: 'Movie/ne-zha.html'
+  },
+    {
+    title: 'Solo Leveling',
+    desc: 'SHADOW MONARCH RISE',
+    img: 'https://files.catbox.moe/xccrbs.jpeg',
+    page: 'Movie/solo-leveling.html'
+  },
+    {
+    title: 'THE BEST COMEDY',
+    desc: 'Laugh out loud with this comedy',
+    img: 'https://files.catbox.moe/a7ut39.jpeg',
+    page: 'Movie/the-best-comedy.html'
+  },
+  {
+    title: 'Teen Wolf',
+    desc: 'movie calls us back to Beacon Hills',
+    img: 'https://files.catbox.moe/q9dtsf.webp',
+    page: 'Movie/teen-wolf.html'
+  }
+];
+
+let currentHero = 0;
+const heroSection = document.getElementById('hero');
+const heroTitle = document.getElementById('hero-title');
+const heroDesc = document.getElementById('hero-desc');
+const heroContent = document.querySelector('.hero-content');
+const playBtn = document.getElementById('playBtn');
+
+function updateHero() {
+  const movie = heroMovies[currentHero];
+
+  // Fade out content
+  heroTitle.style.opacity = 0;
+  heroTitle.style.transform = 'translateY(20px)';
+  heroDesc.style.opacity = 0;
+  heroDesc.style.transform = 'translateY(20px)';
+  heroContent.style.transform = 'scale(1.05)';
+
+  setTimeout(() => {
+    // Chanje background
+    heroSection.style.backgroundImage = `url(${movie.img})`;
+
+    // Chanje tit & desc
+    heroTitle.textContent = movie.title;
+    heroDesc.textContent = movie.desc;
+    playBtn.dataset.page = movie.page;
+
+    // Fade in content
+    heroTitle.style.opacity = 1;
+    heroTitle.style.transform = 'translateY(0)';
+    heroDesc.style.opacity = 1;
+    heroDesc.style.transform = 'translateY(0)';
+    heroContent.style.transform = 'scale(1)';
+  }, 600);
+}
+
+// Initial load
+updateHero();
+
+// Auto change chak 5 segonn
+setInterval(() => {
+  currentHero = (currentHero + 1) % heroMovies.length;
+  updateHero();
+}, 5000);
+
+// Play Now click
+playBtn.addEventListener('click', () => {
+  const page = playBtn.dataset.page;
+  if (page) {
+    window.location.href = page;
+  }
+});
+
+
+const API_BASE = "https://movieapi.giftedtech.co.ke";
+
+// ==== GLOBAL VARIABLES ====
+let CURRENT_MOVIE_ID = null;
+
+// ==== SEARCH MODAL ====
+document.addEventListener("DOMContentLoaded", () => {
+  const searchBtn = document.querySelector(".search");
+  const searchModal = document.getElementById("searchModal");
+  const closeBtn = document.querySelector(".search-modal .close");
+  const searchInput = document.querySelector(".modal-search-input");
+  const searchResults = document.querySelector(".search-results");
+
+  const loader = document.createElement("div");
+  loader.classList.add("loader");
+  loader.innerHTML = `<p style="color:#fff;opacity:0.7;">Loading...</p>`;
+  loader.style.display = "none";
+  searchResults.parentNode.appendChild(loader);
+
+  // OPEN MODAL
+  searchBtn.addEventListener("click", () => {
+    searchModal.style.display = "block";
+    searchInput.focus();
+  });
+
+  // CLOSE MODAL
+  closeBtn.addEventListener("click", () => {
+    searchModal.style.display = "none";
+    searchInput.value = "";
+    searchResults.innerHTML = "";
+    loader.style.display = "none";
+  });
+
+  window.addEventListener("click", (e) => {
+    if (e.target === searchModal) {
+      searchModal.style.display = "none";
+      searchInput.value = "";
+      searchResults.innerHTML = "";
+      loader.style.display = "none";
+    }
+  });
+
+  // SEARCH API
+  searchInput.addEventListener("input", async () => {
+    const query = searchInput.value.trim();
+    searchResults.innerHTML = "";
+    if (!query) return;
+
+    loader.style.display = "block";
+
+    try {
+      const res = await fetch(`${API_BASE}/api/search/${encodeURIComponent(query)}`);
+      const data = await res.json();
+      const items = data.results.items || [];
+
+      if (items.length === 0) {
+        searchResults.innerHTML = '<p style="color:#fff;opacity:0.7;">No results found.</p>';
+        return;
+      }
+
+      items.forEach(item => {
+        const box = document.createElement("div");
+        box.className = "movie-result";
+        box.innerHTML = `
+          <img src="${item.cover?.url || ''}" class="result-img">
+          <div class="result-info">
+            <p class="result-title">${item.title}</p>
+            <p class="result-type">${item.genre || "Unknown"}</p>
+          </div>
+        `;
+
+        // CLICK → REDIRECT TO movie.html WITH ID
+        box.onclick = () => {
+          searchModal.style.display = "none";
+          searchResults.innerHTML = "";
+          searchInput.value = "";
+          window.location.href = `Movie/movie.html?id=${item.subjectId}`;
+        };
+
+        searchResults.appendChild(box);
+      });
+    } catch (err) {
+      console.error("Search error:", err);
+      searchResults.innerHTML = '<p style="color:red;">Error fetching results.</p>';
+    } finally {
+      loader.style.display = "none";
+    }
+  });
+});
+
+// ==== MOVIE PAGE FUNCTIONS ====
+document.addEventListener("DOMContentLoaded", async () => {
+  // Only run if on movie.html
+  const mainVideo = document.querySelector(".video-box video");
+  const movieTitle = document.querySelector("h1");
+  const movieDesc = document.querySelector(".description");
+  const tagsBox = document.querySelector(".tags");
+  const episodeSelect = document.getElementById("episodeSelect");
+  const movieInfoBox = document.querySelector(".movie-info");
+  const downloadBtn = document.getElementById("downloadBtn");
+
+  if (!mainVideo) return; // not movie.html page
+
+  // Get ID from URL
+  const urlParams = new URLSearchParams(window.location.search);
+  const movieId = urlParams.get("id");
+  if (!movieId) return;
+
+  CURRENT_MOVIE_ID = movieId;
+
+  // GET MOVIE INFO
+  async function getMovieInfo(id) {
+    const res = await fetch(`${API_BASE}/api/info/${id}`);
+    const data = await res.json();
+    return data.results.subject;
+  }
+
+  // GET DOWNLOAD SOURCES
+  async function getDownloadSources(id) {
+    const res = await fetch(`${API_BASE}/api/sources/${id}`);
+    const data = await res.json();
+    return data.results || [];
+  }
+
+  // LOAD MOVIE
+  async function loadMovie(id) {
+    try {
+      const movie = await getMovieInfo(id);
+
+      movieTitle.textContent = movie.title;
+      movieDesc.textContent = movie.description || "No description available.";
+
+      const year = movie.releaseDate ? movie.releaseDate.split("-")[0] : "N/A";
+      const duration = movie.duration ? `${movie.duration} min` : "Unknown";
+      const rating = movie.rating || "N/A";
+
+      movieInfoBox.innerHTML = `${year} &nbsp;|&nbsp; ${duration} &nbsp;|&nbsp; Rating: ${rating}`;
+
+      tagsBox.innerHTML = "";
+      (movie.genres || []).forEach(tag => {
+        const span = document.createElement("span");
+        span.textContent = tag;
+        tagsBox.appendChild(span);
+      });
+
+      const sources = await getDownloadSources(id);
+
+      episodeSelect.innerHTML = "";
+      sources.forEach(src => {
+        const opt = document.createElement("option");
+        opt.value = src.download_url;
+        opt.textContent = src.quality;
+        episodeSelect.appendChild(opt);
+      });
+
+      if (sources.length > 0) {
+        mainVideo.src = sources[0].download_url;
+        mainVideo.play();
+      }
+
+      episodeSelect.onchange = () => {
+        mainVideo.src = episodeSelect.value;
+        mainVideo.play();
+      };
+
+    } catch (err) {
+      console.error("LOAD ERROR:", err);
+    }
+  }
+
+  await loadMovie(movieId);
+
+  // DOWNLOAD BUTTON
+  downloadBtn.onclick = async () => {
+    if (!CURRENT_MOVIE_ID) {
+      alert("Movie not loaded!");
+      return;
+    }
+
+    const sources = await getDownloadSources(CURRENT_MOVIE_ID);
+    if (!sources || sources.length === 0) {
+      alert("No download sources available.");
+      return;
+    }
+
+    const best = sources[sources.length - 1].download_url;
+    const a = document.createElement("a");
+    a.href = best;
+    a.download = "";
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+  };
+});
+
+
+document.querySelectorAll(".genre-btn").forEach(btn => {
+  btn.addEventListener("click", () => {
+
+    document.querySelectorAll(".genre-btn").forEach(b => b.classList.remove("active"));
+    btn.classList.add("active");
+
+    let target = btn.getAttribute("data-target");
+
+    document.querySelectorAll(".content-section").forEach(sec => sec.style.display = "none");
+
+    if (target) {
+      document.getElementById(target).style.display = "block";
+    }
+  });
+});
+
+
+const GENRE_DATA = {
+  "News": [
+  { "title": "Avatar: Fire and Ash", "img": "https://files.catbox.moe/ll1ob3.jpeg", "episodes": 16, "rating": 5, "type": "Movie", "page": "Movie/pages/actions_folder/action1.html" },
+  { "title": "Ip Man 4", "img": "https://files.catbox.moe/l7lolu.jpeg", "episodes": 12, "rating": 4, "type": "Movie", "page": "Movie/pages/actions_folder/action2.html" },
+  { "title": "Levels", "img": "https://files.catbox.moe/651t3k.jpeg", "episodes": 20, "rating": 4, "type": "Movie", "page": "Movie/pages/actions_folder/action3.html" },
+  { "title": "Twelve", "img": "https://files.catbox.moe/9tbq38.jpeg", "episodes": 10, "rating": 3, "type": "Series", "page": "Movie/pages/actions_folder/action23.html" }
+],
+
+  "Porno": [
+  { "title": "Elemental Warriors", "img": "https://files.catbox.moe/jrfkxz.jpeg", "episodes": 16, "rating": 5, "type": "Xxx", "page": "Movie/pages/actions_folder/action1.html" },
+  { "title": "Master of Fists", "img": "https://files.catbox.moe/5wjpuq.jpeg", "episodes": 12, "rating": 4, "type": "Xxx", "page": "Movie/pages/actions_folder/action2.html" },
+  { "title": "Rise of Levels", "img": "https://files.catbox.moe/sn0url.jpeg", "episodes": 20, "rating": 4, "type": "Xxx", "page": "Movie/pages/actions_folder/action3.html" },
+  { "title": "Twelve: Origins", "img": "https://files.catbox.moe/lqo5si.jpeg", "episodes": 10, "rating": 3, "type": "Xxx", "page": "Movie/pages/actions_folder/action23.html" },
+
+  { "title": "Ash Kingdom", "img": "https://files.catbox.moe/szm2w8.jpeg", "episodes": 16, "rating": 5, "type": "Xxx", "page": "Movie/pages/actions_folder/action4.html" },
+  { "title": "Ip Master Legacy", "img": "https://files.catbox.moe/kkabva.jpeg", "episodes": 12, "rating": 4, "type": "Xxx", "page": "Movie/pages/actions_folder/action5.html" },
+  { "title": "Beyond Levels", "img": "https://files.catbox.moe/0apz1v.jpeg", "episodes": 20, "rating": 4, "type": "Xxx", "page": "Movie/pages/actions_folder/action6.html" },
+  { "title": "Twelve: Reborn", "img": "https://files.catbox.moe/fqhf79.jpeg", "episodes": 10, "rating": 3, "type": "Xxx", "page": "Movie/pages/actions_folder/action23.html" },
+
+  { "title": "Twelve: Dark Code", "img": "https://files.catbox.moe/g2x92h.jpeg", "episodes": 10, "rating": 3, "type": "Xxx", "page": "Movie/pages/actions_folder/action24.html" },
+  { "title": "Twelve: Blood Night", "img": "https://files.catbox.moe/u6oh9x.jpeg", "episodes": 10, "rating": 3, "type": "Xxx", "page": "Movie/pages/actions_folder/action25.html" },
+  { "title": "Twelve: Final Gate", "img": "https://files.catbox.moe/jj6nkg.jpeg", "episodes": 10, "rating": 3, "type": "Xxx", "page": "Movie/pages/actions_folder/action26.html" },
+  { "title": "Twelve: Lost Realm", "img": "https://files.catbox.moe/ij1h01.jpeg", "episodes": 10, "rating": 3, "type": "Xxx", "page": "Movie/pages/actions_folder/action27.html" }
+],
+
+  "Haitian-Porn": [
+  { "title": "tout video black la", "img": "https://files.catbox.moe/xakck6.jpeg", "episodes": 3, "rating": 5, "type": "Movie", "page": "Movie/pages/black/black.html" }
+],
+
+  "Action": [
+  { "title": "Avatar: Fire and Ash", "img": "https://files.catbox.moe/ll1ob3.jpeg", "episodes": 16, "rating": 5, "type": "Movie", "page": "Movie/pages/actions_folder/action1.html" },
+  { "title": "Ip Man 4", "img": "https://files.catbox.moe/l7lolu.jpeg", "episodes": 12, "rating": 4, "type": "Movie", "page": "Movie/pages/actions_folder/action2.html" },
+  { "title": "Levels", "img": "https://files.catbox.moe/651t3k.jpeg", "episodes": 20, "rating": 4, "type": "Movie", "page": "Movie/pages/actions_folder/action3.html" },
+  { "title": "24 Hours D-Day", "img": "https://files.catbox.moe/0635oa.jpeg", "episodes": 10, "rating": 3, "type": "Movie", "page": "Movie/pages/actions_folder/action4.html" },
+  { "title": "Shark: The Storm", "img": "https://files.catbox.moe/n7i2xz.jpeg", "episodes": 16, "rating": 5, "type": "Series", "page": "Movie/pages/actions_folder/action5.html" },
+  { "title": "Prisoner of War", "img": "https://files.catbox.moe/eypwxf.jpeg", "episodes": 12, "rating": 4, "type": "Movie", "page": "Movie/pages/actions_folder/action6.html" },
+  { "title": "Stolen Girl", "img": "https://files.catbox.moe/5l6552.jpeg", "episodes": 20, "rating": 4, "type": "Movie", "page": "Movie/pages/actions_folder/action7.html" },
+  { "title": "Diablo", "img": "https://files.catbox.moe/br3eow.jpeg", "episodes": 10, "rating": 3, "type": "Movie", "page": "Movie/pages/actions_folder/action8.html" },
+  { "title": "Predator: Badlands...", "img": "https://files.catbox.moe/x6juqb.jpeg", "episodes": 10, "rating": 3, "type": "Movie", "page": "Movie/pages/actions_folder/action9.html" },
+  { "title": "The Old Guard 2", "img": "https://files.catbox.moe/0romh7.jpeg", "episodes": 10, "rating": 3, "type": "Movie", "page": "Movie/pages/actions_folder/action10.html" },
+  { "title": "Trouble Man", "img": "https://files.catbox.moe/a1xdcn.jpeg", "episodes": 10, "rating": 3, "type": "Movie", "page": "Movie/pages/actions_folder/action11.html" },
+  { "title": "Train to Busan", "img": "https://files.catbox.moe/0s7mfv.jpeg", "episodes": 20, "rating": 4, "type": "Movie", "page": "Movie/pages/actions_folder/action12.html" },
+  { "title": "One Battle After Ano...", "img": "https://files.catbox.moe/tbx4ny.jpeg", "episodes": 10, "rating": 3, "type": "Movie", "page": "Movie/pages/actions_folder/action13.html" },
+  { "title": "Sniper: The Last St...", "img": "https://files.catbox.moe/ui58by.jpeg", "episodes": 12, "rating": 4, "type": "Movie", "page": "Movie/pages/actions_folder/action14.html" },
+  { "title": "Beast of War", "img": "https://files.catbox.moe/40mkrh.jpeg", "episodes": 20, "rating": 4, "type": "Movie", "page": "Movie/pages/actions_folder/action15.html" },
+  { "title": "Predator: Killer of...", "img": "https://files.catbox.moe/hntsvb.jpeg", "episodes": 10, "rating": 3, "type": "Movie", "page": "Movie/pages/actions_folder/action16.html" },
+  { "title": "Blood River", "img": "https://files.catbox.moe/yk1cmb.jpeg", "episodes": 10, "rating": 3, "type": "Series", "page": "Movie/pages/actions_folder/action17.html" },
+  { "title": "Survive", "img": "https://files.catbox.moe/x3t9ri.jpeg", "episodes": 10, "rating": 3, "type": "Movie", "page": "Movie/pages/actions_folder/action18.html" },
+  { "title": "Red Sonja", "img": "https://files.catbox.moe/00xcy5.jpeg", "episodes": 10, "rating": 3, "type": "Movie", "page": "Movie/pages/actions_folder/action19.html" },
+  { "title": "I Am Nobody: The...", "img": "https://files.catbox.moe/lcu9gz.jpeg", "episodes": 10, "rating": 3, "type": "Movie", "page": "Movie/pages/actions_folder/action20.html" },
+  { "title": "Havoc", "img": "https://files.catbox.moe/jtifk3.jpeg", "episodes": 10, "rating": 3, "type": "Movie", "page": "Movie/pages/actions_folder/action21.html" },
+  { "title": "G20", "img": "https://files.catbox.moe/7x4jwt.jpeg", "episodes": 12, "rating": 4, "type": "Movie", "page": "Movie/pages/actions_folder/action22.html" },
+  { "title": "Twelve", "img": "https://files.catbox.moe/9tbq38.jpeg", "episodes": 10, "rating": 3, "type": "Series", "page": "Movie/pages/actions_folder/action23.html" }
+],
+
+  "Comedy": [
+  { title: "The Gardener", img: "https://files.catbox.moe/6j1enc.jpeg", episodes: 1, rating: 4, type: "Movie", page: "Movie/pages/comedy1.html" },
+  { title: "Crutch", img: "https://files.catbox.moe/x5ojgy.jpeg", episodes: 1, rating: 4, type: "Series", page: "Movie/pages/comedy2.html" },
+  { title: "Chad Power", img: "https://files.catbox.moe/1vdwan.jpeg", episodes: 1, rating: 4, type: "Series", page: "Movie/pages/comedy3.html" },
+  { title: "Adults", img: "https://files.catbox.moe/dbu9tm.jpeg", episodes: 1, rating: 4, type: "Series", page: "Movie/pages/comedy4.html" },
+  { title: "Pets On À Train", img: "https://files.catbox.moe/5oc2yp.jpeg", episodes: 1, rating: 4, type: "Movie", page: "Movie/pages/comedy5.html" },
+  { title: "Madeas", img: "https://files.catbox.moe/8e523z.jpeg", episodes: 1, rating: 4, type: "Movie", page: "Movie/pages/comedy6.html" },
+  { title: "Nobody2", img: "https://files.catbox.moe/fzn0eo.jpeg", episodes: 1, rating: 4, type: "Movie", page: "Movie/pages/comedy7.html" },
+  { title: "Materialists", img: "https://files.catbox.moe/738atf.jpeg", episodes: 1, rating: 4, type: "Movie", page: "Movie/pages/comedy8.html" },
+  { title: "Meet The Khumalos", img: "https://files.catbox.moe/d9rfjq.jpeg", episodes: 1, rating: 4, type: "Movie", page: "Movie/pages/comedy9.html" },
+  { title: "Local Trouble", img: "https://files.catbox.moe/ok34ja.jpeg", episodes: 1, rating: 4, type: "Movie", page: "Movie/pages/comedy10.html" },
+  { title: "Spermageddon", img: "https://files.catbox.moe/fvv8zi.jpeg", episodes: 1, rating: 4, type: "Movie", page: "Movie/pages/comedy11.html" },
+  { title: "Fight Or Flight", img: "https://files.catbox.moe/5ezvl0.jpeg", episodes: 1, rating: 4, type: "Movie", page: "Movie/pages/comedy12.html" },
+  { title: "Lilo & Stitch", img: "https://files.catbox.moe/fqbwi6.jpeg", episodes: 1, rating: 4, type: "Movie", page: "Movie/pages/comedy13.html" },
+  { title: "How to Train Your…", img: "https://files.catbox.moe/mtd1yx.jpeg", episodes: 1, rating: 4, type: "Movie", page: "Movie/pages/comedy14.html" },
+  { title: "The Pickup", img: "https://files.catbox.moe/52uf3j.jpeg", episodes: 1, rating: 4, type: "Movie", page: "Movie/pages/comedy15.html" },
+  { title: "Good Boy", img: "https://files.catbox.moe/ml4by3.jpeg", episodes: 1, rating: 4, type: "Movie", page: "Movie/pages/comedy16.html" }
+],
+
+  "Drama": [
+  { title: "The Witch", img: "https://files.catbox.moe/vj5ceq.jpeg", episodes: 10, rating: 4, type: "Series", page: "Movie/pages/drama1.html" },
+  { title: "Love in the Edge of", img: "https://files.catbox.moe/chfsyh.jpeg", episodes: 8, rating: 4, type: "Series", page: "Movie/pages/drama2.html" },
+  { title: "Tyler Perry's Findin…", img: "https://files.catbox.moe/47vo74.jpeg", episodes: 1, rating: 4, type: "Movie", page: "Movie/pages/drama3.html" },
+  { title: "Bad Influencer", img: "https://files.catbox.moe/vj0wd8.jpeg", episodes: 12, rating: 4, type: "Series", page: "Movie/pages/drama4.html" },
+  { title: "Chronicles", img: "https://files.catbox.moe/o1izxn.jpeg", episodes: 15, rating: 4, type: "Series", page: "Movie/pages/drama5.html" },
+  { title: "Alls Fair", img: "https://files.catbox.moe/x3jp0o.jpeg", episodes: 9, rating: 4, type: "Series", page: "Movie/pages/drama6.html" },
+  { title: "Sex On Phone", img: "https://files.catbox.moe/bsblem.jpeg", episodes: 1, rating: 4, type: "Movie", page: "Movie/pages/drama7.html" },
+  { title: "Tempest", img: "https://files.catbox.moe/j3yps7.jpeg", episodes: 7, rating: 4, type: "Series", page: "Movie/pages/drama8.html" },
+  { title: "Dangerous Queen", img: "https://files.catbox.moe/v33xm6.jpeg", episodes: 10, rating: 4, type: "Series", page: "Movie/pages/drama9.html" },
+  { title: "Bound by Honor", img: "https://files.catbox.moe/61bxon.jpeg", episodes: 12, rating: 4, type: "Series", page: "Movie/pages/drama10.html" },
+  { title: "Nautilus", img: "https://files.catbox.moe/vc1c74.jpeg", episodes: 9, rating: 4, type: "Series", page: "Movie/pages/drama11.html" },
+  { title: "Koleoso", img: "https://files.catbox.moe/1ld6lq.jpeg", episodes: 8, rating: 4, type: "Series", page: "Movie/pages/drama12.html" },
+  { title: "Sword and Beloved", img: "https://files.catbox.moe/mobxsn.jpeg", episodes: 11, rating: 4, type: "Series", page: "Movie/pages/drama13.html" },
+  { title: "Tell Me Not to Love", img: "https://files.catbox.moe/ob5dii.jpeg", episodes: 10, rating: 4, type: "Series", page: "Movie/pages/drama14.html" },
+  { title: "My Fault: London", img: "https://files.catbox.moe/kzh7rm.jpeg", episodes: 1, rating: 4, type: "Series", page: "Movie/pages/drama15.html" },
+  { title: "Sword and Beloved", img: "https://files.catbox.moe/mwvyau.jpeg", episodes: 11, rating: 4, type: "Series", page: "Movie/pages/drama16.html" },
+  { title: "Dear X", img: "https://files.catbox.moe/kowzvd.jpeg", episodes: 10, rating: 4, type: "Series", page: "Movie/pages/drama17.html" },
+  { title: "Dexter:Resurrection", img: "https://files.catbox.moe/jo3rbc.jpeg", episodes: 12, rating: 4, type: "Series", page: "Movie/pages/drama18.html" },
+  { title: "That Summer", img: "https://files.catbox.moe/n31x9l.jpeg", episodes: 1, rating: 4, type: "Series", page: "Movie/pages/drama19.html" },
+  { title: "My Stubborn", img: "https://files.catbox.moe/x3rwvs.jpeg", episodes: 1, rating: 4, type: "Series", page: "Movie/pages/drama20.html" },
+  { title: "Ms. Incognito", img: "https://files.catbox.moe/4en9o6.jpeg", episodes: 1, rating: 4, type: "Series", page: "Movie/pages/drama21.html" },
+  { title: "Koleoso pt 6", img: "https://files.catbox.moe/7bvusj.jpeg", episodes: 1, rating: 4, type: "Series", page: "Movie/pages/drama22.html" }
+],
+
+  "Horror": [
+  { title: "IT: Welcome to Derry", img: "https://files.catbox.moe/hnmccr.jpeg", episodes: 1, rating: 4, type: "Series", page: "Movie/pages/horror1.html" },
+  { title: "The Cursed of Sata...", img: "https://files.catbox.moe/w1m0qm.jpeg", episodes: 1, rating: 4, type: "Movie", page: "Movie/pages/horror2.html" },
+  { title: "Black Phone 2", img: "https://files.catbox.moe/rn4pxj.jpeg", episodes: 1, rating: 4, type: "Movie", page: "Movie/pages/horror3.html" },
+  { title: "Helloween", img: "https://files.catbox.moe/ddbmd2.jpeg", episodes: 1, rating: 4, type: "Movie", page: "Movie/pages/horror4.html" },
+  { title: "Holy Ghost", img: "https://files.catbox.moe/98iw88.jpeg", episodes: 1, rating: 4, type: "Movie", page: "Movie/pages/horror5.html" },
+  { title: "The Elixir", img: "https://files.catbox.moe/yob0c4.jpeg", episodes: 1, rating: 4, type: "Movie", page: "Movie/pages/horror6.html" },
+  { title: "The Mannequin", img: "https://files.catbox.moe/kp4121.jpeg", episodes: 1, rating: 4, type: "Movie", page: "Movie/pages/horror7.html" },
+  { title: "Weapons", img: "https://files.catbox.moe/dixb2o.jpeg", episodes: 1, rating: 4, type: "Movie", page: "Movie/pages/horror8.html" },
+  { title: "Surviv", img: "https://files.catbox.moe/x3t9ri.jpeg", episodes: 1, rating: 4, type: "Movie", page: "Movie/pages/horror9.html" },
+  { title: "Pengantin Iblis", img: "https://files.catbox.moe/u62he7.jpeg", episodes: 1, rating: 4, type: "Movie", page: "Movie/pages/horror10.html" },
+  { title: "What You Wish For", img: "https://files.catbox.moe/g3wmr0.jpeg", episodes: 1, rating: 4, type: "Movie", page: "Movie/pages/horror11.html" },
+  { title: "Massacre of the Wit...", img: "https://files.catbox.moe/k8xrpv.jpeg", episodes: 1, rating: 4, type: "Movie", page: "Movie/pages/horror12.html" },
+  { title: "Frankenstein", img: "https://files.catbox.moe/gdfvue.jpeg", episodes: 1, rating: 4, type: "Movie", page: "Movie/pages/horror13.html" },
+  { title: "Night of the Reaper", img: "https://files.catbox.moe/gbl6hr.jpeg", episodes: 1, rating: 4, type: "Movie", page: "Movie/pages/horror14.html" },
+  { title: "The Jester 2", img: "https://files.catbox.moe/nz0851.jpeg", episodes: 1, rating: 4, type: "Movie", page: "Movie/pages/horror15.html" },
+  { title: "The Conjuring: Las...", img: "https://files.catbox.moe/fw0fe7.jpeg", episodes: 1, rating: 4, type: "Movie", page: "Movie/pages/horror16.html" },
+  { title: "Eye for an Eye", img: "https://files.catbox.moe/bbf7nn.jpeg", episodes: 1, rating: 4, type: "Movie", page: "Movie/pages/horror17.html" },
+  { title: "I See You", img: "https://files.catbox.moe/valund.jpeg", episodes: 1, rating: 4, type: "Movie", page: "Movie/pages/horror18.html" },
+  { title: "The Ugly Stepsister", img: "https://files.catbox.moe/yyvos5.jpeg", episodes: 1, rating: 4, type: "Movie", page: "Movie/pages/horror19.html" },
+  { title: "Sumala", img: "https://files.catbox.moe/ngchmd.jpeg", episodes: 1, rating: 4, type: "Movie", page: "Movie/pages/horror20.html" },
+  { title: "Ghost Killer", img: "https://files.catbox.moe/fmzsjm.jpeg", episodes: 1, rating: 4, type: "Movie", page: "Movie/pages/horror21.html" },
+  { title: "It Feeds", img: "https://files.catbox.moe/3tl9u5.jpeg", episodes: 1, rating: 4, type: "Movie", page: "Movie/pages/horror22.html" },
+  { title: "Scurry", img: "https://files.catbox.moe/8w6d2b.jpeg", episodes: 1, rating: 4, type: "Movie", page: "Movie/pages/horror23.html" }
+],
+
+  "Sci-Fi": [
+  { title: "Dune Part 2", img: "https://files.catbox.moe/agf96r.jpeg", episodes: 1, rating: 0, type: "Movie", page: "Movie/pages/scifi1.html" },
+  { title: "Renner", img: "https://files.catbox.moe/ozsmkh.jpeg", episodes: 1, rating: 4.7, type: "Movie", page: "Movie/pages/scifi2.html" },
+  { title: "Mirai [Telugu]", img: "https://files.catbox.moe/7iupqc.jpeg", episodes: 1, rating: 8.1, type: "Movie", page: "Movie/pages/scifi3.html" },
+  { title: "Ziam", img: "https://files.catbox.moe/sn3g2x.jpeg", episodes: 1, rating: 4.8, type: "Movie", page: "Movie/pages/scifi4.html" },
+  { title: "Child Machine", img: "https://files.catbox.moe/5vl3ux.jpeg", episodes: 1, rating: 4.6, type: "Movie", page: "Movie/pages/scifi5.html" },
+  { title: "Last Night on Earth", img: "https://files.catbox.moe/1e1ypy.jpeg", episodes: 1, rating: 4.7, type: "Movie", page: "Movie/pages/scifi6.html" },
+  { title: "Long Distance", img: "https://files.catbox.moe/x6juqb.jpeg", episodes: 1, rating: 5.7, type: "Movie", page: "Movie/pages/scifi7.html" },
+  { title: "Predator: Badlands[CAM]", img: "https://files.catbox.moe/651t3k.jpeg", episodes: 1, rating: 7.6, type: "Movie", page: "Movie/pages/scifi8.html" },
+  { title: "Levels", img: "https://files.catbox.moe/3izt4e.jpeg", episodes: 1, rating: 5.0, type: "Series", page: "Movie/pages/scifi9.html" },
+  { title: "The Rig", img: "https://files.catbox.moe/ey2kx5.jpeg", episodes: 1, rating: 5.9, type: "Series", page: "Movie/pages/scifi10.html" },
+  { title: "40 Acres", img: "https://files.catbox.moe/rxdqf6.jpeg", episodes: 1, rating: 6.5, type: "Movie", page: "Movie/pages/scifi11.html" },
+  { title: "Osiris", img: "https://files.catbox.moe/g2cahc.jpeg", episodes: 1, rating: 4.7, type: "Movie", page: "Movie/pages/scifi12.html" },
+  { title: "Afterburn", img: "https://files.catbox.moe/3i6hdc.jpeg", episodes: 1, rating: 4.5, type: "Movie", page: "Movie/pages/scifi13.html" },
+  { title: "The Life of Chuck", img: "https://files.catbox.moe/bnjkgc.jpeg", episodes: 1, rating: 7.3, type: "Movie", page: "Movie/pages/scifi14.html" },
+  { title: "Captain America: Brave New World", img: "https://files.catbox.moe/z5lxza.jpeg", episodes: 1, rating: 5.6, type: "Movie", page: "Movie/pages/scifi15.html" },
+  { title: "Worldbreaker", img: "https://files.catbox.moe/f99ddi.jpeg", episodes: 1, rating: 5.0, type: "Movie", page: "Movie/pages/scifi16.html" },
+  { title: "Jurassic World: Rebirth", img: "https://files.catbox.moe/z50a70.jpeg", episodes: 1, rating: 5.9, type: "Series", page: "Movie/pages/scifi17.html" },
+  { title: "Talamasca: The Secret Order", img: "https://files.catbox.moe/w6qgdj.jpeg", episodes: 1, rating: 6.5, type: "Series", page: "Movie/pages/scifi18.html" },
+  { title: "Rich Flu", img: "https://files.catbox.moe/9ebk7r.jpeg", episodes: 1, rating: 5.0, type: "Movie", page: "Movie/pages/scifi19.html" },
+  { title: "Affinity", img: "https://files.catbox.moe/96dc1i.jpeg", episodes: 1, rating: 6.1, type: "Movie", page: "Movie/pages/scifi20.html" },
+  { title: "Rob1n", img: "https://files.catbox.moe/himpwb.jpeg", episodes: 1, rating: 3.6, type: "Movie", page: "Movie/pages/scifi21.html" },
+  { title: "Tron: Ares", img: "https://files.catbox.moe/oawski.jpeg", episodes: 1, rating: 6.6, type: "Series", page: "Movie/pages/scifi22.html" },
+  { title: "The Institute", img: "https://files.catbox.moe/oawski.jpeg", episodes: 1, rating: 6.7, type: "Series", page: "Movie/pages/scifi23.html" },
+  { title: "Pluribus", img: "https://files.catbox.moe/oawski.jpeg", episodes: 1, rating: 0, type: "Series", page: "Movie/pages/scifi24.html" }
+],
+
+  "Anime": [
+  { title: "Super Cube", img: "https://files.catbox.moe/xccrbs.jpeg", episodes: 1, rating: 7.0, type: "Series", page: "Movie/pages/anime1.html" },
+  { title: "Devil May Cry", img: "https://files.catbox.moe/knwbxp.jpeg", episodes: 1, rating: 7.4, type: "Movie", page: "Movie/pages/anime2.html" },
+  { title: "The Legend of Hei 2", img: "https://files.catbox.moe/0hte5i.jpeg", episodes: 1, rating: 7.9, type: "Series", page: "Movie/pages/anime3.html" },
+  { title: "Wolf King", img: "https://files.catbox.moe/i4vt1p.jpeg", episodes: 1, rating: 6.6, type: "Movie", page: "Movie/pages/anime4.html" },
+  { title: "Mission Zero", img: "https://files.catbox.moe/0gmht5.jpeg", episodes: 1, rating: 7.9, type: "Movie", page: "Movie/pages/anime5.html" },
+  { title: "Ne Zha 2", img: "https://files.catbox.moe/awjuh9.jpeg", episodes: 1, rating: 8.0, type: "Series", page: "Movie/pages/anime6.html" },
+  { title: "Marvel Zombies", img: "https://files.catbox.moe/9b8dki.jpeg", episodes: 1, rating: 7.0, type: "Series", page: "Movie/pages/anime7.html" },
+  { title: "Chitose Is in the Ramune Bottle", img: "https://files.catbox.moe/7m05lh.jpeg", episodes: 1, rating: 6.7, type: "Movie", page: "Movie/pages/anime8.html" },
+  { title: "Renegade Immortal: Battle of Gods", img: "https://files.catbox.moe/s8h08j.jpeg", episodes: 1, rating: 6.3, type: "Movie", page: "Movie/pages/anime9.html" },
+  { title: "Sister", img: "https://files.catbox.moe/aq03eg.jpeg", episodes: 1, rating: 8.3, type: "Movie", page: "Movie/pages/anime10.html" },
+  { title: "KPop Demon Hunters", img: "https://files.catbox.moe/ornkwq.jpeg", episodes: 1, rating: 7.6, type: "Series", page: "Movie/pages/anime11.html" },
+  { title: "Quiet Please!", img: "https://files.catbox.moe/2ezx0j.jpeg", episodes: 1, rating: 7.1, type: "Series", page: "Movie/pages/anime12.html" },
+  { title: "Eyes of Wakanda", img: "https://files.catbox.moe/uppmjy.jpeg", episodes: 1, rating: 6.2, type: "Movie", page: "Movie/pages/anime13.html" },
+  { title: "The Twits", img: "https://files.catbox.moe/egt4pw.jpeg", episodes: 1, rating: 4.7, type: "Series", page: "Movie/pages/anime14.html" },
+  { title: "Divine Manifestation", img: "https://files.catbox.moe/egt4pw.jpeg", episodes: 1, rating: 6.4, type: "Series", page: "Movie/pages/anime15.html" }
+],
+
+  "K-Drama": [
+  { title: "As You Stood By", img: "https://files.catbox.moe/rk5fbm.jpeg", episodes: 1, rating: 9.2, type: "Series", page: "Movie/pages/kdrama1.html" },
+  { title: "The Moon Flows Through the River", img: "https://files.catbox.moe/7k544i.jpeg", episodes: 1, rating: 8.0, type: "Movie", page: "Movie/pages/kdrama2.html" },
+  { title: "You Are the Apple of My Eye", img: "https://files.catbox.moe/a33p5v.jpeg", episodes: 1, rating: 6.7, type: "Movie", page: "Movie/pages/kdrama3.html" },
+  { title: "Love Untangled", img: "https://files.catbox.moe/64i7xa.jpeg", episodes: 1, rating: 7.1, type: "Series", page: "Movie/pages/kdrama4.html" },
+  { title: "Typhoon Boss", img: "https://files.catbox.moe/qxqamo.jpeg", episodes: 1, rating: 7.7, type: "Series", page: "Movie/pages/kdrama5.html" },
+  { title: "Spirit Fingers", img: "https://files.catbox.moe/6p1udn.jpeg", episodes: 1, rating: 9.4, type: "Series", page: "Movie/pages/kdrama6.html" },
+  { title: "To the Moon", img: "https://files.catbox.moe/1gw4ov.jpeg", episodes: 1, rating: 6.6, type: "Series", page: "Movie/pages/kdrama7.html" },
+  { title: "Would You Marry Me?", img: "https://files.catbox.moe/ikfn1u.jpeg", episodes: 1, rating: 8.1, type: "Movie", page: "Movie/pages/kdrama8.html" },
+  { title: "It's Okay!", img: "https://files.catbox.moe/888p3l.jpeg", episodes: 1, rating: 6.8, type: "Series", page: "Movie/pages/kdrama9.html" },
+  { title: "Dear Hongrang", img: "https://files.catbox.moe/mc9n6s.jpeg", episodes: 1, rating: 7.6, type: "Series", page: "Movie/pages/kdrama10.html" },
+  { title: "Return to the Palace", img: "https://files.catbox.moe/ryyq2w.jpeg", episodes: 1, rating: 7.7, type: "Series", page: "Movie/pages/kdrama11.html" },
+  { title: "Love Scout", img: "https://files.catbox.moe/5wchyq.jpeg", episodes: 1, rating: 0, type: "Movie", page: "Movie/pages/kdrama12.html" }
+],
+
+  "Nollywood": [
+  { title: "A Tribe Called Judah", img: "https://files.catbox.moe/szydi1.webp", episodes: 1, rating: 0, type: "Movie", page: "Movie/pages/nollywood1.html" },
+  { title: "WHAT WILL BE (que sera sera)", img: "https://files.catbox.moe/zsbod3.webp", episodes: 1, rating: 0, type: "Movie", page: "Movie/pages/nollywood2.html" },
+  { title: "RIGHT BUT WRONG", img: "https://files.catbox.moe/ikj04c.webp", episodes: 1, rating: 0, type: "Movie", page: "Movie/pages/nollywood3.html" },
+  { title: "CAT AND DOG FAMILY", img: "https://files.catbox.moe/yaknxd.jpeg", episodes: 1, rating: 0, type: "Movie", page: "Movie/pages/nollywood4.html" },
+  { title: "LOVE LEFT BEHIND", img: "https://files.catbox.moe/8jf79y.webp", episodes: 1, rating: 6.3, type: "Movie", page: "Movie/pages/nollywood5.html" },
+  { title: "HEART OF A HUBBY", img: "https://files.catbox.moe/sytmpz.webp", episodes: 1, rating: 0, type: "Movie", page: "Movie/pages/nollywood6.html" },
+  { title: "PARTNERS IN CRIME", img: "https://files.catbox.moe/lmcqr5.jpeg", episodes: 1, rating: 0, type: "Movie", page: "Movie/pages/nollywood7.html" },
+  { title: "THE GIFT WITHIN", img: "https://files.catbox.moe/zc69va.webp", episodes: 1, rating: 7.1, type: "Movie", page: "Movie/pages/nollywood8.html" },
+  { title: "WIFE OF A RICH POLITICIAN", img: "https://files.catbox.moe/0lvk5l.webp", episodes: 1, rating: 0, type: "Movie", page: "Movie/pages/nollywood9.html" },
+  { title: "Rude Boy", img: "https://files.catbox.moe/ky5ui8.webp", episodes: 1, rating: 0, type: "Movie", page: "Movie/pages/nollywood10.html" },
+  { title: "MY VERSION OF LOVE", img: "https://files.catbox.moe/bvkxcd.webp", episodes: 1, rating: 0, type: "Movie", page: "Movie/pages/nollywood11.html" },
+  { title: "HEARTLESSNESS", img: "https://files.catbox.moe/n1h40f.webp", episodes: 1, rating: 0, type: "Movie", page: "Movie/pages/nollywood12.html" },
+  { title: "MY MAID OF LOVE", img: "https://files.catbox.moe/cbsnn3.webp", episodes: 1, rating: 0, type: "Movie", page: "Movie/pages/nollywood13.html" },
+  { title: "TWO IS A MATCH", img: "https://files.catbox.moe/7ef9sf.webp", episodes: 1, rating: 0, type: "Movie", page: "Movie/pages/nollywood14.html" },
+  { title: "UNEXPECTED PREGNANCY", img: "https://files.catbox.moe/mb948p.webp", episodes: 1, rating: 0, type: "Movie", page: "Movie/pages/nollywood15.html" },
+  { title: "HEARTS IN MOTION", img: "https://files.catbox.moe/yk0mm4.webp", episodes: 1, rating: 0, type: "Movie", page: "Movie/pages/nollywood16.html" },
+  { title: "One More Love", img: "https://files.catbox.moe/8yj7x7.webp", episodes: 1, rating: 0, type: "Movie", page: "Movie/pages/nollywood17.html" },
+  { title: "MAID FROM HEAVEN", img: "https://files.catbox.moe/gcn9i1.webp", episodes: 1, rating: 0, type: "Movie", page: "Movie/pages/nollywood18.html" },
+  { title: "UNHOLY MAIDS", img: "https://files.catbox.moe/o1l79v.webp", episodes: 1, rating: 0, type: "Movie", page: "Movie/pages/nollywood19.html" },
+  { title: "Crazy About You", img: "https://files.catbox.moe/usu138.webp", episodes: 1, rating: 0, type: "Movie", page: "Movie/pages/nollywood20.html" },
+  { title: "THE BEST GIRL WINS", img: "https://files.catbox.moe/4yfeo5.jpeg", episodes: 1, rating: 0, type: "Movie", page: "Movie/pages/nollywood21.html" },
+  { title: "BUTTERFLIES", img: "https://files.catbox.moe/v9zd78.jpeg", episodes: 1, rating: 0, type: "Movie", page: "Movie/pages/nollywood22.html" },
+  { title: "DOGGY STYLE", img: "https://files.catbox.moe/zd768h.webp", episodes: 1, rating: 7.2, type: "Movie", page: "Movie/pages/nollywood23.html" },
+  { title: "EVIL SPIRIT", img: "https://files.catbox.moe/szydi1.webp", episodes: 1, rating: 0, type: "Movie", page: "Movie/pages/nollywood24.html" }
+],
+
+  "Bollywood": [
+  { title: "RRR", img: "https://files.catbox.moe/w9s5c5.jpeg", episodes: 1, rating: 8.0, type: "Movie", page: "Movie/pages/bollywood1.html" },
+  { title: "Baramulla", img: "https://files.catbox.moe/h1ltzr.jpeg", episodes: 1, rating: 6.6, type: "Movie", page: "Movie/pages/bollywood2.html" },
+  { title: "Madharasi", img: "https://files.catbox.moe/hq2y8r.webp", episodes: 1, rating: 6.0, type: "Movie", page: "Movie/pages/bollywood3.html" },
+  { title: "DEEWANIYAT Title Track", img: "https://files.catbox.moe/vx0ywl.jpeg", episodes: 1, rating: 7.1, type: "Movie", page: "Movie/pages/bollywood4.html" },
+  { title: "Param Sundari", img: "https://files.catbox.moe/k3pjhu.jpeg", episodes: 1, rating: 5.2, type: "Movie", page: "Movie/pages/bollywood5.html" },
+  { title: "Agra [Hindi]", img: "https://files.catbox.moe/i5omy1.jpeg", episodes: 1, rating: 5.7, type: "Movie", page: "Movie/pages/bollywood6.html" },
+  { title: "Sikandar", img: "https://files.catbox.moe/tkh4ju.jpeg", episodes: 1, rating: 3.7, type: "Movie", page: "Movie/pages/bollywood7.html" },
+  { title: "Daaku Maharaaj", img: "https://files.catbox.moe/e15eof.jpeg", episodes: 1, rating: 5.9, type: "Movie", page: "Movie/pages/bollywood8.html" },
+  { title: "Chhaava", img: "https://files.catbox.moe/35vx44.jpeg", episodes: 1, rating: 7.3, type: "Movie", page: "Movie/pages/bollywood9.html" },
+  { title: "Fateh", img: "https://files.catbox.moe/idjjjd.jpeg", episodes: 1, rating: 6.2, type: "Movie", page: "Movie/pages/bollywood10.html" },
+  { title: "The Bhootnii", img: "https://files.catbox.moe/xe353u.jpeg", episodes: 1, rating: 3.8, type: "Movie", page: "Movie/pages/bollywood11.html" },
+  { title: "The Royals", img: "https://files.catbox.moe/ouwr39.jpeg", episodes: 1, rating: 4.4, type: "Series", page: "Movie/pages/bollywood12.html" },
+  { title: "Game Changer", img: "https://files.catbox.moe/tfq53c.jpeg", episodes: 1, rating: 5.1, type: "Movie", page: "Movie/pages/bollywood13.html" },
+  { title: "Jaat", img: "https://files.catbox.moe/0zmkqv.webp", episodes: 1, rating: 6.0, type: "Movie", page: "Movie/pages/bollywood14.html" },
+  { title: "The Raja Saab Hindi Teaser", img: "https://files.catbox.moe/nsglq7.jpeg", episodes: 1, rating: 7.8, type: "Movie", page: "Movie/pages/bollywood15.html" },
+  { title: "Mirai", img: "https://files.catbox.moe/1nfp65.jpeg", episodes: 1, rating: 8.1, type: "Movie", page: "Movie/pages/bollywood16.html" },
+  { title: "Kurukshetra", img: "https://files.catbox.moe/r995hg.jpeg", episodes: 1, rating: 8.8, type: "Series", page: "Movie/pages/bollywood17.html" },
+  { title: "The Ba***ds of Bollywood", img: "https://files.catbox.moe/9gihv7.jpeg", episodes: 1, rating: 7.6, type: "Series", page: "Movie/pages/bollywood18.html" },
+  { title: "Baaghi 4", img: "https://files.catbox.moe/thw3qq.jpeg", episodes: 1, rating: 2.4, type: "Movie", page: "Movie/pages/bollywood19.html" },
+  { title: "Lokah Chapter One: Chandra", img: "https://files.catbox.moe/7cyptq.webp", episodes: 1, rating: 8.0, type: "Movie", page: "Movie/pages/bollywood20.html" },
+  { title: "Saiyaara Title Song", img: "https://files.catbox.moe/bvkk17.jpeg", episodes: 1, rating: 7.7, type: "Movie", page: "Movie/pages/bollywood21.html" },
+  { title: "Sky Force", img: "https://files.catbox.moe/oak1fb.jpeg", episodes: 1, rating: 6.8, type: "Movie", page: "Movie/pages/bollywood22.html" },
+  { title: "Deva", img: "https://files.catbox.moe/w9s5c5.jpeg", episodes: 1, rating: 6.5, type: "Movie", page: "Movie/pages/bollywood23.html" }
+],
+
+  "Chinese": [
+  { title: "The Demon Hunter", img: "https://files.catbox.moe/00w4b0.jpeg", episodes: 1, rating: 6.0, type: "Series", page: "Movie/pages/chinese1.html" },
+  { title: "Game of True Love", img: "https://files.catbox.moe/gks4us.jpeg", episodes: 1, rating: 8.5, type: "Series", page: "Movie/pages/chinese2.html" },
+  { title: "Whispers of Fate", img: "https://files.catbox.moe/b8ayzw.jpeg", episodes: 1, rating: 8.5, type: "Series", page: "Movie/pages/chinese3.html" },
+  { title: "Grab Your Love", img: "https://files.catbox.moe/ev2hbw.jpeg", episodes: 1, rating: 7.9, type: "Series", page: "Movie/pages/chinese4.html" },
+  { title: "Be Passionately in Love", img: "https://files.catbox.moe/17tn5p.jpeg", episodes: 1, rating: 7.2, type: "Series", page: "Movie/pages/chinese5.html" },
+  { title: "Moonlit Reunion", img: "https://files.catbox.moe/ynvc27.jpeg", episodes: 1, rating: 7.7, type: "Series", page: "Movie/pages/chinese6.html" },
+  { title: "Yummy Yummy Yummy", img: "https://files.catbox.moe/yf4fkq.jpeg", episodes: 1, rating: 7.2, type: "Series", page: "Movie/pages/chinese7.html" },
+  { title: "Rainkissed Fate", img: "https://files.catbox.moe/pbabpq.jpeg", episodes: 1, rating: 7.6, type: "Series", page: "Movie/pages/chinese8.html" },
+  { title: "The Journey of Legend", img: "https://files.catbox.moe/pv72qg.jpeg", episodes: 1, rating: 5.2, type: "Series", page: "Movie/pages/chinese9.html" },
+  { title: "Everlasting Longing", img: "https://files.catbox.moe/vvw6pt.jpeg", episodes: 1, rating: 7.5, type: "Series", page: "Movie/pages/chinese10.html" },
+  { title: "Legends of the Condor Heroes: The Gallants", img: "https://files.catbox.moe/dg9qab.jpeg", episodes: 1, rating: 6.3, type: "Series", page: "Movie/pages/chinese11.html" }
+],
+
+  "Romanse": [
+  { title: "Through My Window", img: "https://files.catbox.moe/ti4mt3.jpeg", episodes: 1, rating: 5.8, type: "Movie", page: "Movie/pages/romance1.html" },
+  { title: "Chasing the Wind", img: "https://files.catbox.moe/duilq3.webp", episodes: 1, rating: 5.8, type: "Movie", page: "Movie/pages/romance2.html" },
+  { title: "Special JohanNorth: The Glowing of Love Episode 1", img: "https://files.catbox.moe/1st995.jpeg", episodes: 1, rating: 9.0, type: "Movie", page: "Movie/pages/romance3.html" },
+  { title: "Ruth & Boaz", img: "https://files.catbox.moe/5ykmwa.jpeg", episodes: 1, rating: 5.9, type: "Movie", page: "Movie/pages/romance4.html" },
+  { title: "Regretting You[CAM]", img: "https://files.catbox.moe/hdqo51.jpeg", episodes: 1, rating: 6.2, type: "Movie", page: "Movie/pages/romance5.html" },
+  { title: "Temptation Island", img: "https://files.catbox.moe/slhzi1.jpeg", episodes: 1, rating: 6.5, type: "Series", page: "Movie/pages/romance6.html" },
+  { title: "Elevator Lady", img: "https://files.catbox.moe/patipc.jpeg", episodes: 1, rating: 6.0, type: "Movie", page: "Movie/pages/romance7.html" },
+  { title: "Therapy Game", img: "https://files.catbox.moe/gt2utt.jpeg", episodes: 1, rating: 6.7, type: "Series", page: "Movie/pages/romance8.html" },
+  { title: "That Summer", img: "https://files.catbox.moe/jube5p.jpeg", episodes: 1, rating: 7.5, type: "Series", page: "Movie/pages/romance9.html" },
+  { title: "Knock Out", img: "https://files.catbox.moe/yf4fkq.jpeg", episodes: 1, rating: 7.2, type: "Series", page: "Movie/pages/romance10.html" },
+  { title: "Hedda", img: "https://files.catbox.moe/ob5dii.jpeg", episodes: 1, rating: 5.7, type: "Movie", page: "Movie/pages/romance11.html" },
+  { title: "Be Passionately in Love", img: "https://files.catbox.moe/mwvyau.jpeg", episodes: 1, rating: 7.2, type: "Series", page: "Movie/pages/romance12.html" },
+  { title: "My Fault: London", img: "https://files.catbox.moe/ufjdx6.jpeg", episodes: 1, rating: 6.2, type: "Movie", page: "Movie/pages/romance13.html" },
+  { title: "Dear X", img: "https://files.catbox.moe/3c3ka9.jpeg", episodes: 1, rating: 6.8, type: "Series", page: "Movie/pages/romance14.html" },
+  { title: "The Ex-Morning", img: "https://files.catbox.moe/ev2hbw.jpeg", episodes: 1, rating: 7.4, type: "Series", page: "Movie/pages/romance15.html" },
+  { title: "My Safe Zone", img: "https://files.catbox.moe/viyei6.jpeg", episodes: 1, rating: 9.7, type: "Series", page: "Movie/pages/romance16.html" },
+  { title: "Rainkissed Fate", img: "https://files.catbox.moe/ynvc27.jpeg", episodes: 1, rating: 7.6, type: "Series", page: "Movie/pages/romance17.html" },
+  { title: "Gelboys", img: "https://files.catbox.moe/nypkee.jpeg", episodes: 1, rating: 8.4, type: "Series", page: "Movie/pages/romance18.html" },
+  { title: "Moonlit Reunion", img: "https://files.catbox.moe/qfsbf8.jpeg", episodes: 1, rating: 7.7, type: "Series", page: "Movie/pages/romance19.html" },
+  { title: "Feud", img: "https://files.catbox.moe/wgsoml.jpeg", episodes: 1, rating: 6.7, type: "Series", page: "Movie/pages/romance20.html" },
+  { title: "Love in the Moonlight", img: "https://files.catbox.moe/2i24h6.jpeg", episodes: 1, rating: 8.9, type: "Series", page: "Movie/pages/romance21.html" },
+  { title: "Takumi-kun Series: Drama", img: "https://files.catbox.moe/ryyq2w.jpeg", episodes: 1, rating: 6.3, type: "Series", page: "Movie/pages/romance22.html" },
+  { title: "Boys in Love", img: "https://files.catbox.moe/ti4mt3.jpeg", episodes: 1, rating: 7.5, type: "Series", page: "Movie/pages/romance23.html" },
+  { title: "Return to the Palace", img: "https://files.catbox.moe/duilq3.webp", episodes: 1, rating: 7.7, type: "Series", page: "Movie/pages/romance24.html" }
+],
+
+  "Teen Movies": [
+  { title: "Playboyy the Series", img: "https://files.catbox.moe/y8jm96.jpeg", episodes: 1, rating: 5.5, type: "Series", page: "Movie/pages/teen1.html" },
+  { title: "Series: Teen Love", img: "https://files.catbox.moe/mqb6wh.webp", episodes: 1, rating: 6.2, type: "Series", page: "Movie/pages/teen2.html" },
+  { title: "Series: Sibe", img: "https://files.catbox.moe/0xcs7x.webp", episodes: 1, rating: 6.3, type: "Movie", page: "Movie/pages/teen3.html" },
+  { title: "Pertaruhan: The Series", img: "https://files.catbox.moe/bg1jmn.jpeg", episodes: 1, rating: 8.1, type: "Series", page: "Movie/pages/teen4.html" }
+],
+
+  "Teen Series": [
+  { title: "Teen Wolf: The Movie", img: "https://files.catbox.moe/wuvamq.jpeg", episodes: 1, rating: 5.6, type: "Movie", page: "Movie/pages/teen1.html" },
+  { title: "Playboyy the Series", img: "https://files.catbox.moe/y8jm96.jpeg", episodes: 1, rating: 5.5, type: "Series", page: "Movie/pages/teen2.html" },
+  { title: "Series: Teen Love", img: "https://files.catbox.moe/mqb6wh.webp", episodes: 1, rating: 6.2, type: "Series", page: "Movie/pages/teen3.html" },
+  { title: "Series: Sibe", img: "https://files.catbox.moe/0xcs7x.webp", episodes: 1, rating: 6.3, type: "Movie", page: "Movie/pages/teen4.html" },
+  { title: "Pertaruhan: The Series", img: "https://files.catbox.moe/bg1jmn.jpeg", episodes: 1, rating: 8.1, type: "Series", page: "Movie/pages/teen5.html" },
+  { title: "Series: South Side", img: "https://files.catbox.moe/duilq3.webp", episodes: 1, rating: 6.5, type: "Series", page: "Movie/pages/teen6.html" },
+  { title: "Series: Brain Behind", img: "https://files.catbox.moe/8awc8t.webp", episodes: 1, rating: 6.8, type: "Series", page: "Movie/pages/teen7.html" },
+  { title: "Series: Sweet 16", img: "https://files.catbox.moe/8q2925.webp", episodes: 1, rating: 6.0, type: "Series", page: "Movie/pages/teen8.html" },
+  { title: "Teen Musical - The Movie", img: "https://files.catbox.moe/rkx25u.jpeg", episodes: 1, rating: 4.1, type: "Movie", page: "Movie/pages/teen9.html" },
+  { title: "Series: King Asemota", img: "https://files.catbox.moe/4hcyyt.webp", episodes: 1, rating: 6.0, type: "Series", page: "Movie/pages/teen10.html" },
+  { title: "My Sister's Husband", img: "https://files.catbox.moe/zycubo.jpeg", episodes: 1, rating: 5.9, type: "Series", page: "Movie/pages/teen11.html" },
+  { title: "Series: Saamu Alajo", img: "https://files.catbox.moe/1v23xc.png", episodes: 1, rating: 6.3, type: "Movie", page: "Movie/pages/teen12.html" },
+  { title: "Series: Just Us", img: "https://files.catbox.moe/b7vev4.webp", episodes: 1, rating: 6.0, type: "Series", page: "Movie/pages/teen13.html" }
+],
+
+  "Disney": [
+    { title: "Disney Twisted-Wonderland the Animation", img: "https://files.catbox.moe/psi03u.jpeg", episodes: 6, rating: 6.2, type: "Series", page: "Movie/pages/disney1.html" },
+    { title: "Disney Jr. Kitties! 🐱", img: "https://files.catbox.moe/36jt5e.jpeg", episodes: 1, rating: 0, type: "Movie", page: "Movie/pages/disney2.html" },
+    { title: "Disney Cruise 2024", img: "https://files.catbox.moe/zo1pur.jpeg", episodes: 1, rating: 0, type: "Movie", page: "Movie/pages/disney3.html" },
+    { title: "Disney Jr. Toys!", img: "https://files.catbox.moe/xbimix.jpeg", episodes: 1, rating: 0, type: "Movie", page: "Movie/pages/disney4.html" },
+    { title: "Disney Jr. YouTube Shorts", img: "https://files.catbox.moe/yl0ohi.jpeg", episodes: 1, rating: 0, type: "Movie", page: "Movie/pages/disney5.html" },
+    { title: "Maymay Entrata - Nasaan ang Hiling", img: "https://files.catbox.moe/6pu8wq.jpeg", episodes: 1, rating: 7.5, type: "Movie", page: "Movie/pages/disney6.html" },
+    { title: "Disney Parks Magical Christmas Day Parade", img: "https://files.catbox.moe/bpaoll.jpeg", episodes: 1, rating: 6.4, type: "Movie", page: "Movie/pages/disney7.html" },
+    { title: "Disney Jr.'s Ariel", img: "https://files.catbox.moe/uqdykn.jpeg", episodes: 3, rating: 3.7, type: "Series", page: "Movie/pages/disney8.html" },
+    { title: "Happy Disney Songs The Ultimate Disney Classic Song Playlist Disney Songs That Make You Happy 2024", img: "https://files.catbox.moe/j43nts.jpeg", episodes: 1, rating: 7.7, type: "Movie", page: "Movie/pages/disney9.html" },
+    { title: "Disney Intertwined Live", img: "https://files.catbox.moe/sulonp.jpeg", episodes: 1, rating: 5.6, type: "Movie", page: "Movie/pages/disney10.html" },
+    { title: "LEGO Disney Princess: The Castle Quest", img: "https://files.catbox.moe/vixoop.jpeg", episodes: 1, rating: 6.0, type: "Movie", page: "Movie/pages/disney11.html" },
+    { title: "Magic of Disney's Animal Kingdom", img: "https://files.catbox.moe/bmbaog.jpeg", episodes: 1, rating: 8.2, type: "Series", page: "Movie/pages/disney12.html" },
+    { title: "Lang Lang Plays Disney", img: "https://files.catbox.moe/l1mbvj.jpeg", episodes: 1, rating: 6.8, type: "Movie", page: "Movie/pages/disney13.html" },
+    { title: "Happy Disney Songs The Ultimate Disney Classic Song Playlist Disney Songs That Make You Happy 2024", img: "https://files.catbox.moe/271dpr.jpeg", episodes: 1, rating: 7.3, type: "Movie", page: "Movie/pages/disney14.html" },
+    { title: "Princesita Sofía | Disney", img: "https://files.catbox.moe/5937jr.jpeg", episodes: 1, rating: 0, type: "Movie", page: "Movie/pages/disney15.html" }
+],
+
+"Marvel": [
+    { title: "Marvel Zombies", img: "https://files.catbox.moe/awt8mh.jpeg", episodes: 7, rating: 7.0, type: "Series", page: "Movie/pages/marvel1.html" },
+    { title: "G20", img: "https://files.catbox.moe/hxtxgg.jpeg", episodes: 1, rating: 5.1, type: "Movie", page: "Movie/pages/marvel2.html" },
+    { title: "Marvel Studios: Legends", img: "https://files.catbox.moe/41ovys.jpeg", episodes: 6, rating: 6.5, type: "Series", page: "Movie/pages/marvel3.html" },
+    { title: "The Marvels", img: "https://files.catbox.moe/znvu7u.jpeg", episodes: 1, rating: 7.0, type: "Movie", page: "Movie/pages/marvel4.html" },
+    { title: "Marvel Studios: Assembled", img: "https://files.catbox.moe/hzdjsm.jpeg", episodes: 5, rating: 7.9, type: "Series", page: "Movie/pages/marvel5.html" },
+    { title: "Black Panther: Wakanda Forever | Official Teaser", img: "https://files.catbox.moe/eun0ck.jpeg", episodes: 1, rating: 7.9, type: "Movie", page: "Movie/pages/marvel6.html" },
+    { title: "Ms. Marvel", img: "https://files.catbox.moe/a14s8s.jpeg", episodes: 6, rating: 6, type: "Series", page: "Movie/pages/marvel7.html" },
+    { title: "My Marvellous Dream Is You", img: "https://files.catbox.moe/awt8mh.jpeg", episodes: 1, rating: 6, type: "Series", page: "Movie/pages/marvel8.html" }
+  ]
+};
+
+const gallery = document.getElementById("genre-gallery");
+
+function showGenre(name) {
+  const list = GENRE_DATA[name] || [];
+  let html = '';
+
+  if(list.length > 0) {
+    html += `<h2 class="genre-title">${name} Movies & Series</h2>`;
+  }
+
+  html += `<div class="cards">`;
+
+  list.forEach(item => {
+    let stars = '';
+    for (let i = 0; i < Math.round(item.rating || 0); i++) stars += '★';
+    for (let i = Math.round(item.rating || 0); i < 5; i++) stars += '☆';
+
+    html += `
+      <div class="card" data-page="${item.page}">
+        <div class="badge">${item.type || "Movie"}</div>
+        <img src="${item.img}" alt="${item.title}">
+        <p>
+          ${item.title} <br>
+          Episodes: ${item.episodes || 1} <br>
+          Rating: ${stars}
+        </p>
+      </div>
+    `;
+  });
+
+  html += `</div>`;
+  gallery.innerHTML = html;
+
+  // Add click events
+  const cards = document.querySelectorAll('.card');
+  cards.forEach(card => {
+    card.addEventListener('click', () => {
+      // Aktive liy wouj
+      cards.forEach(c => c.classList.remove('active'));
+      card.classList.add('active');
+
+      // Louvri paj la
+      const page = card.getAttribute('data-page');
+      if(page) window.location.href = page;
+    });
+  });
+}
+
+// BOUTON LOGIC
+document.querySelectorAll(".genre-btn").forEach(btn => {
+  btn.addEventListener("click", () => {
+    document.querySelectorAll(".genre-btn").forEach(b => b.classList.remove("active"));
+    btn.classList.add("active");
+
+    const name = btn.innerText.trim();
+    showGenre(name);
+  });
+});
+
+// CHAJMAN INISYAL
+showGenre("All");
+
+
+function goTo(url){
+    window.location.href = url;
+  }
+
+// menu js
+const menuBtn = document.getElementById("menuBtn");
+const sideMenu = document.getElementById("sideMenu");
+const closeSide = document.getElementById("closeSide");
+const backdrop = document.getElementById("backdrop");
+
+// OPEN
+menuBtn.addEventListener("click", () => {
+  sideMenu.classList.add("open");
+  backdrop.classList.add("show");
+  menuBtn.classList.add("active");
+});
+
+// CLOSE
+function closeMenu(){
+  sideMenu.classList.remove("open");
+  backdrop.classList.remove("show");
+  menuBtn.classList.remove("active");
+}
+
+closeSide.addEventListener("click", closeMenu);
+backdrop.addEventListener("click", closeMenu);
+</script>
+</body>
+</html>

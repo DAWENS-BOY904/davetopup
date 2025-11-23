@@ -1,0 +1,503 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ray Library — Liv en Ligne</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<!-- Google font -->
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+/* === RESET === */
+body, h1, h2, h3, p, ul, li, a, button {
+  margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif;
+}
+body { background: #f5f7fa; color: #333; }
+
+/* === HEADER === */
+header {
+  position: fixed; top: 0; left: 0; width: 100%;
+  display: flex; justify-content: space-between; align-items: center;
+  background: #fff; box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+  padding: 10px 20px; z-index: 100;
+}
+header .logo { font-weight: 700; font-size: 20px; color: #2b6cb0; }
+.icons { display: flex; gap: 15px; }
+.icons i {
+  font-size: 20px; color: #2b6cb0; cursor: pointer; transition: .3s;
+}
+.icons i:hover { color: #1a365d; }
+
+/* === SIDE MENU === */
+.side-menu {
+  position: fixed; left: -300px; top: 0; width: 230px; height: 100%;
+  background: #fff; box-shadow: 3px 0 10px rgba(0,0,0,0.1);
+  padding: 20px; transition: 0.3s ease; z-index: 200;
+}
+.side-menu.open { left: 0; }
+.side-menu h3 { margin-bottom: 15px; color: #2b6cb0; }
+.side-menu ul { list-style: none; }
+.side-menu li { margin: 12px 0; }
+.side-menu a { color: #333; text-decoration: none; font-weight: 500; transition: 0.3s; }
+.side-menu a:hover { color: #2b6cb0; }
+.close-menu { position: absolute; top: 12px; right: 15px; font-size: 22px; cursor: pointer; color: #2b6cb0; }
+
+ul li a i {
+  margin-right: 8px;
+  color: #007bff; /* koulè ble élégance */
+}
+ul li a:hover i {
+  color: #ff6600; /* chanje koulè lè souri sou yo */
+}
+
+/* === MAIN === */
+main {
+  padding: 100px 20px 40px;
+  max-width: 1200px; margin: 0 auto;
+}
+main h2 { text-align: center; font-size: 26px; color: #2b6cb0; margin-bottom: 10px; }
+main p { text-align: center; color: #555; margin-bottom: 25px; }
+
+.grid {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 20px;
+}
+.card {
+  background: #fff; border-radius: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  overflow: hidden; text-align: center; transition: transform 0.3s;
+}
+.card:hover { transform: translateY(-5px); }
+.card img { width: 100%; height: 200px; object-fit: cover; }
+.card h3 { font-size: 15px; margin: 10px 0 5px; color: #333; }
+.card p { color: #777; font-size: 13px; margin-bottom: 10px; }
+.btn {
+  display: inline-block; background: #2b6cb0; color: #fff; padding: 8px 12px;
+  border-radius: 6px; margin-bottom: 12px; font-size: 13px; transition: 0.3s;
+}
+.btn:hover { background: #1a365d; }
+
+/* === CAROUSEL MARQUEE === */
+.carousel-marquee {
+  width: 100%;
+  overflow: hidden; /* kache tras la */
+  background: #fff;
+  padding: 5px 0;
+  margin: 0;
+  border-radius: 0;
+  box-shadow: 0 0 10px rgba(0,0,0,0.05);
+  position: relative;
+}
+
+.carousel-track {
+  display: flex;
+  gap: 10px; /* espas ant imaj yo */
+  animation: marquee 25s linear infinite;
+  white-space: nowrap; /* pa kase nan liy */
+}
+
+.carousel-track img {
+  width: 40px;
+  height: 30px;
+  border-radius: 4px;
+  object-fit: cover;
+  box-shadow: 0 0 4px rgba(0,0,0,0.1);
+  flex-shrink: 0; /* pa pèmèt imaj yo vin pi piti */
+}
+
+@keyframes marquee {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); } /* deplase mwatye pou li san gap */
+}
+
+/* === FOOTER === */
+footer {
+  text-align: center;
+  padding: 10px 0;
+  font-size: 13px;
+  color: #666;
+  background: #fff;
+  border-top: 1px solid #ddd;
+  margin: 0;
+}
+
+/* Kole carousel ak footer */
+body, html {
+  margin: 0;
+  padding: 0;
+}
+
+.carousel-marquee {
+  border-radius: 0;
+}
+
+footer {
+  border-radius: 0;
+}
+/* === PROMO TAG === */
+.promo {
+  position: absolute; top: 10px; left: 10px; background: #e53e3e; color: #fff;
+  font-size: 12px; padding: 4px 8px; border-radius: 5px;
+}
+
+/* === WHY CHOOSE US SECTION === */
+.section-title{
+  font-size: 26px;
+  font-weight: 700;
+  color: #2b6cb0;
+  text-align: center;
+  margin: 50px 0 20px;
+}
+
+.why-card{
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 14px;
+  padding: 25px;
+  max-width: 900px;
+  margin: 0 auto 60px;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.05);
+}
+
+.feature{
+  display: flex;
+  align-items: flex-start;
+  gap: 18px;
+  padding: 18px 0;
+  border-bottom: 1px solid #eee;
+}
+.feature:last-child{ border-bottom: none; }
+
+.icon{
+  min-width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background: #f0f4ff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.icon svg{ width: 30px; height: 30px; }
+
+.content h3{
+  margin: 0;
+  font-size: 18px;
+  font-weight: 600;
+  color: #111827;
+}
+.content p{
+  color: #555;
+  font-size: 14px;
+  margin-top: 6px;
+  line-height: 1.6;
+}
+
+/* ================== PAGINATION MODERN PRO ================== */
+.pager {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 12px;
+    margin: 30px 0;
+    flex-wrap: wrap;
+}
+
+/* Tout bouton */
+.page-btn {
+    padding: 10px 18px;
+    background: #fff;
+    border: none;
+    border-radius: 12px;
+    font-size: 15px;
+    font-weight: 600;
+    color: #2b9ed8;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    position: relative;
+    overflow: hidden;
+}
+
+/* Hover efekt ak gradient overlay */
+.page-btn::before {
+    content: '';
+    position: absolute;
+    top: 0; left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(120deg, #2b9ed8, #ff6a00);
+    transition: all 0.4s ease;
+    z-index: 0;
+}
+.page-btn:hover::before {
+    left: 0;
+}
+.page-btn span {
+    position: relative;
+    z-index: 1;
+}
+
+/* Bouton aktyèl */
+.page-btn.active {
+    background: linear-gradient(120deg, #2b9ed8, #ff6a00);
+    color: #fff;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+}
+
+/* Prev / Next espesyal style */
+.page-btn.prev, 
+.page-btn.next {
+    font-weight: 700;
+    background: #f0f4f8;
+    color: #2b9ed8;
+}
+.page-btn.prev:hover, 
+.page-btn.next:hover {
+    background: linear-gradient(120deg, #2b9ed8, #ff6a00);
+    color: #fff;
+}
+
+/* Responsive */
+@media (max-width: 480px) {
+    .pager {
+        gap: 6px;
+    }
+    .page-btn {
+        padding: 8px 12px;
+        font-size: 14px;
+    }
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">📚 Ray Library</div>
+  <div class="icons">
+    <i class="fa-solid fa-bars" id="openMenu"></i>
+    <i class="fa-solid fa-search"></i>
+    <i class="fa-solid fa-cart-shopping"></i>
+  </div>
+</header>
+
+<!-- SIDE MENU -->
+<div class="side-menu" id="sideMenu">
+  <i class="fa-solid fa-xmark close-menu" id="closeMenu"></i>
+  <h3>Menu</h3>
+  <!-- Menu -->
+<ul>
+  <li><a href="index.html"><i class="fas fa-home"></i> Accueil</a></li>
+  <li><a href="library.html"><i class="fas fa-book"></i> Bibliothèque</a></li>
+  <li><a href="Ray/privacy.html"><i class="fas fa-lock"></i> Confidentialité</a></li>
+  <li><a href="Ray/terms.html"><i class="fas fa-file-contract"></i> Conditions</a></li>
+  <li><a href="Ray/contact.html"><i class="fas fa-phone"></i> Contact</a></li>
+</ul>
+</div>
+
+<main>
+  <h2>Nos Livres Disponibles</h2>
+  <p>Découvrez une sélection de 20 livres numériques exclusifs à Ray Library.</p>
+
+  <div class="grid">
+    <!-- 20 LIVRES -->
+    <div class="card">
+      <div class="promo">-25%</div>
+      <img src="https://files.catbox.moe/0q5q9y.jpg" alt="Livre 1">
+      <h3>Rich Dad Poor Dad</h3>
+      <p>Robert Kiyosaki</p>
+      <a href="Ray/1.html" class="btn">Voir le livre</a>
+    </div>
+
+    <div class="card">
+      <img src="https://files.catbox.moe/t8v0dh.jpg" alt="Livre 2">
+      <h3>Think and Grow Rich</h3>
+      <p>Napoleon Hill</p>
+      <a href="Ray/2.html" class="btn">Voir le livre</a>
+    </div>
+
+    <div class="card">
+      <div class="promo">New</div>
+      <img src="https://files.catbox.moe/8amdf2.jpg" alt="Livre 3">
+      <h3>The Power of Now</h3>
+      <p>Eckhart Tolle</p>
+      <a href="Ray/3.html" class="btn">Voir le livre</a>
+    </div>
+
+    <div class="card">
+      <img src="https://files.catbox.moe/g1cw0x.jpg" alt="Livre 4">
+      <h3>Atomic Habits</h3>
+      <p>James Clear</p>
+      <a href="Ray/4.html" class="btn">Voir le livre</a>
+    </div>
+
+    <div class="card">
+      <div class="promo">Hot</div>
+      <img src="https://files.catbox.moe/q2q5h6.jpg" alt="Livre 5">
+      <h3>The 48 Laws of Power</h3>
+      <p>Robert Greene</p>
+      <a href="Ray/5.html" class="btn">Voir le livre</a>
+    </div>
+
+    <div class="card">
+      <img src="https://files.catbox.moe/vg4kcc.jpg" alt="Livre 6">
+      <h3>You Are a Badass</h3>
+      <p>Jen Sincero</p>
+      <a href="Ray/6.html" class="btn">Voir le livre</a>
+    </div>
+
+    <div class="card">
+      <img src="https://files.catbox.moe/nfpcpx.jpg" alt="Livre 7">
+      <h3>The Alchemist</h3>
+      <p>Paulo Coelho</p>
+      <a href="Ray/7.html" class="btn">Voir le livre</a>
+    </div>
+
+    <div class="card">
+      <div class="promo">-30%</div>
+      <img src="https://files.catbox.moe/4t0xwf.jpg" alt="Livre 8">
+      <h3>The Subtle Art of Not Giving a F*ck</h3>
+      <p>Mark Manson</p>
+      <a href="Ray/8.html" class="btn">Voir le livre</a>
+    </div>
+
+    <div class="card">
+      <img src="https://files.catbox.moe/hbhtm5.jpg" alt="Livre 9">
+      <h3>Deep Work</h3>
+      <p>Cal Newport</p>
+      <a href="Ray/9.html" class="btn">Voir le livre</a>
+    </div>
+
+    <div class="card">
+      <div class="promo">Best Seller</div>
+      <img src="https://files.catbox.moe/x0ou6f.jpg" alt="Livre 10">
+      <h3>Start With Why</h3>
+      <p>Simon Sinek</p>
+      <a href="Ray/10.html" class="btn">Voir le livre</a>
+    </div>
+
+    <!-- 10 plis -->
+    <div class="card"><img src="https://files.catbox.moe/6p7fwj.jpg"><h3>Limitless</h3><p>Jim Kwik</p><a href="#" class="btn">Voir</a></div>
+    <div class="card"><img src="https://files.catbox.moe/bjj1z6.jpg"><h3>The 5AM Club</h3><p>Robin Sharma</p><a href="#" class="btn">Voir</a></div>
+    <div class="card"><img src="https://files.catbox.moe/63b8m2.jpg"><h3>Can’t Hurt Me</h3><p>David Goggins</p><a href="#" class="btn">Voir</a></div>
+    <div class="card"><img src="https://files.catbox.moe/65eh5k.jpg"><h3>Ikigai</h3><p>Hector Garcia</p><a href="#" class="btn">Voir</a></div>
+    <div class="card"><img src="https://files.catbox.moe/mby2t4.jpg"><h3>The Secret</h3><p>Rhonda Byrne</p><a href="#" class="btn">Voir</a></div>
+    <div class="card"><img src="https://files.catbox.moe/vd6fc8.webp"><h3>Money Master The Game</h3><p>Tony Robbins</p><a href="#" class="btn">Voir</a></div>
+    <div class="card"><img src="https://files.catbox.moe/hpgnd2.jpeg"><h3>The Miracle Morning</h3><p>Hal Elrod</p><a href="#" class="btn">Voir</a></div>
+    <div class="card"><img src="https://files.catbox.moe/iad625.jpeg"><h3>Crushing It</h3><p>Gary Vee</p><a href="#" class="btn">Voir</a></div>
+    <div class="card"><img src="https://files.catbox.moe/6tqkjp.jpeg"><h3>Zero to One</h3><p>Peter Thiel</p><a href="#" class="btn">Voir</a></div>
+    <div class="card"><img src="https://files.catbox.moe/lmn456.jpeg"><h3>Steal Like an Artist</h3><p>Austin Kleon</p><a href="#" class="btn">Voir</a></div>
+  </div>
+</main>
+
+<!-- WHY CHOOSE US SECTION -->
+<h2 class="section-title">Why Choose Us?</h2>
+
+<div class="why-card">
+  <!-- Feature 1 -->
+  <div class="feature">
+    <div class="icon">
+      <svg viewBox="0 0 24 24" fill="none">
+        <path d="M12 2l7 3v5c0 5-4 9-7 11-3-2-7-6-7-11V5l7-3z" stroke="#9ca3af" stroke-width="1.2" fill="#fff"/>
+        <path d="M9.2 11.2l1.6 1.6 3.6-3.6" stroke="#2b6cb0" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </div>
+    <div class="content">
+      <h3>100% Secure Purchase</h3>
+      <p>At <strong>Ray Library</strong>, every order is processed through a fully protected and encrypted system to keep your data and payment information completely safe. We value your trust, and we make sure your transactions remain private, secure, and worry-free from start to finish.</p>
+    </div>
+  </div>
+
+  <!-- Feature 2 -->
+  <div class="feature">
+    <div class="icon">
+      <svg viewBox="0 0 24 24" fill="none">
+        <path d="M4 13v-1a8 8 0 0116 0v1" stroke="#9ca3af" stroke-width="1.2"/>
+        <path d="M6 14v2a2 2 0 002 2h.5" stroke="#2b6cb0" stroke-width="1.4" stroke-linecap="round"/>
+        <path d="M18 14v2a2 2 0 01-2 2h-.5" stroke="#2b6cb0" stroke-width="1.4" stroke-linecap="round"/>
+        <circle cx="12" cy="8.5" r="1.8" stroke="#2b6cb0" stroke-width="1.2" fill="#fff"/>
+      </svg>
+    </div>
+    <div class="content">
+      <h3>Dedicated 24/7 Support</h3>
+      <p>Need help finding a specific title, tracking an order, or resolving a delivery issue? Our friendly and professional customer service team is available 24/7 to provide fast and detailed assistance. At <strong>Ray Library</strong>, we’re always here to help you — day or night, before and after your purchase.</p>
+    </div>
+  </div>
+
+  <!-- Feature 3 -->
+  <div class="feature">
+    <div class="icon">
+      <svg viewBox="0 0 24 24" fill="none">
+        <rect x="3.5" y="7" width="17" height="10" rx="2" stroke="#9ca3af" stroke-width="1.2" fill="#fff"/>
+        <path d="M8 12h8" stroke="#2b6cb0" stroke-width="1.6" stroke-linecap="round"/>
+        <path d="M12 9v6" stroke="#2b6cb0" stroke-width="1.6" stroke-linecap="round"/>
+      </svg>
+    </div>
+    <div class="content">
+      <h3>Full Refund Assurance</h3>
+      <p>Your satisfaction is our top priority. If a book you ordered from <strong>Ray Library</strong> arrives damaged, undelivered, or not as described, we’ll issue a full refund or send a replacement—no questions asked. You can shop with confidence knowing your money and your reading experience are protected every step of the way.</p>
+    </div>
+  </div>
+</div>
+
+<!-- Continuous Carousel -->
+<div class="carousel-marquee">
+  <div class="carousel-track" id="carouselTrack">
+    <img src="https://files.catbox.moe/338zqd.png" alt="Image 1">
+    <img src="https://files.catbox.moe/osdoa1.png" alt="Image 2">
+    <img src="https://files.catbox.moe/err4fp.png" alt="Image 3">
+    <img src="https://files.catbox.moe/3hszgf.png" alt="Image 4">
+    <img src="https://files.catbox.moe/j2xznd.png" alt="Image 5">
+    <img src="https://files.catbox.moe/vmhv6k.png" alt="Image 6">
+    <img src="https://files.catbox.moe/1ht61n.png" alt="Image 7">
+    <img src="https://files.catbox.moe/hgpbf0.jpeg" alt="Image 8">
+    <img src="https://files.catbox.moe/fhc4c5.png" alt="Image 9">
+    <img src="https://files.catbox.moe/3udooy.png" alt="Image 10">
+    <img src="https://files.catbox.moe/z1huv2.png" alt="Image 11">
+    <img src="https://files.catbox.moe/90kx3s.png" alt="Image 12">
+    <img src="https://files.catbox.moe/j8z5qp.jpeg" alt="Image 13">
+    <img src="https://files.catbox.moe/1pexa5.jpeg" alt="Image 14">
+    <img src="https://files.catbox.moe/obmgyn.png" alt="Image 15">
+    <img src="https://files.catbox.moe/ebd1wn.png" alt="Image 16">
+    <img src="https://files.catbox.moe/pzz2aa.png" alt="Image 17">
+    <img src="https://files.catbox.moe/b5ljzm.png" alt="Image 18">
+    <img src="https://files.catbox.moe/xwvcnh.png" alt="Image 19">
+  </div>
+</div>
+
+<div class="pager" id="pager">
+    <button class="page-btn prev" data-page="index3.html">← Prev</button>
+    <button class="page-btn" data-page="index1.html">1</button>
+    <button class="page-btn" data-page="index2.html">2</button>
+    <button class="page-btn" data-page="index3.html">3</button>
+    <button class="page-btn" data-page="library.html">4</button>
+    <button class="page-btn next" data-page="index5.html">Next →</button>
+  </div>
+</main>
+
+<footer>
+  © 2025 Ray Library — Tous droits réservés.  
+  <br>Fait avec ❤️ par <a href="#">Ray & Dawens</a>
+</footer>
+
+<script>
+const openMenu = document.getElementById("openMenu");
+const closeMenu = document.getElementById("closeMenu");
+const sideMenu = document.getElementById("sideMenu");
+openMenu.addEventListener("click", ()=> sideMenu.classList.add("open"));
+closeMenu.addEventListener("click", ()=> sideMenu.classList.remove("open"));
+
+// Pager
+const pagerBtns = document.querySelectorAll('.page-btn');
+const mainSection = document.querySelector('main');
+
+pagerBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+        pagerBtns.forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        mainSection.style.opacity = "0";
+        setTimeout(() => window.location.href = btn.dataset.page, 400);
+    });
+});
+</script>
+
+</body>
+</html>
