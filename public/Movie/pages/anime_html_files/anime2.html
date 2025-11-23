@@ -458,6 +458,7 @@ h1 {
   border-color: #ff4b5c;     /* entourel chanje wouj klere */
   box-shadow: 0 0 10px red;
 }
+
 </style>
 </head>
 <body>
@@ -509,8 +510,7 @@ h1 {
       Add movie description here... Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec varius.
     </p>
 
- <!-- Select Episodes & Seasons -->
-<select id="episodeSelect">
+ <select id="episodeSelect">
   <option>Loading episodes...</option>
 </select>
 
@@ -658,7 +658,7 @@ async function getTvEpisodeSources(showId, season=1, episode=1) {
 // ------------------------------
 // LOAD TV SHOW MULTIPLE EPISODES
 // ------------------------------
-async function loadTvShowEpisodes(showId, season=1, totalEpisodes=12) {
+async function loadTvShowEpisodes(showId, season=1, totalEpisodes=8) {
   episodeSelect.innerHTML = ""; // Clear previous
 
   for (let ep = 1; ep <= totalEpisodes; ep++) {
@@ -778,8 +778,8 @@ async function loadCast(movieId) {
 // ------------------------------
 // AUTOLOAD DEFAULT TV SHOW
 // ------------------------------
-// Show ID 1180199778743996792, Season 1, Episodes 1–12
-loadMovie("7934713929866298192", true, 1, 12);
+// Show ID 1180199778743996792, Season 1, Episodes 1–8
+loadMovie("29706226128880560", true, 1, 8);
 </script>
 </body>
 </html>

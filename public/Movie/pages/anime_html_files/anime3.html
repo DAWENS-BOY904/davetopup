@@ -433,31 +433,6 @@ h1 {
   font-weight: 500;
 }
 
-/* Episode select box styling */
-#episodeSelect {
-  padding: 12px 20px;         /* espas andedan bwat la */
-  font-size: 16px;            /* gwosè tèks */
-  background-color: #111;     /* background nwa */
-  color: #fff;                /* tèks blan */
-  border: 2px solid red;      /* entourel wouj */
-  border-radius: 8px;         /* bor wonn */
-  outline: none;
-  cursor: pointer;
-  transition: all 0.3s ease;
-}
-
-/* Lè hover sou select */
-#episodeSelect:hover {
-  background-color: red;      /* background vin wouj lè hover */
-  color: #fff;
-  border-color: #fff;         /* entourel blan lè hover */
-}
-
-/* Lè select an focus (klike ladan) */
-#episodeSelect:focus {
-  border-color: #ff4b5c;     /* entourel chanje wouj klere */
-  box-shadow: 0 0 10px red;
-}
 </style>
 </head>
 <body>
@@ -510,9 +485,18 @@ h1 {
     </p>
 
  <!-- Select Episodes & Seasons -->
-<select id="episodeSelect">
-  <option>Loading episodes...</option>
-</select>
+  <select id="episodeSelect" class="season-select">
+    <option value="video1.mp4">Season 1 - Episode 1</option>
+    <option value="video2.mp4">Season 1 - Episode 2</option>
+    <option value="video3.mp4">Season 1 - Episode 3</option>
+    <option value="video4.mp4">Season 1 - Episode 4</option>
+    <option value="video5.mp4">Season 1 - Episode 5</option>
+    <option value="video6.mp4">Season 1 - Episode 6</option>
+    <option value="video7.mp4">Season 1 - Episode 7</option>
+    <option value="video8.mp4">Season 1 - Episode 8</option>
+    <option value="video9.mp4">Season 1 - Episode 9</option>
+    <option value="video10.mp4">Season 1 - Episode 10</option>
+  </select>
 
     <div class="btns">
       <button class="btn play"><i class="fa fa-play"></i> Play</button>
@@ -567,7 +551,7 @@ const movieDesc = document.querySelector(".description");
 const tagsBox = document.querySelector(".tags");
 const episodeSelect = document.getElementById("episodeSelect");
 const downloadBtn = document.querySelector(".btn.download");
-const playBtn = document.querySelector(".btn.play");
+const playBtn = document.querySelector(".btn.play"); // ⭐ Nou ajoute Play button la
 
 // ------------------------------
 // OPEN / CLOSE SEARCH MODAL
@@ -610,12 +594,14 @@ searchInput.addEventListener("input", async () => {
           <p class="result-type">${item.genre}</p>
         </div>
       `;
+
       box.onclick = () => {
         searchModal.style.display = "none";
         searchResults.innerHTML = "";
         searchInput.value = "";
         loadMovie(item.subjectId);
       };
+
       searchResults.appendChild(box);
     });
   } catch (err) {
@@ -633,7 +619,7 @@ async function getMovieInfo(movieId) {
 }
 
 // ------------------------------
-// GET DOWNLOAD SOURCES (Movie)
+// GET DOWNLOAD SOURCES
 // ------------------------------
 async function getDownloadSources(movieId) {
   const res = await fetch(`${API_BASE}/api/sources/${movieId}`);
@@ -642,46 +628,9 @@ async function getDownloadSources(movieId) {
 }
 
 // ------------------------------
-// GET TV EPISODE SOURCES
+// LOAD MOVIE FULL
 // ------------------------------
-async function getTvEpisodeSources(showId, season=1, episode=1) {
-  try {
-    const res = await fetch(`${API_BASE}/api/sources/${showId}?season=${season}&episode=${episode}`);
-    const data = await res.json();
-    return data.results;
-  } catch (err) {
-    console.error("Error fetching TV episode:", err);
-    return [];
-  }
-}
-
-// ------------------------------
-// LOAD TV SHOW MULTIPLE EPISODES
-// ------------------------------
-async function loadTvShowEpisodes(showId, season=1, totalEpisodes=12) {
-  episodeSelect.innerHTML = ""; // Clear previous
-
-  for (let ep = 1; ep <= totalEpisodes; ep++) {
-    const sources = await getTvEpisodeSources(showId, season, ep);
-    if (!sources || sources.length === 0) continue;
-
-    const opt = document.createElement("option");
-    opt.value = sources[0].download_url;
-    opt.textContent = `Season ${season} - Episode ${ep}`;
-    episodeSelect.appendChild(opt);
-
-    if (episodeSelect.options.length === 1) mainVideo.src = sources[0].download_url;
-  }
-
-  episodeSelect.onchange = () => {
-    mainVideo.src = episodeSelect.value;
-  };
-}
-
-// ------------------------------
-// LOAD MOVIE / TV SHOW
-// ------------------------------
-async function loadMovie(id, isTvShow=false, seasonCount=1, episodesPerSeason=12) {
+async function loadMovie(id) {
   CURRENT_MOVIE_ID = id;
 
   try {
@@ -703,23 +652,25 @@ async function loadMovie(id, isTvShow=false, seasonCount=1, episodesPerSeason=12
       tagsBox.appendChild(span);
     });
 
-    if(isTvShow) {
-      await loadTvShowEpisodes(id, seasonCount, episodesPerSeason);
-    } else {
-      const sources = await getDownloadSources(id);
-      episodeSelect.innerHTML = "";
-      sources.forEach((src, index) => {
-        const opt = document.createElement("option");
-        opt.value = src.download_url;
-        opt.textContent = `Source ${index+1}`;
-        episodeSelect.appendChild(opt);
-        if(index===0) mainVideo.src = src.download_url;
-      });
-      episodeSelect.onchange = () => {
-        mainVideo.src = episodeSelect.value;
-      };
-    }
+    const sources = await getDownloadSources(id);
 
+    episodeSelect.innerHTML = "";
+    sources.forEach(src => {
+      const opt = document.createElement("option");
+      opt.value = src.download_url;
+      opt.textContent = src.quality;
+      episodeSelect.appendChild(opt);
+    });
+
+    // ❗ PA GEN AUTOPLAY ANKÒ
+    // mainVideo.src = sources[0].download_url;
+    // mainVideo.play();
+
+    episodeSelect.onchange = () => {
+      mainVideo.src = episodeSelect.value;
+    };
+
+    // ⭐ LOAD CAST
     loadCast(id);
 
   } catch (err) {
@@ -728,58 +679,71 @@ async function loadMovie(id, isTvShow=false, seasonCount=1, episodesPerSeason=12
 }
 
 // ------------------------------
-// PLAY BUTTON
+// ⭐ PLAY BUTTON ACTION
 // ------------------------------
 playBtn.onclick = () => {
-  if(!episodeSelect.value) return;
+  if (!episodeSelect.value) return;
+
   mainVideo.src = episodeSelect.value;
   mainVideo.play();
-}
+};
 
 // ------------------------------
 // DOWNLOAD BUTTON
 // ------------------------------
-downloadBtn.onclick = () => {
-  if(!episodeSelect.value) return alert("No episode selected");
+downloadBtn.onclick = async () => {
+  if (!CURRENT_MOVIE_ID) {
+    alert("Movie not loaded!");
+    return;
+  }
+
+  const sources = await getDownloadSources(CURRENT_MOVIE_ID);
+  if (!sources || sources.length === 0) {
+    alert("No download sources available.");
+    return;
+  }
+
+  const best = sources[sources.length - 1].download_url;
   const a = document.createElement("a");
-  a.href = episodeSelect.value;
+  a.href = best;
   a.download = "";
   document.body.appendChild(a);
   a.click();
   a.remove();
-}
+};
 
 // ------------------------------
 // LOAD CAST
 // ------------------------------
 async function loadCast(movieId) {
   try {
-    const res = await fetch(`${API_BASE}/api/cast/${movieId}`);
-    const data = await res.json();
+    const response = await fetch(`${API_BASE}/api/cast/${movieId}`);
+    const data = await response.json();
 
     const castContainer = document.getElementById("castList");
     castContainer.innerHTML = "";
-    if(!data.results || data.results.length===0) return;
+
+    if (!data.results || data.results.length === 0) return;
 
     data.results.forEach(actor => {
       castContainer.innerHTML += `
         <div class="cast-card">
-          <img src="${actor.image_url || ''}" alt="${actor.name}">
-          <h4>${actor.name}</h4>
-          <p>${actor.character || ''}</p>
+            <img src="${actor.image_url || ''}" alt="${actor.name}">
+            <h4>${actor.name}</h4>
+            <p>${actor.character || ''}</p>
         </div>
       `;
     });
-  } catch(err) {
-    console.error("Error fetching cast:", err);
+
+  } catch (error) {
+    console.error("Error fetching cast:", error);
   }
 }
 
 // ------------------------------
-// AUTOLOAD DEFAULT TV SHOW
+// AUTOLOAD DEFAULT MOVIE
 // ------------------------------
-// Show ID 1180199778743996792, Season 1, Episodes 1–12
-loadMovie("7934713929866298192", true, 1, 12);
+loadMovie("134770847310578576");
 </script>
 </body>
 </html>
