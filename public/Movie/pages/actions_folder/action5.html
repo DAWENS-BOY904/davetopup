@@ -1,3 +1,4 @@
+<!-- Action 5 HTML file -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -378,6 +379,30 @@ h1 {
   border-color: #ff4b5c; /* lè klike sou li, entourel chanje */
   box-shadow: 0 0 10px #e50914;
 }
+
+.episode-select, .quality-select {
+  margin: 20px 0;
+  padding: 12px 16px;
+  border-radius: 12px;
+  font-size: 16px;
+  background: #111;           /* background nwa */
+  color: #fff;                /* tèks blan */
+  border: 2px solid #e50914;  /* entourel wouj */
+  outline: none;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.episode-select:hover, .quality-select:hover {
+  background: #e50914;       /* vin wouj lè hover */
+  color: #fff;                /* tèks rete blan */
+  border-color: #fff;         /* entourel vin blan lè hover */
+}
+
+.episode-select:focus, .quality-select:focus {
+  border-color: #ff4b5c;      /* lè klike sou li, entourel chanje */
+  box-shadow: 0 0 10px #e50914;
+}
   
 .related-section {
   margin-top: 40px;
@@ -431,7 +456,6 @@ h1 {
   color: #ccc;           /* gri klè pou kontraste ak background nwa */
   margin: 8px 0 15px 0;  /* espas ant tit la ak tags yo */
   font-weight: 500;
-}
 
 </style>
 </head>
@@ -464,8 +488,8 @@ h1 {
   <div class="container">
 
     <div class="video-box">
-  <video controls></video>
-</div>
+      <video src="video.mp4" controls></video>
+    </div>
 
     <h1>Avatar: Fire and Ash [Official Trailer]</h1>
 
@@ -485,18 +509,10 @@ h1 {
     </p>
 
  <!-- Select Episodes & Seasons -->
-  <select id="episodeSelect" class="season-select">
-    <option value="video1.mp4">Season 1 - Episode 1</option>
-    <option value="video2.mp4">Season 1 - Episode 2</option>
-    <option value="video3.mp4">Season 1 - Episode 3</option>
-    <option value="video4.mp4">Season 1 - Episode 4</option>
-    <option value="video5.mp4">Season 1 - Episode 5</option>
-    <option value="video6.mp4">Season 1 - Episode 6</option>
-    <option value="video7.mp4">Season 1 - Episode 7</option>
-    <option value="video8.mp4">Season 1 - Episode 8</option>
-    <option value="video9.mp4">Season 1 - Episode 9</option>
-    <option value="video10.mp4">Season 1 - Episode 10</option>
-  </select>
+  <!-- Season & Episode Select -->
+<select id="seasonSelect" class="season-select"></select>
+<select id="episodeSelect" class="episode-select"></select>
+<select id="qualitySelect" class="quality-select"></select>
 
     <div class="btns">
       <button class="btn play"><i class="fa fa-play"></i> Play</button>
@@ -505,9 +521,7 @@ h1 {
 
     <div class="share"><i class="fa fa-share"></i> Share</div>
 
-      <h2 class="cast-title">Cast</h2>
-
-<div id="castList" class="cast-container"></div>
+<div id="castList"></div>
 
 <!-- Related Movies & Series Section -->
 <div class="related-section">
@@ -534,7 +548,6 @@ h1 {
 
 <script>
 const API_BASE = "https://movieapi.giftedtech.co.ke";
-
 let CURRENT_MOVIE_ID = null;
 
 // ELEMENTS
@@ -549,64 +562,43 @@ const movieTitle = document.querySelector("h1");
 const movieInfoBox = document.getElementById("movieInfoBox");
 const movieDesc = document.querySelector(".description");
 const tagsBox = document.querySelector(".tags");
+const seasonSelect = document.getElementById("seasonSelect");
 const episodeSelect = document.getElementById("episodeSelect");
+const qualitySelect = document.getElementById("qualitySelect");
 const downloadBtn = document.querySelector(".btn.download");
-const playBtn = document.querySelector(".btn.play"); // ⭐ Nou ajoute Play button la
 
 // ------------------------------
-// OPEN / CLOSE SEARCH MODAL
+// SEARCH MODAL
 // ------------------------------
-searchBtn.onclick = () => {
-  searchModal.style.display = "block";
-  searchInput.focus();
-};
-
-closeBtn.onclick = () => {
-  searchModal.style.display = "none";
-  searchResults.innerHTML = "";
-  searchInput.value = "";
-};
+searchBtn.onclick = () => { searchModal.style.display = "block"; searchInput.focus(); };
+closeBtn.onclick = () => { searchModal.style.display = "none"; searchResults.innerHTML=""; searchInput.value=""; };
 
 // ------------------------------
 // SEARCH API
 // ------------------------------
 searchInput.addEventListener("input", async () => {
   const query = searchInput.value.trim();
-  if (!query) {
-    searchResults.innerHTML = "";
-    return;
-  }
+  if (!query) { searchResults.innerHTML=""; return; }
 
   try {
     const res = await fetch(`${API_BASE}/api/search/${encodeURIComponent(query)}`);
     const data = await res.json();
 
     searchResults.innerHTML = "";
-    const items = data.results.items;
+    const items = data.results.items || [];
 
     items.forEach(item => {
       const box = document.createElement("div");
       box.className = "movie-result";
-      box.innerHTML = `
-        <img src="${item.cover?.url}" class="result-img">
-        <div class="result-info">
-          <p class="result-title">${item.title}</p>
-          <p class="result-type">${item.genre}</p>
-        </div>
-      `;
-
-      box.onclick = () => {
-        searchModal.style.display = "none";
-        searchResults.innerHTML = "";
-        searchInput.value = "";
-        loadMovie(item.subjectId);
-      };
-
+      box.innerHTML = `<img src="${item.cover?.url}" class="result-img">
+                       <div class="result-info">
+                         <p class="result-title">${item.title}</p>
+                         <p class="result-type">${item.genre}</p>
+                       </div>`;
+      box.onclick = () => { searchModal.style.display="none"; searchResults.innerHTML=""; searchInput.value=""; loadMovie(item.subjectId); };
       searchResults.appendChild(box);
     });
-  } catch (err) {
-    console.error("Search error:", err);
-  }
+  } catch (err) { console.error("Search error:", err); }
 });
 
 // ------------------------------
@@ -619,131 +611,126 @@ async function getMovieInfo(movieId) {
 }
 
 // ------------------------------
-// GET DOWNLOAD SOURCES
+// LOAD MOVIE
 // ------------------------------
-async function getDownloadSources(movieId) {
-  const res = await fetch(`${API_BASE}/api/sources/${movieId}`);
-  const data = await res.json();
-  return data.results;
-}
-
-// ------------------------------
-// LOAD MOVIE FULL
-// ------------------------------
-async function loadMovie(id) {
-  CURRENT_MOVIE_ID = id;
-
+async function loadMovie(movieId) {
+  CURRENT_MOVIE_ID = movieId;
   try {
-    const movie = await getMovieInfo(id);
-
+    const movie = await getMovieInfo(movieId);
     movieTitle.textContent = movie.title;
     movieDesc.textContent = movie.description || "No description available.";
-
     const year = movie.releaseDate ? movie.releaseDate.split("-")[0] : "N/A";
     const duration = movie.duration ? `${movie.duration} min` : "Unknown";
     const rating = movie.rating || "N/A";
-
     movieInfoBox.innerHTML = `${year} &nbsp;|&nbsp; ${duration} &nbsp;|&nbsp; Rating: ${rating}`;
 
     tagsBox.innerHTML = "";
-    (movie.genres || []).forEach(tag => {
-      const span = document.createElement("span");
-      span.textContent = tag;
-      tagsBox.appendChild(span);
-    });
+    (movie.genres || []).forEach(tag => { const span=document.createElement("span"); span.textContent=tag; tagsBox.appendChild(span); });
 
-    const sources = await getDownloadSources(id);
-
-    episodeSelect.innerHTML = "";
-    sources.forEach(src => {
-      const opt = document.createElement("option");
-      opt.value = src.download_url;
-      opt.textContent = src.quality;
-      episodeSelect.appendChild(opt);
-    });
-
-    // ❗ PA GEN AUTOPLAY ANKÒ
-    // mainVideo.src = sources[0].download_url;
-    // mainVideo.play();
-
-    episodeSelect.onchange = () => {
-      mainVideo.src = episodeSelect.value;
-    };
-
-    // ⭐ LOAD CAST
-    loadCast(id);
-
-  } catch (err) {
-    console.error("LOAD ERROR:", err);
-  }
+    loadSeasons(movieId);
+    loadCast(movieId);
+  } catch(err){ console.error("LOAD ERROR:", err); }
 }
 
 // ------------------------------
-// ⭐ PLAY BUTTON ACTION
+// LOAD SEASONS
 // ------------------------------
-playBtn.onclick = () => {
-  if (!episodeSelect.value) return;
+async function loadSeasons(movieId){
+  const totalSeasons = 5;
+  seasonSelect.innerHTML="";
+  for(let s=1;s<=totalSeasons;s++){
+    const opt=document.createElement("option"); opt.value=s; opt.textContent=`Season ${s}`; seasonSelect.appendChild(opt);
+  }
+  loadEpisodes(movieId,1);
+  seasonSelect.onchange = ()=>{ loadEpisodes(movieId, seasonSelect.value); };
+}
 
-  mainVideo.src = episodeSelect.value;
+// ------------------------------
+// LOAD EPISODES
+// ------------------------------
+async function loadEpisodes(movieId, season){
+  episodeSelect.innerHTML=""; qualitySelect.innerHTML="";
+  let epNum=1;
+
+  while(true){
+    try{
+      const res = await fetch(`${API_BASE}/api/sources/${movieId}?season=${season}&episode=${epNum}`);
+      const data = await res.json();
+      if(!data.results || data.results.length===0) break;
+
+      const opt = document.createElement("option");
+      opt.value=epNum;
+      opt.textContent=`Season ${season} - Episode ${epNum}`;
+      episodeSelect.appendChild(opt);
+
+      if(epNum===1) loadQualities(data.results[0].download_url, data.results);
+
+      epNum++;
+    }catch(err){ console.error("Error loading episode:", err); break; }
+  }
+
+  episodeSelect.onchange = async ()=>{
+    try{
+      const selectedEp = episodeSelect.value;
+      const res = await fetch(`${API_BASE}/api/sources/${movieId}?season=${season}&episode=${selectedEp}`);
+      const data = await res.json();
+      if(data.results && data.results.length>0){
+        loadQualities(data.results[0].download_url, data.results);
+      }
+    }catch(err){ console.error(err);}
+  };
+}
+
+// ------------------------------
+// LOAD QUALITIES
+// ------------------------------
+function loadQualities(defaultUrl, sources){
+  qualitySelect.innerHTML="";
+  sources.forEach(src=>{
+    const opt=document.createElement("option");
+    opt.value=src.download_url;
+    opt.textContent=src.quality;
+    qualitySelect.appendChild(opt);
+  });
+  mainVideo.src=defaultUrl;
   mainVideo.play();
-};
+
+  qualitySelect.onchange=()=>{ mainVideo.src=qualitySelect.value; mainVideo.play(); };
+}
 
 // ------------------------------
 // DOWNLOAD BUTTON
 // ------------------------------
-downloadBtn.onclick = async () => {
-  if (!CURRENT_MOVIE_ID) {
-    alert("Movie not loaded!");
-    return;
-  }
-
-  const sources = await getDownloadSources(CURRENT_MOVIE_ID);
-  if (!sources || sources.length === 0) {
-    alert("No download sources available.");
-    return;
-  }
-
-  const best = sources[sources.length - 1].download_url;
-  const a = document.createElement("a");
-  a.href = best;
-  a.download = "";
-  document.body.appendChild(a);
-  a.click();
-  a.remove();
+downloadBtn.onclick = ()=>{
+  if(!CURRENT_MOVIE_ID) return alert("Movie not loaded!");
+  if(!qualitySelect.value) return alert("No video selected!");
+  const a=document.createElement("a"); a.href=qualitySelect.value; a.download=""; document.body.appendChild(a); a.click(); a.remove();
 };
 
 // ------------------------------
 // LOAD CAST
 // ------------------------------
-async function loadCast(movieId) {
-  try {
-    const response = await fetch(`${API_BASE}/api/cast/${movieId}`);
-    const data = await response.json();
-
+async function loadCast(movieId){
+  try{
+    const res = await fetch(`${API_BASE}/api/cast/${movieId}`);
+    const data = await res.json();
     const castContainer = document.getElementById("castList");
-    castContainer.innerHTML = "";
-
-    if (!data.results || data.results.length === 0) return;
-
-    data.results.forEach(actor => {
-      castContainer.innerHTML += `
-        <div class="cast-card">
-            <img src="${actor.image_url || ''}" alt="${actor.name}">
-            <h4>${actor.name}</h4>
-            <p>${actor.character || ''}</p>
-        </div>
-      `;
+    castContainer.innerHTML="";
+    if(!data.results || data.results.length===0) return;
+    data.results.forEach(actor=>{
+      castContainer.innerHTML+=`<div class="cast-card">
+        <img src="${actor.image_url||''}" alt="${actor.name}">
+        <h4>${actor.name}</h4>
+        <p>${actor.character||''}</p>
+      </div>`;
     });
-
-  } catch (error) {
-    console.error("Error fetching cast:", error);
-  }
+  }catch(err){ console.error(err); }
 }
 
 // ------------------------------
 // AUTOLOAD DEFAULT MOVIE
 // ------------------------------
-loadMovie("74738785354956752");
+loadMovie("404231799767024856");
 </script>
 </body>
 </html>

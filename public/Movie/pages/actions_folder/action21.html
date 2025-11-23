@@ -1,3 +1,4 @@
+<!-- Action 21 HTML file -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -431,7 +432,6 @@ h1 {
   color: #ccc;           /* gri klè pou kontraste ak background nwa */
   margin: 8px 0 15px 0;  /* espas ant tit la ak tags yo */
   font-weight: 500;
-}
 
 </style>
 </head>
@@ -464,8 +464,8 @@ h1 {
   <div class="container">
 
     <div class="video-box">
-  <video controls></video>
-</div>
+      <video src="video.mp4" controls></video>
+    </div>
 
     <h1>Avatar: Fire and Ash [Official Trailer]</h1>
 
@@ -551,7 +551,6 @@ const movieDesc = document.querySelector(".description");
 const tagsBox = document.querySelector(".tags");
 const episodeSelect = document.getElementById("episodeSelect");
 const downloadBtn = document.querySelector(".btn.download");
-const playBtn = document.querySelector(".btn.play"); // ⭐ Nou ajoute Play button la
 
 // ------------------------------
 // OPEN / CLOSE SEARCH MODAL
@@ -662,31 +661,23 @@ async function loadMovie(id) {
       episodeSelect.appendChild(opt);
     });
 
-    // ❗ PA GEN AUTOPLAY ANKÒ
-    // mainVideo.src = sources[0].download_url;
-    // mainVideo.play();
+    if (sources.length > 0) {
+      mainVideo.src = sources[0].download_url;
+      mainVideo.play();
+    }
 
     episodeSelect.onchange = () => {
       mainVideo.src = episodeSelect.value;
+      mainVideo.play();
     };
 
-    // ⭐ LOAD CAST
+    // ⭐ LOAD CAST HERE
     loadCast(id);
 
   } catch (err) {
     console.error("LOAD ERROR:", err);
   }
 }
-
-// ------------------------------
-// ⭐ PLAY BUTTON ACTION
-// ------------------------------
-playBtn.onclick = () => {
-  if (!episodeSelect.value) return;
-
-  mainVideo.src = episodeSelect.value;
-  mainVideo.play();
-};
 
 // ------------------------------
 // DOWNLOAD BUTTON
@@ -712,9 +703,6 @@ downloadBtn.onclick = async () => {
   a.remove();
 };
 
-// ------------------------------
-// LOAD CAST
-// ------------------------------
 async function loadCast(movieId) {
   try {
     const response = await fetch(`${API_BASE}/api/cast/${movieId}`);
@@ -723,7 +711,10 @@ async function loadCast(movieId) {
     const castContainer = document.getElementById("castList");
     castContainer.innerHTML = "";
 
-    if (!data.results || data.results.length === 0) return;
+    // ❗ Si pa gen cast → rete vid san okenn mesaj
+    if (!data.results || data.results.length === 0) {
+      return; 
+    }
 
     data.results.forEach(actor => {
       castContainer.innerHTML += `
@@ -743,7 +734,7 @@ async function loadCast(movieId) {
 // ------------------------------
 // AUTOLOAD DEFAULT MOVIE
 // ------------------------------
-loadMovie("74738785354956752");
+loadMovie("8804405077248213504");
 </script>
 </body>
 </html>
