@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 <html lang="fr">
 <head>
 <meta charset="utf-8" />
@@ -104,7 +105,7 @@
           </div>
           <div class="icons">
             <i class="fa-brands fa-square-paypal" style="display:none"></i>
-            <img src="https://i.imgur.com/6RZ7Y9S.png" alt="cashapp" style="height:22px" />
+            <img src="https://files.catbox.moe/ju8dn7.png" alt="cashapp" style="height:22px" />
           </div>
         </div>
       </div>
@@ -114,7 +115,7 @@
     <div class="small">Envoyer le paiement via MonCash à notre numéro officiel</div>
   </div>
   <div class="icons">
-    <img src="https://i.imgur.com/8Z0X8bP.png" alt="moncash" style="height:22px" />
+    <img src="https://files.catbox.moe/j69qzl.png" alt="moncash" style="height:22px" />
   </div>
 </div>
 
@@ -124,7 +125,7 @@
       </div>
 
       <div class="owner-info">
-        <div><strong>Owner:</strong> DAWENS SHOP — Jean / Contact: +1 555 555 5555</div>
+        <div><strong>Owner:</strong> DAWENS SHOP — BOY / Contact: +1 865 294 1614</div>
         <div class="icons-row">
           <div class="card-icons">
             <i class="fa-brands fa-cc-visa"></i>
@@ -137,7 +138,7 @@
 
       <div class="terms">
         <strong>Terms of Use</strong>
-        <p>By completing this payment you agree to our <a href="#" onclick="alert('Terms: example legal text')">Terms of Use</a> and <a href="#" onclick="alert('Refund policy example')">Refund Policy</a>. Transactions are processed by third-party payment providers. For disputes, contact support@dawens.shop.</p>
+        <p>By completing this payment you agree to our <a href="terms.html" onclick="alert('Terms: example legal text')">Terms of Use</a> and <a href="privacy.html" onclick="alert('Refund policy example')">Refund Policy</a>. Transactions are processed by third-party payment providers. For disputes, contact support@dawens.shop.</p>
       </div>
     </div>
 
@@ -156,6 +157,7 @@
 
 <footer>© <span id="year"></span> DAWENS SHOP — All rights reserved.</footer>
 
+<script src="https://js.stripe.com/v3/"></script>
 <script>
 document.getElementById('year').textContent = new Date().getFullYear();
 
@@ -217,7 +219,7 @@ if(checkoutData){
 
 // Payment actions
 const payBtn = document.getElementById('payBtn');
-payBtn.addEventListener('click', async ()=>{
+payBtn.addEventListener('click', ()=>{
   // validate fields
   const fullName = document.getElementById('fullName').value.trim();
   const email = document.getElementById('email').value.trim();
@@ -229,67 +231,51 @@ payBtn.addEventListener('click', async ()=>{
     return;
   }
 
-  // determine selected method
-  const method = document.querySelector('.method.selected').dataset.method;
-  const payload = {
-    billing: { fullName, email, phone, address, zip },
-    cart: checkoutData.cart || []
-  };
+  const method = document.querySelector('.method.selected')?.dataset.method;
 
-  try{
-    if(method === 'card'){
-      // Call server to create Stripe Checkout Session
-      const res = await fetch('/api/create-checkout-session', {
-        method:'POST',
-        headers:{ 'Content-Type':'application/json' },
-        body: JSON.stringify(payload)
-      });
-      const data = await res.json();
-      if(res.ok && data.url){
-        window.location.href = data.url;
-      } else {
-        alert('Erreur serveur lors de la création de la session: ' + (data.error || 'unknown'));
-        console.error(data);
-      }
-    } else if(method === 'paypal'){
-      const res = await fetch('/api/create-paypal-transaction', {
-        method:'POST',
-        headers:{ 'Content-Type':'application/json' },
-        body: JSON.stringify(payload)
-      });
-      const data = await res.json();
-      if(res.ok && data.approvalUrl){
-        window.location.href = data.approvalUrl;
-      } else {
-        alert('Erreur PayPal: ' + (data.error || 'unknown'));
-      }
-    } else if(method === 'cashapp'){
-      const cashtag = '$DAWENSSHOP';
-      const note = encodeURIComponent(`Order for ${fullName} — ${Math.floor(Math.random()*900000+100000)}`);
-      const message = `Veuillez envoyer $${(function(){ let s=0; (checkoutData.cart||[]).forEach(i=>s+=i.price*i.quantity); return (s+4.99).toFixed(2);}())} à notre Cash App ${cashtag}.\n\nAjoutez la note: ${decodeURIComponent(note)}\n\nAprès paiement, envoyez la confirmation par email à support@dawens.shop.`;
-      alert(message);
-    } else if(method === 'moncash'){
-      const phoneNumber = '50912345678'; // mete MonCash / NatCash number ou
-      const totalAmount = (function(){
-        let s = 0;
-        (checkoutData.cart||[]).forEach(i=>s+=i.price*i.quantity);
-        const shipping = 8.57, tax=4.69;
-        return (s + shipping + tax).toFixed(2);
-      })();
-      const note = encodeURIComponent(`Order for ${fullName} — ${Math.floor(Math.random()*900000+100000)}`);
-      const message = `Veuillez envoyer $${totalAmount} via MonCash / NatCash au numéro: ${phoneNumber}.\n\nAjoutez la note: ${decodeURIComponent(note)}\n\nAprès paiement, envoyez la confirmation par email à support@dawens.shop.`;
-      alert(message);
-    } else {
-      alert('Méthode non prise en charge.');
-    }
-  }catch(err){
-    console.error(err);
-    alert('Erreur réseau, réessayez.');
+  if(method === 'card'){
+    // **Stripe Payment Link** integration
+    const stripePaymentLink = "https://buy.stripe.com/test_aFa14g8IF8Xb8hv4Kh5Ne00";
+
+    // Save checkout data in localStorage if needed for thankyou page
+    localStorage.setItem('checkoutData', JSON.stringify(checkoutData));
+
+    // Redirect user to Stripe Payment Link
+    window.location.href = stripePaymentLink;
+
+  } else if(method === 'paypal'){
+    // PayPal flow
+    const payload = { billing:{fullName,email,phone,address,zip}, cart: checkoutData.cart||[] };
+    fetch('/api/create-paypal-transaction',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify(payload)
+    }).then(r=>r.json()).then(data=>{
+      if(data.approvalUrl) window.location.href = data.approvalUrl;
+      else alert('Erreur PayPal: ' + (data.error||'unknown'));
+    }).catch(err=>alert('Erreur réseau PayPal'));
+
+  } else if(method === 'cashapp'){
+    const cashtag = '$DAWENSSHOP';
+    alert(`Veuillez envoyer le montant à CashApp ${cashtag} et envoyez la confirmation à support@dawens.shop`);
+
+  } else if(method === 'moncash'){
+    localStorage.setItem('moncashData', JSON.stringify({
+      name: fullName,
+      email,
+      phone,
+      total: (checkoutData.cart||[]).reduce((s,i)=>s+i.price*i.quantity,0) + 8.57 + 4.69,
+      orderId: Math.floor(Math.random()*900000+100000)
+    }));
+    window.location.href = "moncash.html";
+
+  } else {
+    alert('Méthode non prise en charge.');
   }
 });
 
 // Cancel button returns to shop
-document.getElementById('cancelBtn').addEventListener('click', ()=> location.href = 'index.html');
+document.getElementById('cancelBtn').addEventListener('click', ()=> location.href = 'index1.html');
 </script>
 </body>
 </html>

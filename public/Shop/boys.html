@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DAWENS SHOP | Boys</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<style>
+body, h1,h2,h3,h4,p,ul,li,a,button { margin:0; padding:0; font-family: 'Poppins', Arial, sans-serif; }
+ul { list-style:none; }
+a { text-decoration:none; }
+
+/* ===== HEADER ===== */
+header {
+  display:flex; justify-content:space-between; align-items:center;
+  padding:12px 20px; background: linear-gradient(90deg,#4facfe,#00f2fe);
+  position:fixed; top:0; width:100%; z-index:100; border-bottom:2px solid #fff;
+  color:#fff;
+}
+header .logo img { height:50px; }
+.icons { display:flex; gap:15px; }
+.cart-btn { font-size:24px; background:none; border:none; cursor:pointer; color:#fff; transition:0.3s; }
+.cart-btn:hover { transform:scale(1.2); }
+
+/* ===== IMAGE HEADER ===== */
+.hero-img {
+  margin-top:80px;
+  width:100%; max-height:220px; overflow:hidden; border-radius:12px;
+}
+.hero-img img { width:100%; height:100%; object-fit:cover; }
+
+/* ===== SEARCH ===== */
+.search-bar-container {
+  margin:20px auto; display:flex; justify-content:center; padding:12px 15px;
+  background:#fff; box-shadow:0 2px 8px rgba(0,0,0,0.08); border-radius:8px; max-width:600px;
+}
+.search-bar { display:flex; width:100%; }
+.search-bar input { flex:1; padding:10px 14px; border:1px solid #ddd; border-radius:8px 0 0 8px; font-size:15px; }
+.search-bar button { padding:10px 16px; border:none; border-radius:0 8px 8px 0; background:#4facfe; color:#fff; font-weight:600; cursor:pointer; transition:0.3s; }
+.search-bar button:hover { background:#00f2fe; }
+
+/* ===== CART PANEL ===== */
+.cart-panel {
+  position: fixed; top:0; left:-300px; width:260px; height:100%; background:#fff; 
+  box-shadow:3px 0 15px rgba(0,0,0,0.12); padding:20px; transition:left 0.3s; z-index:250; border-left:2px solid #4facfe;
+}
+.cart-panel.open { left:0; }
+
+/* ===== MAIN ===== */
+main { margin-top:20px; padding:20px; text-align:center; }
+.grid {
+  display:grid; grid-template-columns:repeat(auto-fit, minmax(160px,1fr)); gap:20px; margin-top:25px;
+}
+.card {
+  background:#fff; border-radius:12px; padding:15px; box-shadow:0 4px 15px rgba(0,0,0,0.08);
+  transition: transform 0.3s, box-shadow 0.3s;
+}
+.card:hover { transform:translateY(-6px); box-shadow:0 6px 20px rgba(0,0,0,0.18); }
+.card img { width:100%; height:120px; border-radius:10px; object-fit:cover; }
+.card p { color:#888; font-size:13px; margin:6px 0 2px; text-transform: uppercase; letter-spacing:0.5px; }
+.card h3 { margin:4px 0 8px; font-size:16px; font-weight:600; color:#333; }
+.btn { display:inline-block; background:#4facfe; color:#fff; padding:8px 12px; border-radius:8px; font-size:14px; font-weight:600; transition:0.3s; }
+.btn:hover { background:#00f2fe; }
+
+/* ===== FOOTER ===== */
+footer { text-align:center; padding:20px; font-size:13px; color:#777; background:#f9f9f9; border-top:1px solid #ddd; margin-top:40px; }
+.footer-owner { display:flex; justify-content:center; align-items:center; gap:15px; flex-wrap:wrap; margin:15px 0; }
+.footer-owner img { width:40px; height:40px; border-radius:50%; object-fit:cover; }
+.footer-owner a { text-decoration:none; color:#4facfe; font-weight:600; display:flex; align-items:center; gap:6px; }
+.hidden { display:none; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo"><a href="../index.html"><img src="https://files.catbox.moe/o1ai21.png" alt="DAWENS SHOP"></a></div>
+  <div class="icons">
+    <button class="cart-btn" id="openCart"><i class="fa-solid fa-cart-shopping"></i></button>
+  </div>
+</header>
+
+<div class="hero-img">
+  <img src="https://files.catbox.moe/xye2pb.jpeg" alt="Boys Collection">
+</div>
+
+<div class="search-bar-container">
+  <div class="search-bar">
+    <input type="text" id="searchInput" placeholder="Cherchez un produit...">
+    <button id="searchBtn">Search</button>
+  </div>
+</div>
+
+<div class="cart-panel" id="cartPanel">
+  <button class="close-btn" id="closeCart" style="position:absolute;top:12px;right:15px;font-size:22px;background:none;border:none;cursor:pointer;">×</button>
+  <h3>Votre Panier</h3>
+  <p>Aucun article ajouté.</p>
+</div>
+
+<main>
+<h2 style="color:#4facfe;">Boys Collection</h2>
+<p style="color:#555;">Découvrez nos meilleurs produits pour garçons.</p>
+
+<div class="grid">
+  <!-- 10 Cards Boys -->
+  <div class="card">
+    <img src="https://files.catbox.moe/m4lesr.jpeg" alt="Product 1">
+    <p>Mode</p>
+    <h3>2pcs Boys Graphic Hoodie And Sweatpants Set - "Beyond Limits 32"</h3>
+    <span style="color:#4facfe;font-weight:bold;">$15.88</span><br>
+    <a href="1.html" class="btn">CHOIX DES OPTIONS</a>
+  </div>
+  <div class="card">
+    <img src="https://files.catbox.moe/0vndyw.jpeg" alt="Product 2">
+    <p>Mode</p>
+    <h3>Boy's</h3>
+    <span style="color:#4facfe;font-weight:bold;">$6.56</span><br>
+    <a href="2.html" class="btn">CHOIX DES OPTIONS</a>
+  </div>
+  <div class="card">
+    <img src="https://files.catbox.moe/shmuln.jpeg" alt="Product 3">
+    <p>Mode</p>
+    <h3>Boy's</h3>
+    <span style="color:#4facfe;font-weight:bold;">$20</span><br>
+    <a href="3.html" class="btn">CHOIX DES OPTIONS</a>
+  </div>
+  <div class="card">
+    <img src="https://files.catbox.moe/z5zo7r.jpeg" alt="Product 4">
+    <p>Mode</p>
+    <h3>Boy's</h3>
+    <span style="color:#4facfe;font-weight:bold;">$12.24</span><br>
+    <a href="4.html" class="btn">CHOIX DES OPTIONS</a>
+  </div>
+  <div class="card">
+    <img src="https://files.catbox.moe/9jldh1.jpeg" alt="Product 5">
+    <p>Mode</p>
+    <h3>Boy's</h3>
+    <span style="color:#4facfe;font-weight:bold;">$25</span><br>
+    <a href="5.html" class="btn">CHOIX DES OPTIONS</a>
+  </div>
+  <div class="card">
+    <img src="https://files.catbox.moe/5jv57q.jpeg" alt="Product 6">
+    <p>Mode</p>
+    <h3>Men's</h3>
+    <span style="color:#4facfe;font-weight:bold;">$9.89</span><br>
+    <a href="6.html" class="btn">CHOIX DES OPTIONS</a>
+  </div>
+  <div class="card">
+    <img src="https://files.catbox.moe/4zdv4s.jpeg" alt="Product 7">
+    <p>Mode</p>
+    <h3>Men's</h3>
+    <span style="color:#4facfe;font-weight:bold;">$45.78</span><br>
+    <a href="7.html" class="btn">CHOIX DES OPTIONS</a>
+  </div>
+  <div class="card">
+    <img src="https://files.catbox.moe/kkxgvl.jpeg" alt="Product 8">
+    <p>Mode</p>
+    <h3>Men's</h3>
+    <span style="color:#4facfe;font-weight:bold;">$54.67</span><br>
+    <a href="8.html" class="btn">CHOIX DES OPTIONS</a>
+  </div>
+  <div class="card">
+    <img src="https://files.catbox.moe/hbrm1b.jpeg" alt="Product 9">
+    <p>Mode</p>
+    <h3>Men's</h3>
+    <span style="color:#4facfe;font-weight:bold;">$48.99</span><br>
+    <a href="9.html" class="btn">CHOIX DES OPTIONS</a>
+  </div>
+  <div class="card">
+    <img src="https://files.catbox.moe/2xous1.jpeg" alt="Product 10">
+    <p>Mode</p>
+    <h3>Men's</h3>
+    <span style="color:#4facfe;font-weight:bold;">$100</span><br>
+    <a href="10.html" class="btn">CHOIX DES OPTIONS</a>
+  </div>
+</div>
+</main>
+
+<footer>
+<div class="footer-owner">
+<img src="https://files.catbox.moe/iatbhv.png" alt="Owner Photo">
+<a href="https://facebook.com/Carlos Berry" target="_blank"><i class="fab fa-facebook"></i> Facebook</a>
+<a href="https://www.instagram.com/user_not_found20326" target="_blank"><i class="fab fa-instagram"></i> Instagram</a>
+<a href="https://wa.me/18652941614" target="_blank"><i class="fab fa-whatsapp"></i> WhatsApp</a>
+<span style="font-weight:bold;color:#4facfe;">DAWENS SHOP</span>
+</div>
+<p>© 2025 DAWENS SHOP — Tous droits réservés.</p>
+</footer>
+
+<script>
+const openCart = document.getElementById('openCart');
+const closeCart = document.getElementById('closeCart');
+const cartPanel = document.getElementById('cartPanel');
+
+openCart.addEventListener('click', ()=>cartPanel.classList.add('open'));
+closeCart.addEventListener('click', ()=>cartPanel.classList.remove('open'));
+
+// Search
+const searchBtn = document.getElementById('searchBtn');
+const searchInput = document.getElementById('searchInput');
+const cards = document.querySelectorAll('.card');
+
+searchBtn.addEventListener('click', ()=>{
+    const query = searchInput.value.trim().toLowerCase();
+    cards.forEach(card=>{
+        const title = card.querySelector('h3').textContent.toLowerCase();
+        if(title.includes(query)) card.classList.remove('hidden');
+        else card.classList.add('hidden');
+    });
+});
+searchInput.addEventListener('input', ()=>{
+    const query = searchInput.value.trim().toLowerCase();
+    cards.forEach(card=>{
+        const title = card.querySelector('h3').textContent.toLowerCase();
+        if(title.includes(query)) card.classList.remove('hidden');
+        else card.classList.add('hidden');
+    });
+});
+</script>
+
+</body>
+</html>

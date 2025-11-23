@@ -153,7 +153,7 @@ select, input {
 <body>
 
 <header>
-  <div class="logo"><a href="index.html"><img src="https://i.imgur.com/yourLogo.png" alt="DAWENS SHOP"></a></div>
+  <div class="logo"><a href="index.html"><img src="https://files.catbox.moe/o1ai21.png" alt="DAWENS SHOP"></a></div>
 
   <!-- Cart Icon -->
   <div class="cart-icon" id="cartIcon">
@@ -270,9 +270,10 @@ function goToCheckout(){
     alert("Votre panier est vide !");
     return;
   }
-  // save cart in localStorage for checkout.html
+  // save cart in localStorage for record (optional)
   localStorage.setItem('cart', JSON.stringify(cart));
-  window.location.href = 'checkout.html';
+  // Redirect to GoDaddy PayLink
+  window.location.href = 'https://914e4594-d234-45b9-8574-5194ab939b42.paylinks.godaddy.com/c3f3e725-ed36-4fb9-8929-57b';
 }
 </script>
 

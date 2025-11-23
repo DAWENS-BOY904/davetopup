@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Panneau Admin — Dawens Library</title>
+<style>
+body { font-family:"Poppins",sans-serif; background:#f6faf7; padding:20px; }
+.container { max-width:500px; margin:auto; background:#fff; padding:25px; border-radius:14px; box-shadow:0 5px 25px rgba(0,0,0,0.08); }
+h2 { color:#e53e3e; text-align:center; }
+input, button { display:block; width:100%; padding:10px; margin-top:10px; border-radius:8px; border:1px solid #ccc; }
+button { background:#2b6cb0; color:#fff; border:none; cursor:pointer; font-weight:600; }
+button:hover { background:#1e4f8c; }
+</style>
+</head>
+<body>
+<div class="container">
+  <h2>👨‍💻 Panneau Admin</h2>
+  <input type="text" id="orderId" placeholder="ID de commande">
+  <input type="date" id="newDate">
+  <input type="time" id="newTime">
+  <button id="updateBtn">Mettre à jour la livraison</button>
+</div>
+
+<script>
+document.getElementById("updateBtn").addEventListener("click", async () => {
+  const id = document.getElementById("orderId").value.trim();
+  const date = document.getElementById("newDate").value;
+  const time = document.getElementById("newTime").value;
+
+  if (!id || !date || !time) {
+    alert("Remplissez tous les champs !");
+    return;
+  }
+
+  try {
+    const res = await fetch(`https://api.dawenslibrary.com/orders/update`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ id, date, time })
+    });
+
+    const result = await res.json();
+    if (result.success) {
+      alert("Mise à jour envoyée et email notifié ✅");
+    } else {
+      alert("Erreur: " + result.message);
+    }
+  } catch (err) {
+    alert("Erreur API: " + err.message);
+  }
+});
+</script>
+</body>
+</html>

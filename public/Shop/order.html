@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Suivi de Commande — Dawens Library</title>
+<style>
+body { font-family: "Poppins", sans-serif; background:#f6faf7; margin:0; text-align:center; }
+.container { max-width:480px; margin:40px auto; background:#fff; padding:20px; border-radius:16px; box-shadow:0 5px 20px rgba(0,0,0,0.08); }
+h2 { color:#2b6cb0; }
+.status { background:#ebf8ff; padding:10px; border-radius:8px; margin-top:10px; }
+ul { text-align:left; }
+</style>
+</head>
+<body>
+<div class="container">
+  <h2>📦 Suivi de votre commande</h2>
+  <div id="orderData">Chargement...</div>
+  <div class="status" id="deliveryStatus"></div>
+  <h4>Historique du suivi</h4>
+  <ul id="trackingList"></ul>
+</div>
+
+<script>
+async function loadOrder() {
+  try {
+    const orderId = localStorage.getItem('orderId');
+    const res = await fetch(`https://api.dawenslibrary.com/orders/${orderId}`);
+    const order = await res.json();
+
+    document.getElementById("orderData").innerHTML = `
+      <p><b>Client:</b> ${order.name}</p>
+      <p><b>Montant:</b> $${order.total}</p>
+      <p><b>Référence:</b> #${order.id}</p>
+      <p><b>Email:</b> ${order.email}</p>
+    `;
+    document.getElementById("deliveryStatus").textContent =
+      "📅 Livraison prévue le " + order.deliveryDate + " à " + order.deliveryTime;
+
+    document.getElementById("trackingList").innerHTML = order.tracking
+      .map(t => `<li>${t}</li>`)
+      .join("");
+  } catch (e) {
+    document.getElementById("orderData").innerHTML = "<p>Erreur de chargement.</p>";
+  }
+}
+
+loadOrder();
+setInterval(loadOrder, 8000); // refresh toutes les 8 secondes
+</script>
+</body>
+</html>

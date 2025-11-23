@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Contact - Shop Dawens</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap');
+
+  body {
+    margin: 0;
+    padding: 0;
+    font-family: 'Roboto', sans-serif;
+    background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+    color: #f5f5f5;
+  }
+
+  .container {
+    max-width: 1000px;
+    margin: 60px auto;
+    padding: 40px;
+    background: rgba(255,255,255,0.05);
+    border-radius: 15px;
+    box-shadow: 0 8px 30px rgba(0,0,0,0.5);
+    backdrop-filter: blur(10px);
+  }
+
+  h1 {
+    text-align: center;
+    margin-bottom: 40px;
+    color: #ffd700;
+    text-shadow: 0 0 8px #ffd700;
+  }
+
+  .contact-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 20px;
+  }
+
+  .contact-card {
+    background: rgba(255,255,255,0.1);
+    padding: 30px 20px;
+    border-radius: 15px;
+    text-align: center;
+    transition: 0.3s;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+  }
+
+  .contact-card:hover {
+    background: rgba(255,255,255,0.2);
+    transform: translateY(-5px);
+    box-shadow: 0 6px 25px rgba(0,0,0,0.5);
+  }
+
+  .contact-card i {
+    font-size: 50px;
+    color: #00ffff;
+    margin-bottom: 15px;
+    text-shadow: 0 0 6px #00ffff;
+  }
+
+  .contact-card h3 {
+    margin-bottom: 10px;
+    color: #ffd700;
+  }
+
+  .contact-card p, .contact-card a {
+    color: #f5f5f5;
+    text-decoration: none;
+  }
+
+  .contact-card a:hover {
+    color: #00ffff;
+    text-decoration: underline;
+  }
+</style>
+</head>
+<body>
+
+<div class="container">
+  <h1>Contactez-Nous</h1>
+  <div class="contact-grid">
+    
+    <!-- Email -->
+    <div class="contact-card">
+      <i class="fas fa-envelope"></i>
+      <h3>Email</h3>
+      <p>berryxoe@gmail.com</p>
+      <a href="mailto:berryxoe@gmail.com">Envoyer un email</a>
+    </div>
+
+    <!-- WhatsApp -->
+    <div class="contact-card">
+      <i class="fab fa-whatsapp"></i>
+      <h3>WhatsApp</h3>
+      <p>+18652941614</p>
+      <a href="https://wa.me/18652941614" target="_blank">Chat WhatsApp</a>
+    </div>
+
+    <!-- Telegram -->
+    <div class="contact-card">
+      <i class="fab fa-telegram"></i>
+      <h3>Telegram</h3>
+      <p>@Mr_Da5</p>
+      <a href="https://t.me/@Mr_DA5" target="_blank">Ouvrir Telegram</a>
+    </div>
+
+    <!-- Messenger -->
+    <div class="contact-card">
+      <i class="fab fa-facebook-messenger"></i>
+      <h3>Messenger</h3>
+      <p>Shop Dawens</p>
+      <a href="https://m.me/ShopDawens" target="_blank">Envoyer un message</a>
+    </div>
+
+    <!-- Phone -->
+    <div class="contact-card">
+      <i class="fas fa-phone-alt"></i>
+      <h3>Téléphone</h3>
+      <p>+13058962443:</p>
+      <a href="tel:+13058962443">Appeler maintenant</a>
+    </div>
+
+    <!-- Instagram -->
+    <div class="contact-card">
+      <i class="fab fa-instagram"></i>
+      <h3>Instagram</h3>
+      <p>@shopdawens</p>
+      <a href="https://www.instagram.com/user_not_found20326?igsh=MXdjeXN5M2l5ajMxcQ%3D%3D&utm_source=qr" target="_blank">Visiter Instagram</a>
+    </div>
+
+  </div>
+</div>
+
+</body>
+</html>

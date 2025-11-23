@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MonCash Payment</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap');
+
+  body {
+    font-family: 'Inter', sans-serif;
+    background: linear-gradient(135deg, #f0f4f7, #e6f2ea);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 40px 20px;
+  }
+
+  .logo {
+    display: flex;
+    align-items: center;
+    margin-bottom: 30px;
+  }
+  .logo img {
+    width: 50px;
+    margin-right: 12px;
+    animation: bounce 2s infinite;
+  }
+  .logo h1 {
+    font-size: 28px;
+    color: #0f9d58;
+  }
+
+  @keyframes bounce {
+    0%, 100% { transform: translateY(0);}
+    50% { transform: translateY(-5px);}
+  }
+
+  #infoBox {
+    background: #fff;
+    padding: 25px 20px;
+    border-radius: 15px;
+    width: 100%;
+    max-width: 400px;
+    box-shadow: 0 12px 25px rgba(0,0,0,0.15);
+    margin-bottom: 20px;
+    transition: transform 0.3s;
+  }
+  #infoBox:hover {
+    transform: translateY(-3px);
+  }
+  #infoBox p {
+    margin: 10px 0;
+    font-size: 16px;
+  }
+
+  #proof {
+    margin: 10px 0;
+  }
+  #preview {
+    margin: 15px 0;
+    width: 220px;
+    height: 220px;
+    border: 2px dashed #0f9d58;
+    border-radius: 15px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    background: #e6f2ea;
+    transition: 0.3s;
+  }
+  #preview img {
+    max-width: 100%;
+    max-height: 100%;
+    border-radius: 10px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+  }
+
+  #submitBtn {
+    background: #0f9d58;
+    color: #fff;
+    border: none;
+    padding: 14px 28px;
+    font-size: 16px;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+  }
+  #submitBtn:disabled {
+    background: #ccc;
+    cursor: not-allowed;
+  }
+  #submitBtn:hover:not(:disabled) {
+    box-shadow: 0 0 15px #0f9d58, 0 0 25px #0f9d58;
+    transform: translateY(-2px);
+  }
+
+  .loading {
+    margin-left: 10px;
+    display: inline-block;
+    border: 3px solid #fff;
+    border-top: 3px solid #0f9d58;
+    border-radius: 50%;
+    width: 16px;
+    height: 16px;
+    animation: spin 1s linear infinite;
+    vertical-align: middle;
+  }
+  @keyframes spin {
+    0% { transform: rotate(0deg);}
+    100% { transform: rotate(360deg);}
+  }
+</style>
+</head>
+<body>
+
+<div class="logo">
+  <img src="https://files.catbox.moe/j69qzl.png" alt="MonCash Logo">
+  <h1>MonCash</h1>
+</div>
+
+<div id="infoBox"></div>
+<input type="file" id="proof" accept="image/*">
+<div id="preview">Prévisualisation</div>
+<button id="submitBtn" disabled>Envoyer Preuve</button>
+
+<script>
+const data = JSON.parse(localStorage.getItem('moncashData') || '{}');
+const infoBox = document.getElementById('infoBox');
+const proofInput = document.getElementById('proof');
+const preview = document.getElementById('preview');
+const submitBtn = document.getElementById('submitBtn');
+
+if (!data.name) {
+  infoBox.innerHTML = "<p>Aucune commande détectée.</p>";
+} else {
+  const deliveryDate = new Date();
+  deliveryDate.setDate(deliveryDate.getDate() + 3);
+  const formattedDate = deliveryDate.toLocaleDateString("fr-FR", { day: "2-digit", month: "long", year: "numeric" });
+
+  infoBox.innerHTML = `
+    <p><strong>Client:</strong> ${data.name}</p>
+    <p><strong>Montant total:</strong> $${data.total}</p>
+    <p><strong>Référence:</strong> #${data.orderId}</p>
+    <p><strong>Date estimée de livraison:</strong> ${formattedDate}</p>
+    <p><strong>Envoyer à:</strong> <span style="color:#0f9d58">50942241547</span></p>
+  `;
+}
+
+// Preview image
+proofInput.addEventListener('change', e => {
+  const file = e.target.files[0];
+  if (file) {
+    const reader = new FileReader();
+    reader.onload = ev => {
+      preview.innerHTML = `<img src="${ev.target.result}" alt="Preuve">`;
+    };
+    reader.readAsDataURL(file);
+    submitBtn.disabled = false;
+  } else {
+    preview.innerHTML = "Prévisualisation";
+    submitBtn.disabled = true;
+  }
+});
+
+// Submit payment
+submitBtn.addEventListener('click', async () => {
+  if (!proofInput.files[0]) return;
+
+  submitBtn.disabled = true;
+  const spinner = document.createElement('span');
+  spinner.classList.add('loading');
+  submitBtn.appendChild(spinner);
+
+  const formData = new FormData();
+  formData.append('proof', proofInput.files[0]);
+  formData.append('name', data.name);
+  formData.append('orderId', data.orderId);
+  formData.append('amount', data.total);
+  formData.append('email', data.email);
+  formData.append('phone', data.phone || "50942241547");
+
+  try {
+    const res = await fetch('/api/payment', { method: 'POST', body: formData });
+    const result = await res.json();
+    alert(result.message);
+    if (result.status === "success") window.location.href = "order.html";
+  } catch (err) {
+    alert("Erreur: " + err.message);
+  } finally {
+    submitBtn.disabled = false;
+    spinner.remove();
+  }
+});
+</script>
+
+</body>
+</html>
