@@ -1,0 +1,740 @@
+<!doctype html>
+<html lang="ht">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Settings</title>
+  <!-- Firebase SDKs (placeholders - include exactly these scripts) -->
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+  <!-- Leaflet for map (no API key, OpenStreetMap) -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <style>
+    :root{
+      --bg:#f5f5f7;
+      --card:#fff;
+      --muted:#8b8b95;
+      --accent:#4f46e5; /* default accent */
+      --radius:14px;
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+    }
+    body{background:var(--bg); margin:0; padding:24px; color:#111}
+    .container{max-width:900px;margin:0 auto}
+    h1{margin:0 0 18px;font-size:20px;text-align:center}
+    .card{
+      background:var(--card);
+      border-radius:var(--radius);
+      padding:14px;
+      box-shadow: 0 6px 24px rgba(0,0,0,0.06);
+      margin-bottom:14px;
+    }
+    .row{display:flex;align-items:center;justify-content:space-between;padding:12px 6px;border-bottom:1px solid #eee}
+    .row:last-child{border-bottom:0}
+    .row .label{display:flex;gap:12px;align-items:center}
+    .muted{color:var(--muted);font-size:13px}
+    .btn{background:var(--accent);color:#fff;padding:8px 12px;border-radius:10px;border:0;cursor:pointer}
+    .link{color:var(--accent);cursor:pointer;text-decoration:underline}
+    .toggle{width:44px;height:26px;background:#e6e6ea;border-radius:999px;position:relative;display:inline-block;vertical-align:middle}
+    .toggle input{display:none}
+    .knob{width:20px;height:20px;background:#fff;border-radius:50%;position:absolute;top:3px;left:3px;transition:all .18s}
+    .toggle.on{background:var(--accent)}
+    .toggle.on .knob{left:21px}
+    .small{font-size:13px}
+    .sub{font-size:12px;color:var(--muted)}
+    .grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+    .modal{position:fixed;inset:0;background:rgba(0,0,0,0.35);display:none;align-items:center;justify-content:center;padding:20px;z-index:80}
+    .modal .dialog{background:#fff;padding:18px;border-radius:12px;max-width:760px;width:100%;max-height:90vh;overflow:auto}
+    .close-x{float:right;cursor:pointer;color:#666}
+    .field{display:flex;flex-direction:column;margin-bottom:10px}
+    input[type="text"], input[type="email"], input[type="password"], select{
+      padding:10px;border-radius:8px;border:1px solid #e6e6ea;font-size:14px
+    }
+    .accent-palette{display:flex;gap:8px}
+    .swatch{width:36px;height:36px;border-radius:8px;cursor:pointer;border:2px solid transparent}
+    .swatch.selected{outline:3px solid rgba(0,0,0,0.06)}
+    .languages{display:flex;flex-wrap:wrap;gap:8px}
+    .lang{padding:6px 8px;border-radius:8px;background:#fafafa;border:1px solid #eee;cursor:pointer}
+    footer{margin-top:18px;text-align:center;color:var(--muted);font-size:13px}
+    /* responsive */
+    @media(max-width:700px){ .grid{grid-template-columns:1fr} }
+
+/* --- Enhanced Modal Design --- */
+.glass {
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(16px);
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
+  border: 1px solid rgba(255,255,255,0.4);
+  animation: fadeInUp 0.35s ease;
+}
+
+@keyframes fadeInUp {
+  from {opacity:0; transform:translateY(25px);}
+  to {opacity:1; transform:translateY(0);}
+}
+
+.auth-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+.auth-left, .auth-right {
+  flex: 1;
+  min-width: 260px;
+}
+.auth-right #mini-map {
+  height: 220px;
+  border-radius: 10px;
+  overflow: hidden;
+  border: 1px solid #eee;
+}
+
+/* --- Button Enhancements --- */
+.btn-group {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 8px;
+}
+.btn.outline {
+  background: transparent;
+  color: var(--accent);
+  border: 1px solid var(--accent);
+}
+.btn.google {
+  background: #fff;
+  color: #333;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border: 1px solid #ddd;
+  font-weight: 500;
+}
+.btn.google:hover {
+  background: #f8f8f8;
+}
+
+/* --- Modal Animations --- */
+.modal.show {
+  display: flex !important;
+  animation: fadeIn 0.25s ease;
+}
+@keyframes fadeIn {
+  from {opacity:0;} 
+  to {opacity:1;}
+}
+
+/* --- Close Icon --- */
+.close-x {
+  float: right;
+  cursor: pointer;
+  color: #666;
+  font-size: 18px;
+  transition: 0.2s;
+}
+.close-x:hover { color: var(--accent); transform: rotate(90deg); }
+
+/* --- Responsive --- */
+@media (max-width: 700px) {
+  .auth-grid { grid-template-columns: 1fr; }
+}
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Settings</h1>
+
+    <!-- ACCOUNT -->
+    <div class="card" id="account-card">
+      <h3>Account</h3>
+      <div id="account-panel">
+        <div class="row">
+          <div class="label">
+            <strong id="account-email-label">Connection</strong>
+            <div class="muted">Ouvri yon modal pou login / signup</div>
+          </div>
+          <div>
+            <button class="btn" id="open-connection">Open</button>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="label">
+            <span>Subscription</span>
+            <div class="muted">Free Plan</div>
+          </div>
+          <div class="small">Free</div>
+        </div>
+
+        <div class="row">
+          <div class="label"><span>Notifications</span><div class="sub">Manage notifications</div></div>
+          <div><button class="btn" id="open-notifications">Open</button></div>
+        </div>
+
+        <div class="row">
+          <div class="label"><span>Data controls</span><div class="sub">Delete conversations or account</div></div>
+          <div><button class="btn" id="open-data">Open</button></div>
+        </div>
+
+        <div class="row">
+          <div class="label"><span>Security</span><div class="sub">Multi auth & 2FA</div></div>
+          <div><button class="btn" id="open-security">Open</button></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- APP -->
+    <div class="card">
+      <h3>App</h3>
+      <div class="row">
+        <div class="label"><span>App language</span><div class="sub">Chwazi youn nan 10 lang</div></div>
+        <div><button class="btn" id="open-language">Open</button></div>
+      </div>
+
+      <div class="row">
+        <div class="label"><span>Appearance</span><div class="sub">Light / Dark / System</div></div>
+        <div><button class="btn" id="open-appearance">Open</button></div>
+      </div>
+
+      <div class="row">
+        <div class="label"><span>Accent color</span><div class="sub">5 koulè</div></div>
+        <div><button class="btn" id="open-accent">Open</button></div>
+      </div>
+    </div>
+
+    <!-- SUGGESTIONS -->
+    <div class="card">
+      <h3>Suggestions</h3>
+      <div class="row">
+        <div class="label"><span>Autocomplete</span><div class="sub">Autocomplete bouton</div></div>
+        <div><label class="toggle on"><input type="checkbox" id="autocomplete" checked><span class="knob"></span></label></div>
+      </div>
+      <div class="row">
+        <div class="label"><span>Trending searches</span></div>
+        <div><label class="toggle on"><input type="checkbox" id="trending" checked><span class="knob"></span></label></div>
+      </div>
+      <div class="row">
+        <div class="label"><span>Follow-up suggestions</span></div>
+        <div><label class="toggle on"><input type="checkbox" id="followup" checked><span class="knob"></span></label></div>
+      </div>
+    </div>
+
+    <!-- ABOUT -->
+    <div class="card">
+      <h3>About</h3>
+      <div class="row">
+        <div class="label"><span>Help center</span></div>
+        <div><a class="link" href="help.html">Open</a></div>
+      </div>
+      <div class="row">
+        <div class="label"><span>Terms of Use</span></div>
+        <div><a class="link" href="terms.html">Open</a></div>
+      </div>
+      <div class="row">
+        <div class="label"><span>Privacy Policy</span></div>
+        <div><a class="link" href="privacy.html">Open</a></div>
+      </div>
+      <div class="row">
+        <div class="label"><span>ChatGPT for</span><div class="sub" id="platform-info">Detecting...</div></div>
+        <div><button class="btn" id="detect-platform">Detect</button></div>
+      </div>
+    </div>
+
+    <div style="text-align:center;margin-top:8px">
+      <button class="btn" id="logout-btn">Log out</button>
+    </div>
+
+    <footer>Version: ChatGPT for Web (local demo)</footer>
+  </div>
+
+  <!-- ✨ MODERN LOGIN / SIGNUP MODAL -->
+<div class="modal show" id="modal-connection">
+  <div class="dialog glass">
+    <button class="close-x" data-close="modal-connection" aria-label="Close">✕</button>
+    <h2 class="title">Welcome Back 👋</h2>
+    <p class="subtitle">Log in or create an account to continue</p>
+
+    <div class="form-container">
+      <div class="form-box">
+        <div class="field">
+          <label>Email</label>
+          <input id="login-email" type="email" placeholder="email@example.com">
+        </div>
+        <div class="field">
+          <label>Password</label>
+          <input id="login-password" type="password" placeholder="••••••••">
+        </div>
+        <div class="btn-row">
+          <button class="btn primary" id="btn-login">Login</button>
+          <button class="btn secondary" id="btn-signup">Sign up</button>
+        </div>
+        <div class="divider"><span>or</span></div>
+        <button class="btn google" id="btn-google">
+          <img src="https://www.svgrepo.com/show/475656/google-color.svg" width="18" alt="Google">
+          Continue with Google
+        </button>
+        <p class="muted small">
+          After login, <strong>Connection</strong> will show your email.
+        </p>
+      </div>
+
+      <div class="map-box">
+        <h4>Map Preview</h4>
+        <div id="mini-map"></div>
+        <p class="muted small">
+          Map la se jis pou vizyal — pa bezwen kle Google.
+        </p>
+      </div>
+    </div>
+
+    <hr />
+    <p class="muted tiny">
+      Firebase config: ranplase <code>YOUR_FIREBASE_CONFIG</code> nan script anba a.
+    </p>
+  </div>
+</div>
+
+  <div class="modal" id="modal-notifications">
+    <div class="dialog">
+      <span class="close-x" data-close="modal-notifications">✕</span>
+      <h2>Notifications</h2>
+      <div class="card">
+        <div class="row">
+          <div class="label"><span>Push notifications</span><div class="sub">Receive push</div></div>
+          <div><label class="toggle" id="tog-push"><input type="checkbox" id="push-checkbox"><span class="knob"></span></label></div>
+        </div>
+        <div class="row">
+          <div class="label"><span>Email notifications</span></div>
+          <div><label class="toggle on"><input type="checkbox" id="email-checkbox" checked><span class="knob"></span></label></div>
+        </div>
+        <div class="row">
+          <div class="label"><span>In-app sounds</span></div>
+          <div><label class="toggle"><input type="checkbox" id="sound-checkbox"><span class="knob"></span></label></div>
+        </div>
+        <div style="margin-top:12px"><button class="btn" id="save-notif">Save</button></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal" id="modal-data">
+    <div class="dialog">
+      <span class="close-x" data-close="modal-data">✕</span>
+      <h2>Data controls</h2>
+      <p class="muted small">Swen: Si w efase kont la, pa gen fason pou rekipere li (login ak imèl sa a pap mache ankò).</p>
+      <div style="display:flex;gap:12px;flex-wrap:wrap">
+        <div style="flex:1;min-width:220px" class="card">
+          <h4>Delete all conversations</h4>
+          <div class="muted small">Sa efase tout konvèsasyon lokal yo.</div>
+          <div style="margin-top:8px"><button id="delete-conv" class="btn">Delete Conversations</button></div>
+        </div>
+        <div style="flex:1;min-width:220px" class="card">
+          <h4>Delete account</h4>
+          <div class="muted small">Efase kont Firebase aktif la (mande re-auth si nesesè).</div>
+          <div style="margin-top:8px"><button id="delete-account" class="btn">Delete Account</button></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+ <!-- Security Modal -->
+<div class="modal" id="modal-security">
+  <div class="dialog">
+    <span class="close-x" data-close="modal-security">✕</span>
+    <h2>Security</h2>
+    <div class="card">
+      <div class="row">
+        <div class="label">
+          <span>Enable Multi-Factor Authentication</span>
+          <div class="sub">Add extra protection to your account</div>
+        </div>
+        <div>
+          <label class="toggle">
+            <input type="checkbox" id="mfa-toggle">
+            <span class="knob"></span>
+          </label>
+        </div>
+      </div>
+
+      <div id="mfa-details" style="display:none;padding:10px">
+        <div class="field">
+          <label>Phone number (for 2FA)</label>
+          <input id="mfa-phone" placeholder="+1 555 123 4567" type="text">
+        </div>
+        <div id="recaptcha-container"></div>
+        <div><button id="save-mfa" class="btn">Save MFA</button></div>
+      </div>
+
+      <div class="muted small" style="margin-top:8px">
+        Once enabled, you’ll need your phone to verify sign-in. Works with Firebase Authentication.
+      </div>
+    </div>
+  </div>
+</div>
+
+  <div class="modal" id="modal-language">
+    <div class="dialog">
+      <span class="close-x" data-close="modal-language">✕</span>
+      <h2>App languages</h2>
+      <div class="languages" id="language-list">
+        <!-- 10 lang -->
+        <div class="lang" data-lang="en">English</div>
+        <div class="lang" data-lang="ht">Kreyòl (Haitian Creole)</div>
+        <div class="lang" data-lang="fr">Français</div>
+        <div class="lang" data-lang="es">Español</div>
+        <div class="lang" data-lang="pt">Português</div>
+        <div class="lang" data-lang="de">Deutsch</div>
+        <div class="lang" data-lang="it">Italiano</div>
+        <div class="lang" data-lang="nl">Nederlands</div>
+        <div class="lang" data-lang="ja">日本語</div>
+        <div class="lang" data-lang="ko">한국어</div>
+      </div>
+      <div style="margin-top:12px"><button id="save-language" class="btn">Save language</button></div>
+    </div>
+  </div>
+
+  <div class="modal" id="modal-appearance">
+    <div class="dialog">
+      <span class="close-x" data-close="modal-appearance">✕</span>
+      <h2>Appearance</h2>
+      <div class="field">
+        <label>Mode</label>
+        <select id="appearance-select">
+          <option value="system">System</option>
+          <option value="light">Light</option>
+          <option value="dark">Dark</option>
+        </select>
+      </div>
+      <div style="margin-top:8px"><button id="save-appearance" class="btn">Save</button></div>
+    </div>
+  </div>
+
+  <div class="modal" id="modal-accent">
+    <div class="dialog">
+      <span class="close-x" data-close="modal-accent">✕</span>
+      <h2>Accent color</h2>
+      <div class="accent-palette">
+        <div class="swatch" data-color="#4f46e5" style="background:#4f46e5"></div>
+        <div class="swatch" data-color="#ef4444" style="background:#ef4444"></div>
+        <div class="swatch" data-color="#0ea5a4" style="background:#0ea5a4"></div>
+        <div class="swatch" data-color="#f59e0b" style="background:#f59e0b"></div>
+        <div class="swatch" data-color="#7c3aed" style="background:#7c3aed"></div>
+      </div>
+      <div style="margin-top:12px"><button id="save-accent" class="btn">Save Accent</button></div>
+    </div>
+  </div>
+
+  <!-- JS -->
+  <script>
+// Simple modal toggle system
+document.querySelectorAll('[data-close]').forEach(btn=>{
+  btn.onclick = ()=>{
+    document.getElementById(btn.dataset.close).classList.remove('show');
+  };
+});
+document.querySelectorAll('[data-open]').forEach(btn=>{
+  btn.onclick = ()=>{
+    document.getElementById(btn.dataset.open).classList.add('show');
+  };
+});
+    /***********************
+     * FIREBASE - init
+     * Replace the firebaseConfig object with your project's config.
+     ***********************/
+    const firebaseConfig = {
+    apiKey: "AIzaSyCfQZySxPAeUGio11u6zWZCS_bsiK_CYKk",
+    authDomain: "mini-jesus-crash.firebaseapp.com",
+    projectId: "mini-jesus-crash",
+    storageBucket: "mini-jesus-crash.firebasestorage.app",
+    messagingSenderId: "924266583248",
+    appId: "1:924266583248:web:04b8df9d762d94a0697ad5",
+    measurementId: "G-HYGEGYREFC"
+  };
+    // Initialize Firebase
+    try {
+      firebase.initializeApp(firebaseConfig);
+      var auth = firebase.auth();
+      var db = firebase.firestore();
+    } catch (e) {
+      console.warn("Firebase not configured. Replace firebaseConfig with your config to enable auth.");
+    }
+
+    // UI helpers
+    function $(id){return document.getElementById(id)}
+    function showModal(id){ document.getElementById(id).style.display='flex' }
+    function closeModal(id){ document.getElementById(id).style.display='none' }
+
+    // Wire close buttons
+    document.querySelectorAll('.close-x').forEach(el=>{
+      el.addEventListener('click', ()=> closeModal(el.dataset.close));
+    });
+
+    // Open modals
+    $('open-connection').addEventListener('click', ()=> {
+      showModal('modal-connection');
+      setTimeout(initMiniMap, 200);
+    });
+    $('open-notifications').addEventListener('click', ()=> showModal('modal-notifications'));
+    $('open-data').addEventListener('click', ()=> showModal('modal-data'));
+    $('open-security').addEventListener('click', ()=> showModal('modal-security'));
+    $('open-language').addEventListener('click', ()=> showModal('modal-language'));
+    $('open-appearance').addEventListener('click', ()=> showModal('modal-appearance'));
+    $('open-accent').addEventListener('click', ()=> showModal('modal-accent'));
+
+    // Toggles visuals (so JS toggles class)
+    document.querySelectorAll('.toggle').forEach(t => {
+      const input = t.querySelector('input');
+      if(!input) return;
+      // set initial state from checked
+      if(input.checked) t.classList.add('on');
+      input.addEventListener('change', ()=>{
+        if(input.checked) t.classList.add('on'); else t.classList.remove('on');
+      });
+    });
+
+    /***** Login / Signup *****/
+    $('btn-signup').addEventListener('click', async ()=>{
+      const email = $('login-email').value.trim();
+      const pass = $('login-password').value;
+      if(!email || !pass){ alert('Mete email ak modpas'); return; }
+      if(!auth){ alert('Firebase pa konfigire.'); return; }
+      try{
+        const userCred = await auth.createUserWithEmailAndPassword(email, pass);
+        alert('Signed up: ' + userCred.user.email);
+        updateAccountUI(userCred.user);
+        closeModal('modal-connection');
+      }catch(e){ alert('Signup error: '+ e.message) }
+    });
+
+    $('btn-login').addEventListener('click', async ()=>{
+      const email = $('login-email').value.trim();
+      const pass = $('login-password').value;
+      if(!email || !pass){ alert('Mete email ak modpas'); return; }
+      if(!auth){ alert('Firebase pa konfigire.'); return; }
+      try{
+        const userCred = await auth.signInWithEmailAndPassword(email, pass);
+        alert('Logged in: ' + userCred.user.email);
+        updateAccountUI(userCred.user);
+        closeModal('modal-connection');
+      }catch(e){ alert('Login error: '+ e.message) }
+    });
+
+    $('btn-google').addEventListener('click', async ()=>{
+      if(!auth){ alert('Firebase pa konfigire.'); return; }
+      const provider = new firebase.auth.GoogleAuthProvider();
+      try{
+        const res = await auth.signInWithPopup(provider);
+        updateAccountUI(res.user);
+        closeModal('modal-connection');
+      }catch(e){ alert('Google login error: '+ e.message) }
+    });
+
+    // On auth state change
+    if(window.firebase && firebase.auth){
+      firebase.auth().onAuthStateChanged(user => {
+        if(user) updateAccountUI(user);
+        else showConnectionDefault();
+      });
+    } else {
+      showConnectionDefault();
+    }
+
+    function updateAccountUI(user){
+      $('account-email-label').textContent = user.email || user.displayName || 'User';
+      // store user info locally for demo
+      localStorage.setItem('settings_user_email', user.email||'');
+    }
+
+    function showConnectionDefault(){
+      const stored = localStorage.getItem('settings_user_email');
+      $('account-email-label').textContent = stored ? stored : 'Connection';
+    }
+
+    // Logout
+    $('logout-btn').addEventListener('click', async ()=>{
+      if(window.firebase && firebase.auth){
+        await firebase.auth().signOut();
+      }
+      localStorage.removeItem('settings_user_email');
+      $('account-email-label').textContent = 'Connection';
+      alert('Logged out');
+    });
+
+    /***** Mini map in login modal (Leaflet) *****/
+    let miniMapInit = false;
+    function initMiniMap(){
+      if(miniMapInit) return;
+      miniMapInit = true;
+      const map = L.map('mini-map', { center: [20, -74], zoom: 3 });
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '© OpenStreetMap contributors'
+      }).addTo(map);
+      // Try to locate user (optional)
+      map.locate({setView:false});
+    }
+
+    /***** Data controls *****/
+    $('delete-conv').addEventListener('click', ()=>{
+      if(!confirm('Sere — efase tout konvèsasyon lokal yo?')) return;
+      localStorage.removeItem('conversations');
+      alert('Konvèsasyon yo efase.');
+    });
+
+    $('delete-account').addEventListener('click', async ()=>{
+      if(!auth || !firebase.auth().currentUser){ alert('Pa gen itilizatè konekte.'); return; }
+      if(!confirm('Konfime: efase kont sa a pèmanans?')) return;
+      try{
+        await firebase.auth().currentUser.delete();
+        localStorage.removeItem('settings_user_email');
+        $('account-email-label').textContent = 'Connection';
+        alert('Kont efase. Ou pap kapab konekte ak menm email la ankò si li pa rekreye.');
+      }catch(e){
+        // often requires recent login => reauth
+        alert('Delete error: ' + e.message + '\nSi li mande re-auth, log in ankò epi re-ese.');
+      }
+    });
+
+   // ---- Activate MFA toggle ----
+  const mfaToggle = document.getElementById('mfa-toggle');
+  const mfaDetails = document.getElementById('mfa-details');
+  const saveMfaBtn = document.getElementById('save-mfa');
+
+  mfaToggle.addEventListener('change', () => {
+    mfaDetails.style.display = mfaToggle.checked ? 'block' : 'none';
+  });
+
+  // ---- Enable MFA using phone ----
+  saveMfaBtn.addEventListener('click', async () => {
+    const user = auth.currentUser;
+    if (!user) {
+      alert('Please log in first.');
+      return;
+    }
+
+    const phoneNumber = document.getElementById('mfa-phone').value;
+    const appVerifier = window.recaptchaVerifier;
+
+    try {
+      const session = await multiFactor(user).getSession();
+      const phoneInfoOptions = {
+        phoneNumber,
+        session
+      };
+      const phoneAuthProvider = new PhoneAuthProvider(auth);
+      const verificationId = await phoneAuthProvider.verifyPhoneNumber(phoneInfoOptions, appVerifier);
+
+      const verificationCode = prompt('Enter the verification code you received:');
+      const cred = PhoneAuthProvider.credential(verificationId, verificationCode);
+      const multiFactorAssertion = PhoneMultiFactorGenerator.assertion(cred);
+
+      await multiFactor(user).enroll(multiFactorAssertion, 'Primary phone');
+      alert('✅ MFA enabled successfully!');
+    } catch (error) {
+      console.error(error);
+      alert('❌ Error enabling MFA: ' + error.message);
+    }
+  });
+
+  // ---- Setup reCAPTCHA verifier ----
+  window.recaptchaVerifier = new firebase.auth.RecaptchaVerifier('recaptcha-container', {
+    size: 'invisible',
+  });
+
+    /***** Notifications *****/
+    $('save-notif').addEventListener('click', ()=>{
+      const push = $('push-checkbox').checked;
+      const email = $('email-checkbox').checked;
+      const sound = $('sound-checkbox').checked;
+      localStorage.setItem('settings_notifications', JSON.stringify({push,email,sound}));
+      alert('Notifications saved.');
+      closeModal('modal-notifications');
+    });
+
+    /***** Language *****/
+    document.querySelectorAll('.lang').forEach(el=>{
+      el.addEventListener('click', ()=> {
+        document.querySelectorAll('.lang').forEach(l=> l.style.outline='none');
+        el.style.outline='3px solid rgba(0,0,0,0.06)';
+        el.dataset.selected = '1';
+      });
+    });
+    $('save-language').addEventListener('click', ()=>{
+      const sel = Array.from(document.querySelectorAll('.lang')).find(l=>l.dataset.selected==='1');
+      if(sel){ localStorage.setItem('app_language', sel.dataset.lang); alert('Language saved: ' + sel.textContent); closeModal('modal-language') }
+      else alert('Chwazi yon lang anvan.');
+    });
+
+    /***** Appearance *****/
+    $('save-appearance').addEventListener('click', ()=>{
+      const val = $('appearance-select').value;
+      if(val==='dark'){ document.documentElement.style.background='#0b1020' }
+      else { document.documentElement.style.background='var(--bg)'; }
+      localStorage.setItem('appearance_mode', val);
+      alert('Appearance saved');
+      closeModal('modal-appearance');
+    });
+
+    /***** Accent colors *****/
+    document.querySelectorAll('.swatch').forEach(s=>{
+      s.addEventListener('click', ()=>{
+        document.querySelectorAll('.swatch').forEach(x=>x.classList.remove('selected'));
+        s.classList.add('selected');
+        document.documentElement.style.setProperty('--accent', s.dataset.color);
+      });
+    });
+    $('save-accent').addEventListener('click', ()=>{
+      const sel = document.querySelector('.swatch.selected');
+      if(sel){ localStorage.setItem('accent_color', sel.dataset.color); alert('Accent saved'); closeModal('modal-accent') }
+      else alert('Chwazi yon koulè.');
+    });
+
+    /***** Suggestions toggles (store states) *****/
+    $('#autocomplete')?.addEventListener('change', function(){ localStorage.setItem('autocomplete', this.checked) });
+    $('#trending')?.addEventListener('change', function(){ localStorage.setItem('trending', this.checked) });
+    $('#followup')?.addEventListener('change', function(){ localStorage.setItem('followup', this.checked) });
+
+    /***** Platform detection & IP fetch *****/
+    $('detect-platform').addEventListener('click', async ()=>{
+      const ua = navigator.userAgent || navigator.vendor || window.opera;
+      // basic platform guess
+      let platform='Unknown';
+      if(/android/i.test(ua)) platform='Android';
+      else if(/iPad|iPhone|iPod/.test(ua) || navigator.platform==='iPhone') platform='iOS';
+      else if(/Win/i.test(ua)) platform='Windows PC';
+      else if(/Mac/i.test(ua)) platform='macOS';
+      else platform='Web / Other';
+      // try fetch IP
+      let ip = 'unknown';
+      try{
+        const r = await fetch('https://api.ipify.org?format=json');
+        const j = await r.json();
+        ip = j.ip;
+      }catch(e){}
+      $('platform-info').textContent = `${platform} — IP: ${ip}`;
+    });
+
+    // helper for querySelector by id
+    function $(q){ return document.getElementById(q) }
+
+    // initialize UI from localStorage
+    window.addEventListener('load', ()=>{
+      const accent = localStorage.getItem('accent_color'); if(accent) document.documentElement.style.setProperty('--accent', accent);
+      const email = localStorage.getItem('settings_user_email'); if(email) $('account-email-label').textContent = email;
+      // set toggles initial classes
+      document.querySelectorAll('.toggle input').forEach(inp=>{
+        const wrap = inp.closest('.toggle');
+        if(inp.checked) wrap.classList.add('on'); else wrap.classList.remove('on');
+      });
+    });
+
+    // Small UX: close modal when click outside dialog
+    document.querySelectorAll('.modal').forEach(m=>{
+      m.addEventListener('click', (e)=>{
+        if(e.target === m) m.style.display='none';
+      })
+    });
+
+  </script>
+</body>
+</html>

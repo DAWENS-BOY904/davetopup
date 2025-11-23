@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="ht">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Help Center - Chatbot</title>
+<style>
+    :root {
+        --bg: #f0f4f8;
+        --card: #ffffff;
+        --accent: #4f46e5;
+        --text: #333;
+        --muted: #6b7280;
+        --radius: 14px;
+        --padding: 20px;
+        --icon-color: #4f46e5;
+    }
+
+    body {
+        margin: 0;
+        font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+        background-color: var(--bg);
+        color: var(--text);
+    }
+
+    header {
+        background-color: var(--accent);
+        color: #fff;
+        padding: 25px;
+        text-align: center;
+        font-size: 1.8em;
+        font-weight: bold;
+        position: sticky;
+        top: 0;
+        z-index: 1000;
+    }
+
+    main {
+        max-width: 1100px;
+        margin: 30px auto;
+        padding: var(--padding);
+    }
+
+    .search-bar {
+        display: flex;
+        justify-content: center;
+        margin-bottom: 30px;
+    }
+
+    .search-bar input {
+        width: 100%;
+        max-width: 600px;
+        padding: 12px 20px;
+        border-radius: var(--radius);
+        border: 1px solid #ccc;
+        font-size: 1em;
+    }
+
+    section {
+        margin-bottom: 40px;
+    }
+
+    h2 {
+        color: var(--accent);
+        margin-bottom: 15px;
+        font-size: 1.5em;
+    }
+
+    .faq, .messages, .owner-info {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 20px;
+    }
+
+    .card {
+        background-color: var(--card);
+        border-radius: var(--radius);
+        padding: var(--padding);
+        box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .card h3 {
+        margin: 0;
+        font-size: 1.2em;
+        color: var(--accent);
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .card p {
+        margin: 0;
+        font-size: 0.95em;
+        color: var(--muted);
+    }
+
+    .icon {
+        font-size: 1.3em;
+        color: var(--icon-color);
+    }
+
+    footer {
+        text-align: center;
+        padding: 20px;
+        color: var(--muted);
+        font-size: 0.9em;
+    }
+
+    @media (max-width: 768px) {
+        .faq, .messages, .owner-info {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+<!-- Optional: icons from Font Awesome CDN -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+<body>
+<header>Chatbot Help Center</header>
+<main>
+
+    <!-- Search Bar -->
+    <div class="search-bar">
+        <input type="text" placeholder="Search FAQs or topics...">
+    </div>
+
+    <!-- FAQ Section -->
+    <section>
+        <h2>Frequently Asked Questions (FAQ)</h2>
+        <div class="faq">
+            <!-- 15 FAQs -->
+            <div class="card"><h3><i class="fas fa-question-circle icon"></i> Ki jan mwen ka kòmanse itilize chatbot la?</h3><p>Ou ka kòmanse itilize chatbot la senpleman pa ouvri li epi swiv entwodiksyon debaz yo.</p></div>
+            <div class="card"><h3><i class="fas fa-question-circle icon"></i> Èske chatbot la gratis?</h3><p>Wi, chatbot la ofri yon vèsyon debaz gratis. Gen kèk fonksyon avanse ki ka peye.</p></div>
+            <div class="card"><h3><i class="fas fa-question-circle icon"></i> Ki done chatbot la kolekte?</h3><p>Chatbot la kolekte enfòmasyon ke ou pataje pou bay repons, men li respekte politik vi prive a.</p></div>
+            <div class="card"><h3><i class="fas fa-question-circle icon"></i> Èske mwen ka efase konvèsasyon mwen?</h3><p>Wi, ou ka efase konvèsasyon ou nan anviwònman chatbot la.</p></div>
+            <div class="card"><h3><i class="fas fa-question-circle icon"></i> Ki lang chatbot la sipòte?</h3><p>Li sipòte plizyè lang, enkli kreyòl, anglè, franse, ak plis ankò.</p></div>
+            <div class="card"><h3><i class="fas fa-question-circle icon"></i> Èske chatbot la travay sou mobil ak òdinatè?</h3><p>Wi, chatbot la se responsive epi li travay sou nenpòt aparèy.</p></div>
+            <div class="card"><h3><i class="fas fa-question-circle icon"></i> Ki limit chak sesyon konvèsasyon?</h3><p>Pa gen limit strik, men pou pèfòmans optimal, sesyon long yo ka rekòmanse.</p></div>
+            <div class="card"><h3><i class="fas fa-question-circle icon"></i> Èske chatbot la ka fè erè?</h3><p>Wi, chatbot la ka bay repons ki pa totalman presi. Li sèvi kòm gid entelijan.</p></div>
+            <div class="card"><h3><i class="fas fa-question-circle icon"></i> Èske mwen bezwen kreye kont?</h3><p>Pou kèk fonksyon avanse, ou ka bezwen yon kont itilizatè.</p></div>
+            <div class="card"><h3><i class="fas fa-question-circle icon"></i> Ki politik vi prive chatbot la?</h3><p>Nou respekte vi prive itilizatè yo epi nou pa pataje done pèsonèl.</p></div>
+            <div class="card"><h3><i class="fas fa-question-circle icon"></i> Èske chatbot la travay offline?</h3><p>Non, li bezwen koneksyon entènèt pou fonksyone efektivman.</p></div>
+            <div class="card"><h3><i class="fas fa-question-circle icon"></i> Ki sipò mwen jwenn si gen pwoblèm?</h3><p>Ou ka kontakte sipò nou atravè imel oswa paj kontakte chatbot la.</p></div>
+            <div class="card"><h3><i class="fas fa-question-circle icon"></i> Èske gen vèsyon premium?</h3><p>Wi, gen fonksyonalite premium ki ajoute plis kapasite ak personnalisation.</p></div>
+            <div class="card"><h3><i class="fas fa-question-circle icon"></i> Ki jan chatbot la itilize AI?</h3><p>Chatbot la itilize modèl AI pou konprann mesaj ou ak bay repons entèlijan.</p></div>
+            <div class="card"><h3><i class="fas fa-question-circle icon"></i> Èske chatbot la ka entegre ak lòt aplikasyon?</h3><p>Wi, gen kèk entegrasyon posib ak lòt zouti depann sou API.</p></div>
+        </div>
+    </section>
+
+    <!-- Message Templates Section -->
+    <section>
+        <h2>Message Templates</h2>
+        <div class="messages">
+            <!-- 20 Message Models -->
+            <div class="card"><h3><i class="fas fa-envelope icon"></i> Modèl 1</h3><p>Bonjou! Kijan mwen ka ede w jodi a?</p></div>
+            <div class="card"><h3><i class="fas fa-envelope icon"></i> Modèl 2</h3><p>Mèsi paske ou kontakte nou, nou pral reponn byento.</p></div>
+            <div class="card"><h3><i class="fas fa-envelope icon"></i> Modèl 3</h3><p>Nou rekòmande verifye dokiman sa a anvan ou kontinye.</p></div>
+            <div class="card"><h3><i class="fas fa-envelope icon"></i> Modèl 4</h3><p>Si w gen kesyon, pa ezite mande nou.</p></div>
+            <div class="card"><h3><i class="fas fa-envelope icon"></i> Modèl 5</h3><p>Nou apresye fidbak ou anpil!</p></div>
+            <div class="card"><h3><i class="fas fa-envelope icon"></i> Modèl 6</h3><p>Chak demann ap trete nan lòd li rive.</p></div>
+            <div class="card"><h3><i class="fas fa-envelope icon"></i> Modèl 7</h3><p>Nou rekòmande w li gid itilizatè a pou plis enfòmasyon.</p></div>
+            <div class="card"><h3><i class="fas fa-envelope icon"></i> Modèl 8</h3><p>Nou kontan wè w tounen sou chatbot la!</p></div>
+            <div class="card"><h3><i class="fas fa-envelope icon"></i> Modèl 9</h3><p>Nou pral trete demann ou a pi vit posib.</p></div>
+            <div class="card"><h3><i class="fas fa-envelope icon"></i> Modèl 10</h3><p>Tanpri asire w enfòmasyon yo konplè anvan soumèt.</p></div>
+            <div class="card"><h3><i class="fas fa-envelope icon"></i> Modèl 11</h3><p>Mèsi pou pasyans ou pandan nap travay sou sa.</p></div>
+            <div class="card"><h3><i class="fas fa-envelope icon"></i> Modèl 12</h3><p>Nou dispoze ede w nan nenpòt etap.</p></div>
+            <div class="card"><h3><i class="fas fa-envelope icon"></i> Modèl 13</h3><p>Ou ka toujou tounen sou paj FAQ la pou plis enfòmasyon.</p></div>
+            <div class="card"><h3><i class="fas fa-envelope icon"></i> Modèl 14</h3><p>Nou toujou ap amelyore chatbot la pou satisfè bezwen ou.</p></div>
+            <div class="card"><h3><i class="fas fa-envelope icon"></i> Modèl 15</h3><p>Si w rankontre nenpòt erè, tanpri rapòte li.</p></div>
+            <div class="card"><h3><i class="fas fa-envelope icon"></i> Modèl 16</h3><p>Nou kontan resevwa kòmantè w sou nouvo fonksyon yo.</p></div>
+            <div class="card"><h3><i class="fas fa-envelope icon"></i> Modèl 17</h3><p>Nou rekòmande verifye paramèt kont ou regilyèman.</p></div>
+            <div class="card"><h3><i class="fas fa-envelope icon"></i> Modèl 18</h3><p>Chak kesyon konte, epi nou pral reponn chak youn.</p></div>
+            <div class="card"><h3><i class="fas fa-envelope icon"></i> Modèl 19</h3><p>Nou pran sekirite ak vi prive ou trè serye.</p></div>
+            <div class="card"><h3><i class="fas fa-envelope icon"></i> Modèl 20</h3><p>Mèsi paske w ap itilize chatbot nou an chak jou!</p></div>
+        </div>
+    </section>
+
+    <!-- Owner Info Section -->
+    <section>
+        <h2>Owner / Contact Info</h2>
+        <div class="owner-info">
+            <div class="card">
+                <h3><i class="fas fa-user icon"></i> Pwopriyetè Chatbot</h3>
+                <p>Non: DAWENS BOY</p>
+                <p>Email: <a href="mailto:support@chatbot.com">support@chatbot.com</a></p>
+                <p>Website: <a href="https://chatbot.com">chatbot.com</a></p>
+            </div>
+        </div>
+    </section>
+
+</main>
+<footer>
+    © 2025 Chatbot. Tout dwa rezève.
+</footer>
+</body>
+</html>

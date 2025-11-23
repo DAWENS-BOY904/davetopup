@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="ht">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Rapò Bug Avanse — Dave</title>
+<style>
+  body { font-family: system-ui, -apple-system, "Segoe UI", Roboto, Arial; padding:20px; max-width:800px; margin:auto; }
+  h1 { font-size:1.4rem; margin-bottom:8px; }
+  label { display:block; margin-top:12px; font-weight:600; }
+  textarea { width:100%; min-height:120px; padding:8px; font-size:0.95rem; }
+  .box { background:#f9f9f9; border:1px solid #eee; padding:10px; border-radius:8px; margin-top:8px; }
+  .meta { font-family: monospace; font-size:0.85rem; color:#333; margin-top:4px; }
+  button { padding:10px 14px; border-radius:8px; border:0; background:#0b78e3; color:white; cursor:pointer; margin-top:10px; }
+  button:disabled { opacity:0.6; cursor:not-allowed; }
+  #screenshot { max-width:100%; margin-top:10px; border:1px solid #ccc; display:block; }
+  #acceptDiv { margin-top:12px; display:flex; align-items:center; gap:6px; }
+</style>
+<script src="https://cdn.emailjs.com/sdk/3.6.2/email.min.js"></script>
+</head>
+<body>
+<h1>Rapò Bug Avanse</h1>
+<p>Screenshot ak detay kote w te klike yo te kaptire otomatikman pandan shake.</p>
+
+<form id="bugForm" class="box">
+  <label for="description">Dekri bug la:</label>
+  <textarea id="description" name="description" placeholder="Ekri mesaj la isit..."></textarea>
+
+  <div id="clickInfoBox" class="box">
+    <strong>Kote klike (Captured):</strong>
+    <div id="clickDetails" class="meta">Pa gen done kaptire.</div>
+  </div>
+
+  <div id="acceptDiv">
+    <input type="checkbox" id="acceptSend" />
+    <label for="acceptSend">Mwen dakò voye rapò a avèk screenshot</label>
+  </div>
+
+  <img id="screenshot" alt="Screenshot paj la">
+
+  <button type="button" id="sendBtn">Voye Rapò</button>
+  <div id="status" style="margin-top:10px;"></div>
+</form>
+
+<script>
+  emailjs.init('YOUR_EMAILJS_USER_ID'); // <- Ranplase ak ID EmailJS ou
+
+  const sendBtn = document.getElementById('sendBtn');
+  const description = document.getElementById('description');
+  const clickDetails = document.getElementById('clickDetails');
+  const acceptSend = document.getElementById('acceptSend');
+  const screenshotImg = document.getElementById('screenshot');
+  const status = document.getElementById('status');
+
+  // --- Load click info from sessionStorage ---
+  let clickInfo = null;
+  const storedClick = sessionStorage.getItem('reportBugClickInfo');
+  if(storedClick){
+    try{
+      clickInfo = JSON.parse(storedClick);
+      clickDetails.innerHTML = `
+        Page: ${clickInfo.pageUrl}<br>
+        Timestamp: ${clickInfo.timestamp}<br>
+        ClientX,Y: ${clickInfo.clientX}, ${clickInfo.clientY}<br>
+        Selector: ${clickInfo.selector}<br>
+        Viewport: ${clickInfo.viewportWidth} × ${clickInfo.viewportHeight}
+      `;
+    }catch(e){
+      clickDetails.textContent = 'Pa kapab li info kaptire a.';
+    }
+  }
+
+  // --- Load screenshot from sessionStorage ---
+  const storedScreenshot = sessionStorage.getItem('reportBugScreenshot');
+  if(storedScreenshot){
+    screenshotImg.src = storedScreenshot;
+    screenshotImg.style.display='block';
+  } else {
+    screenshotImg.style.display='none';
+  }
+
+  // --- Send report ---
+  sendBtn.addEventListener('click', ()=> {
+    if(!acceptSend.checked){
+      status.textContent = 'Tanpri tcheke "aksepte" pou voye rapò a.';
+      return;
+    }
+    status.textContent = 'Ap voye...';
+    sendBtn.disabled = true;
+
+    const SERVICE_ID = 'YOUR_EMAILJS_SERVICE_ID';
+    const TEMPLATE_ID = 'YOUR_EMAILJS_TEMPLATE_ID';
+    const USER_ID = 'YOUR_EMAILJS_USER_ID';
+
+    // Temp form for EmailJS
+    const tempForm = document.createElement('form');
+    tempForm.style.display='none';
+    const inputs = {
+      description: description.value,
+      pageUrl: clickInfo?clickInfo.pageUrl:'',
+      timestamp: clickInfo?clickInfo.timestamp:'',
+      clientX: clickInfo?clickInfo.clientX:'',
+      clientY: clickInfo?clickInfo.clientY:'',
+      selector: clickInfo?clickInfo.selector:''
+    };
+    for(const k in inputs){
+      const inp = document.createElement('input');
+      inp.name = k;
+      inp.value = inputs[k];
+      tempForm.appendChild(inp);
+    }
+
+    // Attach screenshot as hidden input
+    if(storedScreenshot){
+      const scrInput = document.createElement('input');
+      scrInput.type='hidden';
+      scrInput.name='screenshot';
+      scrInput.value = storedScreenshot;
+      tempForm.appendChild(scrInput);
+    }
+
+    document.body.appendChild(tempForm);
+
+    emailjs.sendForm(SERVICE_ID, TEMPLATE_ID, tempForm, USER_ID)
+      .then(res=>{
+        status.textContent = 'Rapò voye avèk siksè!';
+        try{ 
+          sessionStorage.removeItem('reportBugClickInfo'); 
+          sessionStorage.removeItem('reportBugScreenshot');
+        } catch(e){}
+        description.value = '';
+      })
+      .catch(err=>{
+        console.error(err);
+        status.textContent = 'Echèk voye via EmailJS. Ou ka itilize fallback mail.';
+        const mailto = `mailto:youremail@example.com?subject=${encodeURIComponent('Rapò Bug')}&body=${encodeURIComponent(description.value)}`;
+        window.location.href = mailto;
+      })
+      .finally(()=>{
+        sendBtn.disabled=false;
+        tempForm.remove();
+      });
+  });
+</script>
+</body>
+</html>
