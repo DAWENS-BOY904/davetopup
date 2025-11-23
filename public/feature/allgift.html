@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="ht">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Gift Cards — Store</title>
+
+  <style>
+    :root{
+      --bg:#f6f8fb;
+      --card:#ffffff;
+      --muted:#6b7280;
+      --accent1:linear-gradient(135deg,#66c2d9 0%,#9be7d8 100%);
+      --accent2:linear-gradient(135deg,#a78bfa 0%,#7dd3fc 100%);
+      --shadow: 0 6px 18px rgba(16,24,40,0.06);
+      --radius:20px;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+    }
+
+    html,body{height:100%}
+    body{
+      margin:0;
+      background:var(--bg);
+      color:#0f172a;
+      -webkit-font-smoothing:antialiased;
+      -moz-osx-font-smoothing:grayscale;
+      padding:28px;
+      box-sizing:border-box;
+    }
+
+    .container{
+      max-width:1100px;
+      margin:0 auto;
+    }
+
+    header{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      margin-bottom:20px;
+    }
+
+    .title {
+      display:flex;
+      gap:12px;
+      align-items:center;
+    }
+    .logo {
+      width:50px;
+      height:50px;
+      border-radius:16px;
+      background:var(--accent1);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      box-shadow:var(--shadow);
+      font-weight:700;
+      color:#fff;
+      font-size:20px;
+    }
+    h1{font-size:20px;margin:0}
+    .meta {
+      font-size:14px;
+      color:var(--muted);
+      margin-bottom:14px;
+    }
+
+    /* Grid Layout */
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+      justify-items: center;
+      align-items: start;
+    }
+
+    /* Card Style */
+    .card {
+      background: var(--card);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 4px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 14px;
+      transition: transform 0.18s ease, box-shadow 0.18s ease;
+      cursor: pointer;
+      text-decoration: none;
+      color: inherit;
+    }
+
+    .card:hover {
+      transform: translateY(-6px);
+      box-shadow: 0 18px 39px rgba(16,24,40,0.08);
+    }
+
+    /* Thumbnail (photo) */
+    .thumb {
+      width: 130px;
+      height: 130px;
+      border-radius: 15px;
+      overflow: hidden;
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #f4f4f4;
+    }
+
+    .thumb img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      border-radius: 12px;
+    }
+
+    /* Info anba photo a */
+    .info {
+      text-align: center;
+    }
+
+    .name {
+      font-size: 15px;
+      font-weight: 600;
+      margin: 6px 0 2px;
+    }
+
+    .meta-row {
+      display: flex;
+      justify-content: center;
+      gap: 6px;
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    /* Footer ak copyright */
+    footer {
+      margin-top: 40px;
+      text-align: center;
+      color: var(--muted);
+      font-size: 13px;
+      padding: 20px 0;
+    }
+  </style>
+</head>
+<body>
+<div class="container">
+  <header>
+    <div class="title">
+      <div class="logo">K</div>
+      <h1>King Gift Cards</h1>
+    </div>
+  </header>
+
+  <div class="meta">Total 11 items</div>
+
+  <div class="grid">
+    <!-- iTunes US -->
+    <a href="Apple/itunes-us.html" class="card">
+      <div class="thumb"><img src="https://files.catbox.moe/w6xnet.webp" alt="iTunes US"></div>
+      <div class="info">
+        <p class="name">iTunes Gift Card US</p>
+        <div class="meta-row">⭐ 5.0 • 9.7k Sold</div>
+      </div>
+    </a>
+
+    <!-- iTunes UK -->
+    <a href="Apple/itunes-uk.html" class="card">
+      <div class="thumb"><img src="https://files.catbox.moe/w6xnet.webp" alt="iTunes UK"></div>
+      <div class="info">
+        <p class="name">iTunes Gift Card UK</p>
+        <div class="meta-row">⭐ 5.0 • 649 Sold</div>
+      </div>
+    </a>
+
+    <!-- iTunes TR -->
+    <a href="Apple/itunes-tr.html" class="card">
+      <div class="thumb"><img src="https://files.catbox.moe/w6xnet.webp" alt="iTunes TR"></div>
+      <div class="info">
+        <p class="name">iTunes Gift Card TR</p>
+        <div class="meta-row">⭐ 5.0 • 1.1k Sold</div>
+      </div>
+    </a>
+
+<!-- iTunes FR -->
+    <a href="Apple/itunes-fr.html" class="card">
+      <div class="thumb"><img src="https://files.catbox.moe/w6xnet.webp" alt="iTunes TR"></div>
+      <div class="info">
+        <p class="name">iTunes Gift Card FR</p>
+        <div class="meta-row">⭐ 5.0 • 1.1k Sold</div>
+      </div>
+    </a>
+
+<!-- iTunes JP -->
+    <a href="Apple/3.html" class="card">
+      <div class="thumb"><img src="https://files.catbox.moe/w6xnet.webp" alt="iTunes TR"></div>
+      <div class="info">
+        <p class="name">iTunes Gift Card JP</p>
+        <div class="meta-row">⭐ 5.0 • 1.1k Sold</div>
+      </div>
+    </a>
+
+<!-- iTunes UK -->
+    <a href="Apple/5.html" class="card">
+      <div class="thumb"><img src="https://files.catbox.moe/vusmd5.webp" alt="iTunes UK"></div>
+      <div class="info">
+        <p class="name">P.U.B.G G-Coin</p>
+        <div class="meta-row">⭐ 5.0 • 649 Sold</div>
+      </div>
+    </a>
+
+    <!-- iTunes TR -->
+    <a href="Apple/6.html" class="card">
+      <div class="thumb"><img src="https://files.catbox.moe/xgf8m4.webp" alt="iTunes TR"></div>
+      <div class="info">
+        <p class="name">Steam Gift Card (MY&US)</p>
+        <div class="meta-row">⭐ 5.0 • 38 Sold</div>
+      </div>
+    </a>
+
+<!-- iTunes FR -->
+    <a href="Apple/7.html" class="card">
+      <div class="thumb"><img src="https://files.catbox.moe/ztrthp.webp" alt="iTunes TR"></div>
+      <div class="info">
+        <p class="name">Xbox Game Pass - US</p>
+        <div class="meta-row">⭐ 5.0 • 384 Sold</div>
+      </div>
+    </a>
+
+<!-- iTunes JP -->
+    <a href="Apple/8.html" class="card">
+      <div class="thumb"><img src="https://files.catbox.moe/pab2k6.webp" alt="iTunes TR"></div>
+      <div class="info">
+        <p class="name">SoulChill</p>
+        <div class="meta-row">⭐ 5.0 • 468 Sold</div>
+      </div>
+    </a>
+
+<a href="Apple/9.html" class="card">
+      <div class="thumb"><img src="https://files.catbox.moe/xgf8m4.webp" alt="iTunes TR"></div>
+      <div class="info">
+        <p class="name">Steam Gift Card (BRL)</p>
+        <div class="meta-row">⭐ 5.0 • 468 Sold</div>
+      </div>
+    </a>
+
+<!-- iTunes JP -->
+    <a href="Apple/4.html" class="card">
+      <div class="thumb"><img src="https://files.catbox.moe/n19llk.webp" alt="iTunes TR"></div>
+      <div class="info">
+        <p class="name">Discord Nitro Subscription</p>
+        <div class="meta-row">⭐ 5.0 • 327 Sold</div>
+      </div>
+    </a>
+
+    <!-- Ou ka ajoute plis menm jan an -->
+  </div>
+
+  <footer>
+    <p class="copyright">© 2025 Dave Gift Shop — All rights reserved.</p>
+  </footer>
+</div>
+
+</body>
+</html>
