@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DAWENS SHOP | Free Fire Accounts</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+<style>
+body, h1,h2,h3,h4,p,ul,li,a,button { margin:0; padding:0; font-family: 'Poppins', Arial, sans-serif; }
+ul { list-style:none; }
+a { text-decoration:none; }
+
+/* HEADER */
+header {
+  display:flex; justify-content:space-between; align-items:center;
+  padding:12px 20px; 
+  background: linear-gradient(90deg,#ff8a00,#ff2079);
+  position:fixed; top:0; width:100%; z-index:100;
+  border-bottom:2px solid #fff; color:#fff;
+}
+header .logo img { height:50px; }
+.cart-btn { font-size:24px; background:none; border:none; cursor:pointer; color:#fff; }
+
+/* IMAGE TOP */
+.hero-img {
+  margin-top:10px;
+  width:100%; max-height:200px; overflow:hidden; border-radius:10px;
+}
+.hero-img img { width:100%; height:100%; object-fit:cover; }
+
+/* SEARCH */
+.search-bar-container {
+  margin:18px auto; display:flex; justify-content:center;
+  background:#fff; padding:12px; border-radius:8px;
+  box-shadow:0 2px 8px rgba(0,0,0,0.08); max-width:600px;
+}
+.search-bar input { flex:1; padding:10px; border:1px solid #ddd; border-radius:8px 0 0 8px; }
+.search-bar button { padding:10px; background:#ff2079; border:none; border-radius:0 8px 8px 0; color:#fff; cursor:pointer; }
+
+/* CART PANEL */
+.cart-panel {
+  position:fixed; top:0; left:-300px; height:100%; width:260px;
+  background:#fff; padding:20px; 
+  transition:0.3s; box-shadow:3px 0 15px rgba(0,0,0,0.12);
+}
+.cart-panel.open { left:0; }
+
+/* MAIN */
+main { padding:20px; margin-top:20px; text-align:center; }
+.grid {
+  display:grid; gap:20px;
+  grid-template-columns:repeat(auto-fit, minmax(160px,1fr));
+}
+.card {
+  background:#fff; padding:15px; border-radius:12px;
+  box-shadow:0 4px 15px rgba(0,0,0,0.08);
+  transition:0.3s;
+}
+.card:hover { transform:translateY(-6px); }
+.card img { width:100%; height:135px; border-radius:10px; object-fit:cover; }
+.card p { font-size:13px; color:#777; margin-top:4px; }
+.card h3 { font-size:16px; margin:8px 0; color:#333; }
+.btn { display:inline-block; padding:8px 12px; background:#ff2079; color:#fff; border-radius:8px; font-weight:600; }
+
+/* FOOTER */
+footer { margin-top:40px; text-align:center; padding:20px; color:#777; background:#f9f9f9; border-top:1px solid #ddd; }
+.footer-owner img { width:40px; height:40px; border-radius:50%; object-fit:cover; }
+.footer-owner { display:flex; justify-content:center; align-items:center; gap:15px; flex-wrap:wrap; }
+.footer-owner a { color:#ff2079; font-weight:600; }
+.hidden { display:none; }
+
+/* ================== PAGINATION ================== */
+.pager {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+    margin: 20px 0;
+    flex-wrap: wrap;
+}
+
+.page-btn {
+    padding: 8px 14px;
+    background: #fff;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    color: #2b9ed8;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.page-btn:hover {
+    background: #2b9ed8;
+    color: #fff;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+.page-btn.prev, .page-btn.next {
+    font-weight: 700;
+    background: #f0f4f8;
+}
+
+.page-btn.prev:hover, .page-btn.next:hover {
+    background: #2b9ed8;
+    color: #fff;
+}
+
+/* Optional: active page highlight */
+.page-btn.active {
+    background: #2b9ed8;
+    color: #fff;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+/* Responsive */
+@media (max-width: 480px) {
+    .pager {
+        gap: 4px;
+    }
+    .page-btn {
+        padding: 6px 10px;
+        font-size: 13px;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<header>
+  <div class="logo">
+    <a href="index1.html">
+      <img src="https://files.catbox.moe/gt8dvw.png">
+    </a>
+  </div>
+  <button class="cart-btn" id="openCart"><i class="fa-solid fa-cart-shopping"></i></button>
+</header>
+
+<div class="hero-img">
+  <img src="https://files.catbox.moe/gt8dvw.png">
+</div>
+
+<div class="search-bar-container">
+  <div class="search-bar">
+    <input id="searchInput" type="text" placeholder="Search account...">
+    <button id="searchBtn">Search</button>
+  </div>
+</div>
+
+<div class="cart-panel" id="cartPanel">
+  <button id="closeCart" style="position:absolute;right:15px;top:10px;font-size:24px;background:none;border:none;">×</button>
+  <h3>Votre Panier</h3>
+  <p>Aucun article ajouté.</p>
+</div>
+
+<main>
+<h2 style="color:#ff2079;">Free Fire Accounts Shop</h2>
+<p>Achetez des comptes FF vérifiés, sécurisés & prêts à l’emploi.</p>
+
+<div class="grid">
+
+  <!-- ACCOUNTS -->
+  <div class="card">
+    <img src="https://files.catbox.moe/ovcb0d.jpeg">
+    <p>Free Fire Account</p>
+    <h3>Compte Lvl 78 • 600+ Skins Veterano 6ans</h3>
+    <span style="font-weight:bold;color:#ff2079;">$225.99</span><br>
+    <a href="account/acc75.html" class="btn">Voir le compte</a>
+  </div>
+
+  <div class="card">
+    <img src="https://files.catbox.moe/y93rnm.jpeg">
+    <p>Free Fire Account</p>
+    <h3>Compte Lvl 75 • Elite Pass 500+ Skins</h3>
+    <span style="font-weight:bold;color:#ff2079;">$125.78</span><br>
+    <a href="account/acc80.html" class="btn">Voir le compte</a>
+  </div>
+
+  <div class="card">
+    <img src="https://files.catbox.moe/gl69q1.jpeg">
+    <p>Free Fire Account</p>
+    <h3>Compte Lvl 73 • 650+ Skins</h3>
+    <span style="font-weight:bold;color:#ff2079;">$190-240</span><br>
+    <a href="account/acc90.html" class="btn">Voir le compte</a>
+  </div>
+
+  <div class="card">
+    <img src="https://files.catbox.moe/2d8rm5.png">
+    <p>Free Fire Account</p>
+    <h3>Compte Lvl 75 • 800+ Skins</h3>
+    <span style="font-weight:bold;color:#ff2079;">$300-350</span><br>
+    <a href="account/acc100.html" class="btn">Voir le compte</a>
+  </div>
+
+  <div class="card">
+    <img src="https://files.catbox.moe/yp3pp5.png">
+    <p>Free Fire Account</p>
+    <h3>Compte Lvl 76 • Veterano 700+ Skins</h3>
+    <span style="font-weight:bold;color:#ff2079;">$300</span><br>
+    <a href="account/acc120.html" class="btn">Voir le compte</a>
+  </div>
+
+</div>
+</main>
+
+<div class="pager" id="pager">
+    <button class="page-btn prev" data-page="library.html">← Prev</button>
+    <button class="page-btn" data-page="index1.html">1</button>
+    <button class="page-btn" data-page="index2.html">2</button>
+    <button class="page-btn" data-page="index3.html">3</button>
+    <button class="page-btn" data-page="library.html">4</button>
+  </div>
+
+
+<footer>
+  <div class="footer-owner">
+    <img src="https://files.catbox.moe/gt8dvw.png">
+    <a href="#"><i class="fab fa-facebook"></i> Facebook</a>
+    <a href="#"><i class="fab fa-whatsapp"></i> WhatsApp</a>
+    <span><b style="color:#ff2079;">DAWENS SHOP</b></span>
+  </div>
+  <p>© 2025 DAWENS SHOP — Tous droits réservés.</p>
+</footer>
+
+<script>
+const openCart = document.getElementById("openCart");
+const closeCart = document.getElementById("closeCart");
+const cartPanel = document.getElementById("cartPanel");
+
+openCart.onclick = () => cartPanel.classList.add("open");
+closeCart.onclick = () => cartPanel.classList.remove("open");
+
+const cards = document.querySelectorAll(".card");
+const searchInput = document.getElementById("searchInput");
+
+searchInput.addEventListener("input", () => {
+   const q = searchInput.value.toLowerCase();
+   cards.forEach(c => {
+      const title = c.querySelector("h3").textContent.toLowerCase();
+      c.classList.toggle("hidden", !title.includes(q));
+   });
+});
+
+// Seleksyon tout bouton pagination
+const pageButtons = document.querySelectorAll('.page-btn');
+
+// Ajoute click event sou chak bouton
+pageButtons.forEach(btn => {
+    btn.addEventListener('click', () => {
+        const page = btn.dataset.page; // pran url nan data-page
+        if(page) {
+            // Chanje paj la
+            window.location.href = page;
+        }
+    });
+});
+</script>
+
+</body>
+</html>

@@ -34,11 +34,69 @@
     .cart-panel { position:fixed; top:0; left:-300px; width:260px; height:100%; background:#fff; box-shadow:3px 0 10px rgba(0,0,0,0.1); padding:20px; transition:left 0.3s ease; z-index:25; }
     .cart-panel.open { left:0; }
     footer { text-align:center; padding:15px; font-size:13px; color:#777; background:#fff; border-top:1px solid #ddd; margin-top:30px; }
-    .pager { display:flex; justify-content:center; align-items:center; gap:8px; margin-top:25px; }
-    .page-btn { background:#2f855a; color:white; border:none; padding:6px 12px; border-radius:6px; cursor:pointer; font-size:14px; transition:background 0.2s; }
-    .page-btn:hover { background:#276749; }
-    .page-btn.active { background:#1e5034; }
-    .small { color:#555; font-size:13px; }
+    /* ================== PAGINATION PRO ================== */
+.pager {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    margin: 30px 0;
+    flex-wrap: wrap;
+}
+
+/* Bouton nòmal */
+.page-btn {
+    padding: 10px 16px;
+    background: #ffffff;
+    border: 1px solid #cdd6e0;
+    border-radius: 10px;
+    font-size: 15px;
+    font-weight: 600;
+    color: #2b9ed8; /* accent ble */
+    cursor: pointer;
+    transition: all 0.25s ease;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+}
+
+/* Hover bouton */
+.page-btn:hover {
+    background: #2b9ed8;
+    color: #fff;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 18px rgba(0,0,0,0.12);
+}
+
+/* Bouton Prev/Next */
+.page-btn.prev, 
+.page-btn.next {
+    font-weight: 700;
+    background: #f0f4f8;
+    border-color: #cdd6e0;
+}
+.page-btn.prev:hover, 
+.page-btn.next:hover {
+    background: #2b9ed8;
+    color: #fff;
+}
+
+/* Bouton aktif */
+.page-btn.active {
+    background: #2b9ed8;
+    color: #fff;
+    border-color: #2b9ed8;
+    box-shadow: 0 6px 18px rgba(0,0,0,0.15);
+}
+
+/* Responsive */
+@media (max-width: 480px) {
+    .pager {
+        gap: 6px;
+    }
+    .page-btn {
+        padding: 8px 12px;
+        font-size: 14px;
+    }
+}
 
 /* =====================================
 BOT ICON
@@ -183,18 +241,17 @@ transition: transform 0.3s;
 <div class="side-menu" id="sideMenu">
   <button class="close-btn" id="closeMenu">×</button>
   <ul>
-    <li><a href="public/login.html">Connexion</a></li>
-    <li><a href="index.html">Accueil</a></li>
-    <li><a href="public/Apple.html">Apple Card</a></li>
-    <li><a href="public/exchange.html">Exchange</a></li>
-    <li><a href="publicwallet.html">Mon Portefeuille</a></li>
-    <li><a href="public/parameter.html">Paramètres</a></li>
+    <li><a href="index1.html">Accueil</a></li>
+    <li><a href="Support/Apple.html">Apple Card</a></li>
+    <li><a href="Support/exchange.html">Exchange</a></li>
+    <li><a href="Support/wallet.html">Mon Portefeuille</a></li>
+    <li><a href="Support/parameter.html">Paramètres</a></li>
     <li class="support-item">
       <a href="#" id="supportLink">Support ▼</a>
       <ul class="submenu" id="supportSubmenu" style="display:none; margin-left:15px;">
-        <li><a href="public/tuto.html">Tutoriel</a></li>
-        <li><a href="public/assistant.html">Assistant</a></li>
-        <li><a href="public/politique.html">Politique & Confidentialité</a></li>
+        <li><a href="Support/tuto2.html">Tutoriel</a></li>
+        <li><a href="Support/assistant.html">Assistant</a></li>
+        <li><a href="Support/politique.html">Politique & Confidentialité</a></li>
       </ul>
     </li>
   </ul>
@@ -215,9 +272,9 @@ transition: transform 0.3s;
 </div>
  <!-- Top Navigation Buttons -->
 <div class="top-buttons">
-  <button class="nav-btn" data-page="feature/shop.html"><i class="fa-solid fa-store"></i> Shop</button>
+  <button class="nav-btn" data-page="index3.html"><i class="fa-solid fa-store"></i> Shop</button>
   <button class="nav-btn" data-page="feature/service.html"><i class="fa-solid fa-hand-holding-heart"></i> Services</button>
-  <button class="nav-btn" data-page="feature/Movie.html"><i class="fa-solid fa-bolt"></i> Movie</button>
+  <button class="nav-btn" data-page="movie.html"><i class="fa-solid fa-bolt"></i> Movie</button>
   <button class="nav-btn" data-page="feature/offers.html"><i class="fa-solid fa-tags"></i> Offers</button>
 </div>
 
@@ -240,9 +297,11 @@ transition: transform 0.3s;
   </div>
 
   <div class="pager" id="pager">
-    <button class="page-btn" data-page="index.html">1</button>
-    <button class="page-btn active" data-page="index2.html">2</button>
+    <button class="page-btn prev" data-page="index1.html">← Prev</button>
+    <button class="page-btn" data-page="index1.html">1</button>
+    <button class="page-btn" data-page="index2.html">2</button>
     <button class="page-btn" data-page="index3.html">3</button>
+    <button class="page-btn next" data-page="index3.html">Next →</button>
   </div>
 </main>
 
@@ -252,7 +311,7 @@ transition: transform 0.3s;
 
 <!-- BOT ICON -->
 <div class="bot-icon" onclick="window.location.href='Films/Film-bot.html'">
-<img src="https://files.catbox.moe/ahb736.png" alt="Bot Shop">
+<img src="https://files.catbox.moe/yvd8nt.png" alt="Bot Shop">
 </div>
 
 <script>
@@ -264,6 +323,7 @@ const closeCart = document.getElementById('closeCart');
 const cartPanel = document.getElementById('cartPanel');
 const supportLink = document.getElementById("supportLink");
 const supportSubmenu = document.getElementById("supportSubmenu");
+
 
 // Menu toggle
 openMenu.addEventListener('click', () => sideMenu.classList.add('open'));
@@ -366,7 +426,14 @@ function showPromoBanner() {
 setTimeout(showPromoBanner, 1000);
 
 // Apre sa montre chak 20s
-setInterval(showPromoBanner, 20000);
+setInterval(showPromoBanner, 30000);
+
+document.querySelectorAll('.page-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const page = btn.getAttribute('data-page');
+    if (page) window.location.href = page;
+  });
+});
 </script>
 </body>
 </html>
