@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Films-Bot 🎬</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+  /* --- Reset --- */
+  * { box-sizing: border-box; margin:0; padding:0; font-family:Poppins, sans-serif;}
+  body { background:#0b0f1a; color:#fff; height:100vh; display:flex; flex-direction:column; }
+
+  /* --- Header --- */
+  header { background: linear-gradient(90deg,#7C3AED,#06b6d4); padding:15px 20px; display:flex; justify-content:space-between; align-items:center; box-shadow:0 4px 10px rgba(0,0,0,0.3);}
+  header h1 { font-size:22px; }
+  #menu-btn { font-size:24px; cursor:pointer; }
+
+  /* --- Menu --- */
+  #menu { display:none; position:absolute; top:60px; right:20px; background:#1a1f34; border-radius:12px; padding:10px; box-shadow:0 4px 12px rgba(0,0,0,0.5);}
+  #menu a { display:block; padding:10px 15px; text-decoration:none; color:#fff; border-radius:8px; margin-bottom:5px; transition:0.2s; }
+  #menu a:hover { background:rgba(124,58,237,0.3); }
+
+  /* --- Chat Container --- */
+  #chat-container { flex:1; display:flex; flex-direction:column; padding:10px; overflow:hidden; }
+  #messages { flex:1; overflow-y:auto; padding:10px; scrollbar-width:thin; scrollbar-color:#7C3AED transparent; }
+  #messages::-webkit-scrollbar { width:6px; }
+  #messages::-webkit-scrollbar-thumb { background:#7C3AED; border-radius:3px; }
+
+  /* --- Messages --- */
+  .message { display:flex; align-items:flex-start; margin-bottom:12px; animation:fadeIn 0.3s ease; }
+  .message img { width:50px; height:50px; border-radius:50%; margin-right:10px; object-fit:cover; }
+  .message-content { max-width:70%; background:#1a1f34; padding:12px; border-radius:12px; box-shadow:0 2px 6px rgba(0,0,0,0.3); line-height:1.4; }
+  .user { flex-direction:row-reverse; }
+  .user .message-content { background:#4A90E2; }
+  @keyframes fadeIn { from{opacity:0; transform:translateY(10px);} to{opacity:1; transform:translateY(0);} }
+
+  /* --- Input Container --- */
+  #input-container { display:flex; padding:10px; background:#1a1f34; border-top:1px solid rgba(255,255,255,0.1); border-radius:12px; align-items:center; gap:5px; }
+  #input-container input[type=text] { flex:1; padding:10px 15px; border-radius:20px; border:none; outline:none; background:#0f1724; color:#fff; }
+  #input-container button { padding:10px; border:none; border-radius:50%; background:#7C3AED; color:#fff; cursor:pointer; font-size:18px; transition:0.2s; }
+  #input-container button:hover { opacity:0.85; }
+
+  /* --- Emoji Picker --- */
+  #emoji-picker { position:absolute; bottom:70px; left:15px; display:none; background:#1a1f34; border-radius:10px; padding:10px; max-width:300px; max-height:200px; overflow:auto; box-shadow:0 4px 12px rgba(0,0,0,0.5); }
+  #emoji-picker span { font-size:22px; margin:4px; cursor:pointer; transition:0.2s; }
+  #emoji-picker span:hover { transform:scale(1.2); }
+
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Films-Bot 🎬</h1>
+  <i class="fa fa-bars" id="menu-btn"></i>
+</header>
+
+<div id="menu">
+  <a href="tuto.html" target="_blank">Tutoriel</a>
+  <a href="assistant.html" target="_blank">Assistant</a>
+  <a href="politique.html" target="_blank">Politique</a>
+  <a href="apple.html" target="_blank">Apple Card</a>
+  <a href="exchange.html" target="_blank">Exchange</a>
+  <a href="wallet.html" target="_blank">Mon portefeuille</a>
+</div>
+
+<div id="chat-container">
+  <div id="messages"></div>
+  <div id="input-container">
+    <button id="emoji-btn">😊</button>
+    <input type="text" id="user-input" placeholder="Tapez un message...">
+    <button id="send-btn"><i class="fa fa-paper-plane"></i></button>
+    <button id="voice-btn"><i class="fa fa-microphone"></i></button>
+    <input type="file" id="upload-photo" style="display:none;">
+    <button id="upload-btn"><i class="fa fa-image"></i></button>
+  </div>
+  <div id="emoji-picker">
+    <span>😀</span><span>😂</span><span>😍</span><span>😎</span><span>🤔</span>
+    <span>👍</span><span>🙏</span><span>💖</span><span>🔥</span><span>🥳</span>
+  </div>
+</div>
+
+<script>
+const menuBtn = document.getElementById('menu-btn');
+const menu = document.getElementById('menu');
+menuBtn.addEventListener('click', () => { 
+  menu.style.display = menu.style.display === 'block' ? 'none' : 'block'; 
+});
+
+const emojiBtn = document.getElementById('emoji-btn');
+const emojiPicker = document.getElementById('emoji-picker');
+const userInput = document.getElementById('user-input');
+emojiBtn.addEventListener('click', () => { 
+  emojiPicker.style.display = emojiPicker.style.display === 'block' ? 'none' : 'block'; 
+});
+emojiPicker.querySelectorAll('span').forEach(emoji => { 
+  emoji.addEventListener('click', () => { userInput.value += emoji.textContent; }); 
+});
+
+const messages = document.getElementById('messages');
+let userPhoto = 'https://files.catbox.moe/j8obz7.png'; // User avatar
+let botPhoto = 'https://files.catbox.moe/yvd8nt.png'; // Bot avatar
+
+function addMessage(text, sender='user', photo=null){
+  const msg = document.createElement('div');
+  msg.classList.add('message', sender);
+  const img = document.createElement('img');
+  img.src = photo || (sender==='user' ? userPhoto : botPhoto);
+  const content = document.createElement('div');
+  content.classList.add('message-content');
+  content.textContent = text;
+  msg.appendChild(img);
+  msg.appendChild(content);
+  messages.appendChild(msg);
+  messages.scrollTop = messages.scrollHeight;
+}
+
+document.getElementById('send-btn').addEventListener('click', () => {
+  const text = userInput.value.trim();
+  if(text){
+    addMessage(text,'user',userPhoto);
+    userInput.value='';
+    sendToBackend(text);
+  }
+});
+
+const uploadBtn = document.getElementById('upload-btn');
+const uploadInput = document.getElementById('upload-photo');
+uploadBtn.addEventListener('click', ()=>uploadInput.click());
+uploadInput.addEventListener('change', ()=>{
+  const file = uploadInput.files[0];
+  if(file){
+    const reader = new FileReader();
+    reader.onload = e => { addMessage('📷 Photo envoyée','user',e.target.result); };
+    reader.readAsDataURL(file);
+  }
+});
+
+const voiceBtn = document.getElementById('voice-btn');
+let recognition;
+if('webkitSpeechRecognition' in window){
+  recognition = new webkitSpeechRecognition();
+  recognition.lang='fr-FR';
+  recognition.continuous=false;
+  recognition.interimResults=false;
+  recognition.onresult=e=>{
+    const transcript=e.results[0][0].transcript;
+    addMessage(transcript,'user',userPhoto);
+    sendToBackend(transcript);
+  }
+}
+voiceBtn.addEventListener('click', ()=>{ if(recognition) recognition.start(); });
+
+// --- Backend integration ---
+async function sendToBackend(prompt){
+  addMessage("🤖 ... en train de réfléchir",'bot',botPhoto);
+
+  try {
+    // Rele backend endpoint ou a, ki pral voye demann OpenAI
+    const response = await fetch('/api/chat', { // <-- backend endpoint
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ prompt })
+    });
+    const data = await response.json();
+    addMessage(data.reply || "⚠️ Pas de réponse",'bot',botPhoto);
+  } catch(err){
+    console.error(err);
+    addMessage("⚠️ Une erreur est survenue avec le backend",'bot',botPhoto);
+  }
+}
+
+window.onload = ()=>{
+  addMessage("Bonjour! Je suis Films-Bot 🎬. Je peux vous recommander des films et répondre à vos questions sur les films.",'bot',botPhoto);
+};
+</script>
+
+</body>
+</html>
