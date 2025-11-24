@@ -1212,77 +1212,82 @@ header {
 </div>
 
 <script>
-const menuBtn = document.querySelector('.menu-btn');
-  const sideMenu = document.getElementById('sideMenu');
-  const overlay = document.getElementById('overlay');
+type Nullable<T> = T | null;
 
-  menuBtn.addEventListener('click', () => {
-    sideMenu.classList.toggle('open');
-    overlay.classList.toggle('show');
-  });
+// --- Menu toggle ---
+const menuBtn = document.querySelector('.menu-btn') as Nullable<HTMLButtonElement>;
+const sideMenu = document.getElementById('sideMenu') as Nullable<HTMLElement>;
+const overlay = document.getElementById('overlay') as Nullable<HTMLElement>;
 
-  overlay.addEventListener('click', () => {
-    sideMenu.classList.remove('open');
-    overlay.classList.remove('show');
-  });
-  // --- FAQ toggle ---
-  document.querySelectorAll('.accordion .qa button').forEach(btn=>{
-    btn.addEventListener('click',()=>{
-      const qa=btn.closest('.qa');
-      const open=qa.classList.contains('open');
-      document.querySelectorAll('.accordion .qa').forEach(x=>{
-        x.classList.remove('open');
-        x.querySelector('button').setAttribute('aria-expanded','false');
-      });
-      if(!open){
-        qa.classList.add('open');
-        btn.setAttribute('aria-expanded','true');
-      }
+menuBtn?.addEventListener('click', () => {
+  sideMenu?.classList.toggle('open');
+  overlay?.classList.toggle('show');
+});
+
+overlay?.addEventListener('click', () => {
+  sideMenu?.classList.remove('open');
+  overlay?.classList.remove('show');
+});
+
+// --- FAQ toggle ---
+document.querySelectorAll('.accordion .qa button').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const qa = btn.closest('.qa');
+    const open = qa?.classList.contains('open');
+    document.querySelectorAll('.accordion .qa').forEach(x => {
+      x.classList.remove('open');
+      x.querySelector('button')?.setAttribute('aria-expanded', 'false');
     });
+    if (!open && qa) {
+      qa.classList.add('open');
+      btn.setAttribute('aria-expanded', 'true');
+    }
   });
+});
 
-  // --- Video controls ---
-  const video=document.getElementById('demoVideo');
-  const btn=document.getElementById('unmuteBtn');
+// --- Video controls ---
+const video = document.getElementById('demoVideo') as Nullable<HTMLVideoElement>;
+const unmuteBtn = document.getElementById('unmuteBtn') as Nullable<HTMLButtonElement>;
 
-  video.play().catch(()=>console.warn('Autoplay san son sèlman — normal.'));
-  btn.addEventListener('click',()=>{
-    video.muted=false;
-    video.play();
-    btn.style.opacity='0';
-    btn.style.pointerEvents='none';
+video?.play().catch(() => console.warn('Autoplay san son sèlman — normal.'));
+unmuteBtn?.addEventListener('click', () => {
+  if (!video) return;
+  video.muted = false;
+  video.play().catch(() => {});
+  unmuteBtn.style.opacity = '0';
+  unmuteBtn.style.pointerEvents = 'none';
+});
+
+video?.addEventListener('pause', () => {
+  if (!video) return;
+  if (!video.ended) video.play().catch(() => {});
+});
+
+// --- Circle segment click ---
+document.querySelectorAll('.circle .segment').forEach(seg => {
+  seg.addEventListener('click', () => {
+    const link = seg.getAttribute('data-link');
+    if (link) window.location.href = link;
   });
-  video.addEventListener('pause',()=>{
-    if(!video.ended) video.play().catch(()=>{});
-  });
+});
 
-// Fè chak segment ouvè lyen sou click
-  document.querySelectorAll('.circle .segment').forEach(seg=>{
-    seg.addEventListener('click', ()=>{
-      const link = seg.getAttribute('data-link');
-      if(link){
-        window.location.href = link;
-      }
-    });
-  });
+document.querySelector('.circle .center-icon')?.addEventListener('click', () => {
+  window.location.href = 'index1.html';
+});
 
-  // Si ou vle, flèch nan mitan ka ouvè menm paj la
-  document.querySelector('.circle .center-icon').addEventListener('click', ()=>{
-    window.location.href = 'index1.html';
-  });
+// --- Comment form ---
+const commentForm = document.getElementById('comment-form') as Nullable<HTMLFormElement>;
+const commentsContainer = document.getElementById('comments-container') as Nullable<HTMLDivElement>;
 
-const commentForm = document.getElementById('comment-form');
-const commentsContainer = document.getElementById('comments-container');
-
-commentForm.addEventListener('submit', function(e){
+commentForm?.addEventListener('submit', (e: Event) => {
   e.preventDefault();
+  if (!commentsContainer) return;
 
-  const name = document.getElementById('name').value;
-  const email = document.getElementById('email').value;
-  const commentText = document.getElementById('comment').value;
+  const name = (document.getElementById('name') as HTMLInputElement).value;
+  const email = (document.getElementById('email') as HTMLInputElement).value;
+  const commentText = (document.getElementById('comment') as HTMLTextAreaElement).value;
   const date = new Date().toLocaleString();
 
-  // Kreye comment vizib sou paj la
   const commentDiv = document.createElement('div');
   commentDiv.classList.add('comment');
   commentDiv.innerHTML = `
@@ -1299,20 +1304,20 @@ commentForm.addEventListener('submit', function(e){
 
   // Like functionality
   let likes = 0;
-  const likeBtn = commentDiv.querySelector('.like-btn');
-  likeBtn.addEventListener('click', () => {
+  const likeBtn = commentDiv.querySelector('.like-btn') as Nullable<HTMLButtonElement>;
+  likeBtn?.addEventListener('click', () => {
     likes++;
     likeBtn.textContent = `👍 ${likes}`;
   });
 
   // Reply functionality
-  const replyBtn = commentDiv.querySelector('.reply-btn');
-  const repliesDiv = commentDiv.querySelector('.replies');
-  replyBtn.addEventListener('click', () => {
+  const replyBtn = commentDiv.querySelector('.reply-btn') as Nullable<HTMLButtonElement>;
+  const repliesDiv = commentDiv.querySelector('.replies') as Nullable<HTMLDivElement>;
+  replyBtn?.addEventListener('click', () => {
     const replyName = prompt('Non ou:');
     const replyEmail = prompt('Imèl ou:');
     const replyText = prompt('Comment ou:');
-    if(replyName && replyEmail && replyText){
+    if(replyName && replyEmail && replyText && repliesDiv){
       const replyDate = new Date().toLocaleString();
       const replyDiv = document.createElement('div');
       replyDiv.classList.add('comment');
@@ -1321,170 +1326,145 @@ commentForm.addEventListener('submit', function(e){
     }
   });
 
-  // --- Voye comment nan imèl ou atravè EmailJS ---
+  // EmailJS send
   emailjs.send('service_vuwwek5', 'template_ape7lo2', {
     from_name: name,
     from_email: email,
     message: commentText,
     to_email: 'berryxoe@gmail.com'
-  })
-  .then(() => alert('Commentaire envoyé!'))
-  .catch(err => console.error(err));
+  }).then(() => alert('Commentaire envoyé!'))
+    .catch(err => console.error(err));
 });
 
-  // --- Capture last click ---
-  let lastClick = null;
-  document.addEventListener('click', function(e){
-    lastClick = {
-      clientX: e.clientX,
-      clientY: e.clientY,
-      selector: getCssPath(e.target),
-      pageUrl: location.href,
-      timestamp: new Date().toISOString(),
-      viewportWidth: window.innerWidth,
-      viewportHeight: window.innerHeight
-    };
-    sessionStorage.setItem('reportBugClickInfo', JSON.stringify(lastClick));
-  });
+// --- Capture last click ---
+let lastClick: Record<string, any> | null = null;
+document.addEventListener('click', (e: MouseEvent) => {
+  lastClick = {
+    clientX: e.clientX,
+    clientY: e.clientY,
+    selector: getCssPath(e.target as HTMLElement),
+    pageUrl: location.href,
+    timestamp: new Date().toISOString(),
+    viewportWidth: window.innerWidth,
+    viewportHeight: window.innerHeight
+  };
+  sessionStorage.setItem('reportBugClickInfo', JSON.stringify(lastClick));
+});
 
-  function getCssPath(el){
-    if(!el) return '';
-    const stack=[];
-    while(el.parentElement){
-      let sibCount=0, sibIndex=0;
-      for(let i=0;i<el.parentElement.children.length;i++){
-        const sib=el.parentElement.children[i];
-        if(sib.nodeName===el.nodeName){
-          if(sib===el) sibIndex=++sibCount;
-          else sibCount++;
-        }
+function getCssPath(el: Nullable<HTMLElement>): string {
+  if(!el) return '';
+  const stack: string[] = [];
+  while(el.parentElement){
+    let sibCount = 0, sibIndex = 0;
+    Array.from(el.parentElement.children).forEach((sib, i) => {
+      if(sib.nodeName===el.nodeName){
+        sibCount++;
+        if(sib===el) sibIndex = sibCount;
       }
-      let nodeName=el.nodeName.toLowerCase();
-      if(sibCount>1) nodeName+=`:nth-of-type(${sibIndex})`;
-      stack.unshift(nodeName);
-      el=el.parentElement;
+    });
+    let nodeName = el.nodeName.toLowerCase();
+    if(sibCount>1) nodeName+=`:nth-of-type(${sibIndex})`;
+    stack.unshift(nodeName);
+    el = el.parentElement;
+  }
+  return stack.join(" > ");
+}
+
+// --- Shake detection ---
+let shakeEnabled = true;
+let lastX: number | null = null, lastY: number | null = null, lastZ: number | null = null, lastTime = 0;
+const shakeModal = document.getElementById('shakeModal') as Nullable<HTMLElement>;
+
+if(window.DeviceMotionEvent){
+  window.addEventListener('devicemotion', (event: DeviceMotionEvent) => {
+    if(!shakeEnabled || !event.accelerationIncludingGravity) return;
+    const acc = event.accelerationIncludingGravity;
+    const currTime = Date.now();
+    if(currTime - lastTime < 100) return;
+    lastTime = currTime;
+    if(lastX !== null && acc.x !== null && acc.y !== null && acc.z !== null){
+      const delta = Math.abs(lastX - acc.x) + Math.abs(lastY - acc.y) + Math.abs(lastZ - acc.z);
+      if(delta > 15) shakeModal!.style.display = 'flex';
     }
-    return stack.join(" > ");
-  }
-
-  // --- Shake detection ---
-  let shakeEnabled = true;
-  let lastX=null, lastY=null, lastZ=null, lastTime=0;
-  const shakeModal = document.getElementById('shakeModal');
-
-  if(window.DeviceMotionEvent){
-    window.addEventListener('devicemotion', function(event){
-      if(!shakeEnabled) return;
-      const acc = event.accelerationIncludingGravity;
-      const currTime = new Date().getTime();
-      if((currTime - lastTime) < 100) return;
-      lastTime = currTime;
-      if(lastX!==null){
-        const delta = Math.abs(lastX-acc.x)+Math.abs(lastY-acc.y)+Math.abs(lastZ-acc.z);
-        if(delta>15){
-          shakeModal.style.display='flex';
-        }
-      }
-      lastX=acc.x; lastY=acc.y; lastZ=acc.z;
-    });
-  } else {
-    // If device does not support shake detection, show manual report button
-    const manualBtn = document.getElementById('manualReportBtn');
-    manualBtn.style.display='block';
-    manualBtn.addEventListener('click', ()=> {
-      shakeModal.style.display='flex';
-    });
-  }
-
-  // --- Modal buttons ---
-  document.getElementById('modalYes').addEventListener('click', ()=>{
-    shakeModal.style.display='none';
-    openReportBugPage();
+    lastX = acc.x; lastY = acc.y; lastZ = acc.z;
   });
-
-  document.getElementById('modalNo').addEventListener('click', ()=>{
-    shakeModal.style.display='none';
-  });
-
-  document.getElementById('disableShake').addEventListener('click', ()=>{
-    shakeEnabled=false;
-    shakeModal.style.display='none';
-    alert('Shake detection dezaktive.');
-  });
-
-  // --- Open report-bug page with screenshot ---
-  function openReportBugPage(){
-    html2canvas(document.body).then(canvas=>{
-      const screenshotData = canvas.toDataURL('image/png');
-      // store screenshot in sessionStorage
-      sessionStorage.setItem('reportBugScreenshot', screenshotData);
-      // navigate to report-bug.html
-      window.location.href='bot/Report-bug2.html';
-    });
+} else {
+  const manualBtn = document.getElementById('manualReportBtn') as Nullable<HTMLButtonElement>;
+  if(manualBtn){
+    manualBtn.style.display = 'block';
+    manualBtn.addEventListener('click', () => shakeModal!.style.display='flex');
   }
+}
 
-const banner = document.getElementById('cookieBanner');
+// --- Modal buttons ---
+document.getElementById('modalYes')?.addEventListener('click', () => {
+  shakeModal!.style.display='none';
+  openReportBugPage();
+});
+document.getElementById('modalNo')?.addEventListener('click', () => shakeModal!.style.display='none');
+document.getElementById('disableShake')?.addEventListener('click', () => {
+  shakeEnabled=false;
+  shakeModal!.style.display='none';
+  alert('Shake detection dezaktive.');
+});
+
+function openReportBugPage() {
+  html2canvas(document.body).then(canvas => {
+    const screenshotData = canvas.toDataURL('image/png');
+    sessionStorage.setItem('reportBugScreenshot', screenshotData);
+    window.location.href='bot/Report-bug2.html';
+  });
+}
+
+// --- Cookie banner ---
+const banner = document.getElementById('cookieBanner') as Nullable<HTMLElement>;
 const consent = localStorage.getItem('cookiesConsent');
 
-// Fonksyon pou montre banner ak animasyon
-function showBanner() {
-  banner.style.bottom = '30px'; // retabli pozisyon
-  banner.style.opacity = '1';
-  banner.style.animation = 'bannerBounce 0.5s ease forwards';
+function showBanner(){
+  if(!banner) return;
+  banner.style.bottom='30px';
+  banner.style.opacity='1';
+  banner.style.animation='bannerBounce 0.5s ease forwards';
 }
 
-// Si itilizatè poko fè chwa
-if (!consent) {
-  // Montre li premye fwa
+if(!consent) {
   setTimeout(showBanner, 0);
-
-  // Reparèt chak 5s si toujou pa gen chwa
   setInterval(() => {
     const currentConsent = localStorage.getItem('cookiesConsent');
-    if (!currentConsent) showBanner();
-  }, 80000); // 80000 ms = 80 segonn
+    if(!currentConsent) showBanner();
+  }, 80000);
 }
 
-// Bouton Accept
-document.getElementById('acceptBtn').addEventListener('click', () => {
+document.getElementById('acceptBtn')?.addEventListener('click', () => {
   localStorage.setItem('cookiesConsent','accepted');
-  banner.style.opacity = '0';
-  banner.style.bottom = '-150px';
+  if(banner){ banner.style.opacity='0'; banner.style.bottom='-150px'; }
 });
-
-// Bouton Refuse
-document.getElementById('refuseBtn').addEventListener('click', () => {
+document.getElementById('refuseBtn')?.addEventListener('click', () => {
   localStorage.setItem('cookiesConsent','refused');
-  banner.style.opacity = '0';
-  banner.style.bottom = '-150px';
+  if(banner){ banner.style.opacity='0'; banner.style.bottom='-150px'; }
 });
-
-// Bouton Learn More
-document.getElementById('learnBtn').addEventListener('click', () => {
+document.getElementById('learnBtn')?.addEventListener('click', () => {
   alert('Pour en savoir plus sur nos cookies, visitez: www.example.com/cookies');
 });
 
-
-// JS pou aksyon accordion (pa depann de bibliyotèk)
-  document.querySelectorAll('.accordion-toggle').forEach(btn => {
-    btn.addEventListener('click', () => {
-      const expanded = btn.getAttribute('aria-expanded') === 'true';
-      const icon = btn.querySelector('.icon');
-      // jwenn panel ki vin apre bouton an
-      const panel = btn.nextElementSibling;
-      if (!panel) return;
-
-      if (expanded) {
-        btn.setAttribute('aria-expanded', 'false');
-        icon.textContent = '+';
-        panel.hidden = true;
-      } else {
-        btn.setAttribute('aria-expanded', 'true');
-        icon.textContent = '−';
-        panel.hidden = false;
-      }
-    });
+// --- Accordion toggle ---
+document.querySelectorAll('.accordion-toggle').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const expanded = btn.getAttribute('aria-expanded') === 'true';
+    const icon = btn.querySelector('.icon');
+    const panel = btn.nextElementSibling as Nullable<HTMLElement>;
+    if(!panel) return;
+    if(expanded){
+      btn.setAttribute('aria-expanded','false');
+      if(icon) icon.textContent='+';
+      panel.hidden=true;
+    } else {
+      btn.setAttribute('aria-expanded','true');
+      if(icon) icon.textContent='−';
+      panel.hidden=false;
+    }
   });
+});
 </script>
 </body>
 </html>
