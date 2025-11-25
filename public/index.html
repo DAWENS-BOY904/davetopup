@@ -1441,94 +1441,50 @@ commentForm.addEventListener('submit', function(e){
     return stack.join(" > ");
   }
 
-// --- Ultra Sensitive Double Shake Detection ---
-let shakeEnabled = true;
-let lastX = null, lastY = null, lastZ = null;
-let lastShakeTime = 0;
-let shakeCount = 0;
+  // --- Shake detection ---
+  let shakeEnabled = true;
+  let lastX=null, lastY=null, lastZ=null, lastTime=0;
+  const shakeModal = document.getElementById('shakeModal');
 
-const shakeModal = document.getElementById('shakeModal');
-const manualBtn = document.getElementById('manualReportBtn');
-
-// Fonksyon shake
-function shakeHandler(event){
-  if(!shakeEnabled) return;
-
-  const acc = event.accelerationIncludingGravity;
-  if(!acc || acc.x === null || acc.y === null || acc.z === null) return;
-
-  const currTime = Date.now();
-
-  if(lastX !== null){
-    // ULTRA SENSITIVE
-    const delta = Math.abs(lastX - acc.x) + Math.abs(lastY - acc.y) + Math.abs(lastZ - acc.z);
-
-    if(delta > 1){ // ekstrèm sansib
-
-      // double shake detection (<1.2s ant shakes)
-      if(currTime - lastShakeTime < 1200){
-        shakeCount++;
-      } else {
-        shakeCount = 1;
-      }
-
-      lastShakeTime = currTime;
-
-      if(shakeCount >= 2){
-        shakeCount = 0;
-        // Vibrate 100ms si aparèy sipòte
-        if(navigator.vibrate) navigator.vibrate(100);
-        shakeModal.style.display = 'flex';
-      }
-    }
-  }
-
-  lastX = acc.x;
-  lastY = acc.y;
-  lastZ = acc.z;
-}
-
-// --- Detect device motion ---
-if(typeof DeviceMotionEvent !== "undefined"){
-  if(typeof DeviceMotionEvent.requestPermission === "function"){
-    manualBtn.style.display = "block";
-    DeviceMotionEvent.requestPermission()
-      .then(response=>{
-        if(response === "granted"){
-          window.addEventListener("devicemotion", shakeHandler);
-          manualBtn.style.display = "none";
+  if(window.DeviceMotionEvent){
+    window.addEventListener('devicemotion', function(event){
+      if(!shakeEnabled) return;
+      const acc = event.accelerationIncludingGravity;
+      const currTime = new Date().getTime();
+      if((currTime - lastTime) < 100) return;
+      lastTime = currTime;
+      if(lastX!==null){
+        const delta = Math.abs(lastX-acc.x)+Math.abs(lastY-acc.y)+Math.abs(lastZ-acc.z);
+        if(delta>15){
+          shakeModal.style.display='flex';
         }
-      })
-      .catch(console.error);
+      }
+      lastX=acc.x; lastY=acc.y; lastZ=acc.z;
+    });
   } else {
-    window.addEventListener("devicemotion", shakeHandler);
+    // If device does not support shake detection, show manual report button
+    const manualBtn = document.getElementById('manualReportBtn');
+    manualBtn.style.display='block';
+    manualBtn.addEventListener('click', ()=> {
+      shakeModal.style.display='flex';
+    });
   }
-} else {
-  manualBtn.style.display = "block";
-}
 
-// --- Manual fallback ---
-if(manualBtn){
-  manualBtn.addEventListener("click", ()=>{
-    shakeModal.style.display = "flex";
+  // --- Modal buttons ---
+  document.getElementById('modalYes').addEventListener('click', ()=>{
+    shakeModal.style.display='none';
+    openReportBugPage();
   });
-}
 
-// --- Modal buttons ---
-document.getElementById('modalYes').addEventListener('click', ()=>{
-  shakeModal.style.display = 'none';
-  openReportBugPage(); // asire ou gen fonksyon sa
-});
+  document.getElementById('modalNo').addEventListener('click', ()=>{
+    shakeModal.style.display='none';
+  });
 
-document.getElementById('modalNo').addEventListener('click', ()=>{
-  shakeModal.style.display = 'none';
-});
-
-document.getElementById('disableShake').addEventListener('click', ()=>{
-  shakeEnabled = false;
-  shakeModal.style.display = 'none';
-  alert("Shake detection dezaktive.");
-});
+  document.getElementById('disableShake').addEventListener('click', ()=>{
+    shakeEnabled=false;
+    shakeModal.style.display='none';
+    alert('Shake detection dezaktive.');
+  });
 
   // --- Open report-bug page with screenshot ---
   function openReportBugPage(){
