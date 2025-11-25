@@ -1442,49 +1442,74 @@ commentForm.addEventListener('submit', function(e){
   }
 
   // --- Shake detection ---
-  let shakeEnabled = true;
-  let lastX=null, lastY=null, lastZ=null, lastTime=0;
-  const shakeModal = document.getElementById('shakeModal');
+let shakeEnabled = true;
+let lastX = null, lastY = null, lastZ = null, lastTime = 0;
+const shakeModal = document.getElementById('shakeModal');
+const manualBtn = document.getElementById('manualReportBtn');
 
-  if(window.DeviceMotionEvent){
-    window.addEventListener('devicemotion', function(event){
-      if(!shakeEnabled) return;
-      const acc = event.accelerationIncludingGravity;
-      const currTime = new Date().getTime();
-      if((currTime - lastTime) < 100) return;
-      lastTime = currTime;
-      if(lastX!==null){
-        const delta = Math.abs(lastX-acc.x)+Math.abs(lastY-acc.y)+Math.abs(lastZ-acc.z);
-        if(delta>15){
-          shakeModal.style.display='flex';
-        }
-      }
-      lastX=acc.x; lastY=acc.y; lastZ=acc.z;
-    });
-  } else {
-    // If device does not support shake detection, show manual report button
-    const manualBtn = document.getElementById('manualReportBtn');
-    manualBtn.style.display='block';
-    manualBtn.addEventListener('click', ()=> {
-      shakeModal.style.display='flex';
-    });
+// Shake handler
+function shakeHandler(event){
+  if(!shakeEnabled) return;
+  const acc = event.accelerationIncludingGravity;
+  if(!acc || acc.x===null || acc.y===null || acc.z===null) return;
+
+  const currTime = Date.now();
+  if(currTime - lastTime < 200) return; // debounce 200ms
+  lastTime = currTime;
+
+  if(lastX !== null){
+    const delta = Math.abs(lastX - acc.x) + Math.abs(lastY - acc.y) + Math.abs(lastZ - acc.z);
+    if(delta > 12){ // threshold ajustable
+      shakeModal.style.display = 'flex';
+    }
   }
+  lastX = acc.x; lastY = acc.y; lastZ = acc.z;
+}
 
-  // --- Modal buttons ---
-  document.getElementById('modalYes').addEventListener('click', ()=>{
-    shakeModal.style.display='none';
-    openReportBugPage();
-  });
+// --- Detect device motion ---
+if(typeof DeviceMotionEvent !== 'undefined'){
+  // iOS 13+ permission
+  if(typeof DeviceMotionEvent.requestPermission === 'function'){
+    manualBtn.style.display = 'block'; // montre bouton si permission pa bay
+    DeviceMotionEvent.requestPermission()
+      .then(response => {
+        if(response === 'granted'){
+          window.addEventListener('devicemotion', shakeHandler);
+          manualBtn.style.display = 'none';
+        }
+      })
+      .catch(err => console.error("DeviceMotion permission error:", err));
+  } else {
+    // Android / Desktop fallback
+    window.addEventListener('devicemotion', shakeHandler);
+  }
+} else {
+  // Device pa sipòte shake
+  manualBtn.style.display = 'block';
+}
 
-  document.getElementById('modalNo').addEventListener('click', ()=>{
-    shakeModal.style.display='none';
+// --- Manual button fallback ---
+if(manualBtn){
+  manualBtn.addEventListener('click', () => {
+    shakeModal.style.display = 'flex';
   });
+}
 
-  document.getElementById('disableShake').addEventListener('click', ()=>{
-    shakeEnabled=false;
-    shakeModal.style.display='none';
-    alert('Shake detection dezaktive.');
-  });
+// --- Modal buttons ---
+document.getElementById('modalYes').addEventListener('click', ()=>{
+  shakeModal.style.display = 'none';
+  openReportBugPage(); // ou dwe gen fonksyon sa
+});
+
+document.getElementById('modalNo').addEventListener('click', ()=>{
+  shakeModal.style.display = 'none';
+});
+
+document.getElementById('disableShake').addEventListener('click', ()=>{
+  shakeEnabled = false;
+  shakeModal.style.display = 'none';
+  alert('Shake detection dezaktive.');
+});
 
   // --- Open report-bug page with screenshot ---
   function openReportBugPage(){
