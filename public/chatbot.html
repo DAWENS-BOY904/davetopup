@@ -169,7 +169,7 @@ header h1 {font-size:20px;margin:0;}
 <!-- menu snippet -->
 <div id="menu">
   <a href="bot/library.html">library</a>
-  <a id="reportBugLink" href="bot/Report-bug.html">Report bug</a>
+  <a id="reportBugLink" href="Report-bug.html">Report bug</a>
   <a href="bot/setting.html">Setting</a>
 </div>
 
@@ -193,7 +193,7 @@ const input=document.getElementById('user-input');
 const themeBtn=document.getElementById('theme-btn');
 let darkMode=localStorage.getItem('theme')!=='light';
 let messageCount=0;
-let lastTime=localStorage.getItem('lastTime')||0;
+let lastTime=parseInt(localStorage.getItem('lastTime')||'0',10);
 
 // Initial Theme
 function applyTheme(){
@@ -222,49 +222,6 @@ document.getElementById('menu-btn').onclick=()=>{
   menu.style.display=menu.style.display==='block'?'none':'block';
 };
 
-function cssPathOf(el) {
-  if (!el) return '';
-  const stack = [];
-  while (el.parentElement) {
-    let sibCount = 0;
-    let sibIndex = 0;
-    for (let i = 0; i < el.parentElement.children.length; i++) {
-      const sib = el.parentElement.children[i];
-      if (sib.nodeName === el.nodeName) {
-        if (sib === el) sibIndex = ++sibCount;
-        else sibCount++;
-      }
-    }
-    let nodeName = el.nodeName.toLowerCase();
-    if (sibCount > 1) nodeName += `:nth-of-type(${sibIndex})`;
-    stack.unshift(nodeName);
-    el = el.parentElement;
-  }
-  return stack.length ? stack.join(" > ") : "";
-}
-
-document.getElementById('reportBugLink').addEventListener('click', function(ev){
-  try {
-    const x = ev.clientX;
-    const y = ev.clientY;
-    const target = ev.target;
-    const cssPath = cssPathOf(target);
-    const clickInfo = {
-      timestamp: new Date().toISOString(),
-      clientX: x,
-      clientY: y,
-      selector: cssPath,
-      pageUrl: location.href,
-      viewportWidth: window.innerWidth,
-      viewportHeight: window.innerHeight
-    };
-    sessionStorage.setItem('reportBugClickInfo', JSON.stringify(clickInfo));
-    // allow normal navigation to proceed
-  } catch(e) {
-    console.error('Could not store click info', e);
-  }
-});
-
 // Add message
 function addMessage(text,sender='user',photo){
   const msg=document.createElement('div');
@@ -280,96 +237,8 @@ function addMessage(text,sender='user',photo){
   messages.scrollTop=messages.scrollHeight;
 }
 
-// Upload photo
-document.getElementById('upload-photo').onchange = async e => {
-  const file = e.target.files[0];
-  if (!file) return;
-
-  const userMsg = prompt("Ajoute yon mesaj pou foto sa a (oswa kite vid pou seulement foto):");
-
-  const reader = new FileReader();
-  reader.onload = x => {
-    const imgData = x.target.result;
-
-    let content = `<img src="${imgData}" class="photo-preview">`;
-    if (userMsg && userMsg.trim() !== '') {
-      content += `<br>${userMsg}`;
-    }
-    addMessage(content, 'user');
-
-    // Save photo + optional message in library
-    saveToLibrary(imgData, userMsg);
-
-    // Voye tèks la nan Gemini si gen
-    if (userMsg && userMsg.trim() !== '') {
-      sendToGemini(userMsg);
-    }
-  };
-  reader.readAsDataURL(file);
-  e.target.value = '';
-};
-
-// Function to save image + message in localStorage library
-function saveToLibrary(imageData, message='') {
-  const library = JSON.parse(localStorage.getItem('chatLibrary')||'[]');
-  library.push({image: imageData, message, date: new Date().toISOString()});
-  localStorage.setItem('chatLibrary', JSON.stringify(library));
-}
-
-// Voice recognition
-let recognition;
-if('webkitSpeechRecognition' in window){
-  recognition=new webkitSpeechRecognition();
-  recognition.lang='fr-FR';
-  recognition.onresult=e=>{
-    const transcript=e.results[0][0].transcript;
-    addMessage(transcript,'user');
-    sendToGemini(transcript);
-  };
-}
-document.getElementById('mic-btn').onclick=()=>{
-  if(recognition) recognition.start();
-};
-
-  // Lis mo kle ilegal / ofansif
-const blockedWords = [
-  "hack", "pirate", "drugs", "kill", "violence", "terror", "illegal",
-  "sex", "nsfw", "bomb", "crime", "attack"
-];
-
-// Fonksyon pou verifye tèks
-function isTextAllowed(text) {
-  const lower = text.toLowerCase();
-  return !blockedWords.some(word => lower.includes(word));
-}
-
-// Modify bouton send
-document.getElementById('send-btn').onclick = () => {
-  const text = input.value.trim();
-  if (!text) return;
-
-  if(!isTextAllowed(text)) {
-    addMessage("🚫 Kesyon sa a entèdi. Eseye poze yon lòt kesyon.", 'bot', botPhoto);
-    input.value = '';
-    return;
-  }
-
-  addMessage(text, 'user');
-  sendToGemini(text);
-  input.value = '';
-};
-
-// Modify sendToGemini pou verifye mesaj ki soti nan foto / vwa
-async function sendToGemini(prompt){
-  if(!isTextAllowed(prompt)){
-    addMessage("🚫 Kesyon sa a entèdi. Eseye poze yon lòt kesyon.", 'bot', botPhoto);
-    return;
-  }
-
-  // … rès kòd Gemini la rete menm jan
-}
-// Gemini Call dirèk
-async function sendToGemini(prompt){
+// Gemini/OpenAI fallback
+async function sendMessage(prompt){
   if(messageCount>=50){
     const now=Date.now();
     if(now-lastTime<86400000){
@@ -379,37 +248,59 @@ async function sendToGemini(prompt){
   }
   messageCount++;
   localStorage.setItem('lastTime',Date.now());
-
   const lang=document.getElementById('lang').value;
   addMessage('<i>Le bot réfléchit...</i>','bot',botPhoto);
 
-  // Mete API key ou la a
-  const GEMINI_API_KEY = "AIzaSyB7URXCSpZtdCdKCjBGkvV27nLURDDn1FM"; // <-- mete kle w isit
+  // Eseye Gemini si gen kle
+  const GEMINI_API_KEY = "YOUR_GEMINI_KEY"; // mete kle w si ou genyen
 
   try {
-    const res = await fetch("https://api.gemini.com/v1/complete", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": `Bearer ${GEMINI_API_KEY}`
+    if(GEMINI_API_KEY && GEMINI_API_KEY!=="AIzaSyB7URXCSpZtdCdKCjBGkvV27nLURDDn1FM"){
+      const res = await fetch("https://api.gemini.com/v1/complete",{
+        method:"POST",
+        headers:{
+          "Content-Type":"application/json",
+          "Authorization":`Bearer ${GEMINI_API_KEY}`
+        },
+        body:JSON.stringify({prompt,max_tokens:150})
+      });
+      const data = await res.json();
+      const reply = data.reply || data.text || "Erreur.";
+      addMessage(reply,'bot',botPhoto);
+      speakReply(reply,lang);
+      return;
+    }
+  } catch(e){
+    console.warn("Gemini API failed, fallback to OpenAI:",e);
+  }
+
+  // Fallback OpenAI
+  const OPENAI_API_KEY = "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"; // mete kle w isit
+  try {
+    const res = await fetch("https://api.openai.com/v1/chat/completions",{
+      method:"POST",
+      headers:{
+        "Content-Type":"application/json",
+        "Authorization":`Bearer ${OPENAI_API_KEY}`
       },
-      body: JSON.stringify({
-        prompt: prompt,
-        max_tokens: 150
+      body:JSON.stringify({
+        model:"gpt-4",
+        messages:[
+          {role:"system",content:"Ou se yon AI assistant pou shop bot"},
+          {role:"user",content:prompt}
+        ],
+        max_tokens:200
       })
     });
-
     const data = await res.json();
-    const reply = data.reply || data.text || "Erreur.";
+    const reply = data.choices && data.choices[0].message.content
+      ? data.choices[0].message.content
+      : "🤖 Je n'ai pas de réponse pour le moment";
     addMessage(reply,'bot',botPhoto);
     speakReply(reply,lang);
-
-    if(prompt.toLowerCase().includes("kiyes")||prompt.toLowerCase().includes("créé")||prompt.toLowerCase().includes("creator")){
-      addMessage("👑 Bot créé par <b>Dawens</b> 🔥",'bot',botPhoto);
-    }
-  } catch(e) {
-    console.error(e);
-    addMessage("❌ Erreur lors de l'appel API Gemini.",'bot',botPhoto);
+  } catch(e){
+    console.error("OpenAI API error:",e);
+    addMessage("❌ Erreur lors de l'appel OpenAI.",'bot',botPhoto);
   }
 }
 
@@ -417,10 +308,7 @@ async function sendToGemini(prompt){
 function speakReply(text,lang){
   if('speechSynthesis' in window){
     const speech=new SpeechSynthesisUtterance(text);
-    const map={
-      fr:'fr-FR',en:'en-US',es:'es-ES',pt:'pt-PT',
-      ht:'ht-HT',jp:'ja-JP',kr:'ko-KR'
-    };
+    const map={fr:'fr-FR',en:'en-US',es:'es-ES',pt:'pt-PT',ht:'ht-HT',jp:'ja-JP',kr:'ko-KR'};
     speech.lang=map[lang]||'fr-FR';
     window.speechSynthesis.speak(speech);
   }
@@ -431,60 +319,58 @@ document.getElementById('send-btn').onclick=()=>{
   const text=input.value.trim();
   if(text){
     addMessage(text,'user');
-    sendToGemini(text);
+    sendMessage(text);
     input.value='';
   }
 };
 
-// Auto select lang from browser
-window.onload=()=>{
-  const browserLang=navigator.language.slice(0,2);
-  const langSelect=document.getElementById('lang');
-  if([...langSelect.options].some(opt=>opt.value===browserLang)){
-    langSelect.value=browserLang;
-  }
-  addMessage("👋 Bienvenue sur <b>Dawens Chatbot Pro+</b> — comment puis-je vous aider aujourd’hui ?",'bot',botPhoto);
+// Voice recognition
+let recognition;
+if('webkitSpeechRecognition' in window){
+  recognition=new webkitSpeechRecognition();
+  recognition.lang='fr-FR';
+  recognition.onresult=e=>{
+    const transcript=e.results[0][0].transcript;
+    addMessage(transcript,'user');
+    sendMessage(transcript);
+  };
+}
+document.getElementById('mic-btn').onclick=()=>{
+  if(recognition) recognition.start();
 };
 
-const banner = document.getElementById('cookieBanner');
-const consent = localStorage.getItem('cookiesConsent');
+// Upload photo
+document.getElementById('upload-photo').onchange = async e => {
+  const file = e.target.files[0];
+  if (!file) return;
 
-// Fonksyon pou montre banner ak animasyon
-function showBanner() {
-  banner.style.bottom = '30px'; // retabli pozisyon
-  banner.style.opacity = '1';
-  banner.style.animation = 'bannerBounce 0.5s ease forwards';
+  const userMsg = prompt("Ajoute yon mesaj pou foto sa a (oswa kite vid pou seulement foto):");
+  const reader = new FileReader();
+  reader.onload = x => {
+    const imgData = x.target.result;
+    let content = `<img src="${imgData}" class="photo-preview">`;
+    if (userMsg && userMsg.trim() !== '') content += `<br>${userMsg}`;
+    addMessage(content,'user');
+    saveToLibrary(imgData,userMsg);
+    if(userMsg && userMsg.trim()!=='') sendMessage(userMsg);
+  };
+  reader.readAsDataURL(file);
+  e.target.value = '';
+};
+
+// Save to localStorage
+function saveToLibrary(imageData,message=''){
+  const library=JSON.parse(localStorage.getItem('chatLibrary')||'[]');
+  library.push({image:imageData,message,date:new Date().toISOString()});
+  localStorage.setItem('chatLibrary',JSON.stringify(library));
 }
 
-// Si itilizatè poko fè chwa
-if (!consent) {
-  // Montre li premye fwa
-  setTimeout(showBanner, 0);
-
-  // Reparèt chak 5s si toujou pa gen chwa
-  setInterval(() => {
-    const currentConsent = localStorage.getItem('cookiesConsent');
-    if (!currentConsent) showBanner();
-  }, 500); // 80000 ms = 80 segonn
-}
-
-// Bouton Accept
-document.getElementById('acceptBtn').addEventListener('click', () => {
-  localStorage.setItem('cookiesConsent','accepted');
-  banner.style.opacity = '0';
-  banner.style.bottom = '-150px';
-});
-
-// Bouton Refuse
-document.getElementById('refuseBtn').addEventListener('click', () => {
-  localStorage.setItem('cookiesConsent','refused');
-  banner.style.opacity = '0';
-  banner.style.bottom = '-150px';
-});
-
-// Bouton Learn More
-document.getElementById('learnBtn').addEventListener('click', () => {
-  alert('Pour en savoir plus sur nos cookies, visitez: www.example.com/cookies');
+// Auto select lang from browser
+window.addEventListener('load',()=>{
+  const browserLang=navigator.language.slice(0,2);
+  const langSelect=document.getElementById('lang');
+  if([...langSelect.options].some(opt=>opt.value===browserLang)) langSelect.value=browserLang;
+  addMessage("👋 Bienvenue sur <b>Dawens Chatbot Pro+</b> — comment puis-je vous aider aujourd’hui ?",'bot',botPhoto);
 });
 </script>
 </body>
