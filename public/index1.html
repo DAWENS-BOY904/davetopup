@@ -73,18 +73,18 @@
   background: none;
   border: none;
   cursor: pointer;
-  padding: 3px;
+  padding: 10px;
 }
 
     .side-menu {
       position: fixed;
       top: 0;
-      right: -250px;
-      width: 220px;
+      right: -255px;
+      width: 230px;
       height: 100%;
       background: #fff;
       box-shadow: -3px 0 15px rgba(0,0,0,0.1);
-      padding: 8px;
+      padding: 5px;
       transition: right 0.3s ease;
       z-index: 20;
     }
@@ -98,13 +98,13 @@
     }
 
     .side-menu ul li {
-      margin: 12px 0;
+      margin: 20px 0;
     }
 
     .side-menu ul li a {
       text-decoration: none;
       color: #333;
-      font-size: 13px;
+      font-size: 15px;
     }
 
     .side-menu .submenu li a {
@@ -122,11 +122,11 @@
     }
 
     main {
-      margin-top: 90px;
+      margin-top: 20px;
       padding: 20px;
       text-align: center;
       opacity: 1;
-      transition: opacity 0.5s ease;
+      transition: opacity 0.6s ease;
     }
 
     .grid {
@@ -242,12 +242,12 @@
   margin-top: 55px;
   box-shadow: 0 2px 5px rgba(0,0,0,0.08);
   position: sticky;
-  top: 55px;
+  top: 70px;
   z-index: 9;
 }
 
 .nav-btn {
-  background: #2f855a;
+  background: blue;
   color: white;
   border: none;
   padding: 6px 10px;
@@ -285,7 +285,7 @@
   border-radius: 50%;
   width: 50px;
   height: 50px;
-  animation: spin 0.8s linear infinite;
+  animation: spin 0.15s linear infinite;
 }
 
 @keyframes spin {
@@ -295,11 +295,11 @@
 
 .promo-banner {
   position: absolute;
-  top: 95px; /* pi wo, jis anba header */
+  top: 115px; /* pi wo, jis anba header */
   left: 50%;
   transform: translateX(-50%);
-  width: 316px;
-  max-width: 90%;
+  width: 400px;
+  max-width: 95%;
   border-radius: 10px;
   overflow: hidden;
   box-shadow: 0 4px 15px rgba(0,0,0,0.3);
@@ -359,8 +359,8 @@
   backdrop-filter: blur(20px);
   padding: 30px;
   border-radius: 18px;
-  width: 90%;
-  max-width: 420px;
+  width: 86%;
+  max-width: 400px;
   color: #fff;
   position: relative;
   box-shadow: 0 0 25px rgba(0,0,0,0.4);
@@ -404,7 +404,7 @@
 
 /* === 🔹 Input Fields === */
 .modal-content input {
-  width: 100%;
+  width: 93%;
   padding: 12px 14px;
   margin: 8px 0;
   border: 1px solid rgba(255,255,255,0.3);
@@ -425,12 +425,12 @@
 /* === 🔹 Buttons === */
 .modal-content button {
   width: 100%;
-  padding: 12px;
+  padding: 10px;
   border-radius: 10px;
   font-size: 16px;
   border: none;
   cursor: pointer;
-  margin-top: 10px;
+  margin-top: 12px;
   background: linear-gradient(45deg, #0072ff, #00c6ff);
   color: white;
   font-weight: 600;
@@ -597,6 +597,82 @@
   0%,100% { opacity: 0.6; }
   50% { opacity: 1; }
 }
+
+.app-row {
+  background: #ffffff;
+  border-radius: 20px;
+  padding: 18px 14px;        /* ogmante padding pou desann ikon yo */
+  display: flex;
+  gap: 14px;
+  align-items: center;        /* alinye ikon + tit yo nan mitan */
+  box-shadow: 0 1px 0 rgba(0, 0, 0, 0.05);
+  overflow-x: auto;
+  margin-top: 135px;           /* desann tout blòk la */
+}
+
+.app-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  min-width: 84px;
+  padding: 4px 6px;
+}
+
+.icon {
+  width: 60px;
+  height: 60px;
+  border-radius: 14px;
+  overflow: hidden;
+  display: block;
+  box-shadow: 0 6px 14px rgba(16, 24, 40, 0.06);
+}
+
+.icon img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.label {
+  font-size: 13px;
+  color: #6b6b6b;
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  width: 100%;
+}
+
+/* Ti baryè vètikal yo */
+.app-item + .app-item {
+  position: relative;
+}
+
+.app-item + .app-item::before {
+  content: "";
+  position: absolute;
+  left: -8px;
+  top: 5px;
+  bottom: 5px;
+  width: 1px;
+  background: rgba(0, 0, 0, 0.08);
+}
+
+/* Responsive — pi piti ikon sou telefòn */
+@media (max-width: 420px) {
+  .icon {
+    width: 52px;
+    height: 52px;
+    border-radius: 12px;
+  }
+  .app-item {
+    min-width: 70px;
+  }
+  .label {
+    font-size: 12px;
+  }
+}
 </style>
 </head>
 <body>
@@ -746,6 +822,113 @@
 <!-- Loader Animation -->
 <div id="pageLoader" class="loader-overlay" style="display:none;">
   <div class="loader"></div>
+</div>
+
+<div class="app-row" role="list" aria-label="App icons list">
+  <!-- Item 1 (using your uploaded image as an example) -->
+  <div class="app-item" role="listitem">
+    <a class="icon" href="#" aria-label="Call of Duty">
+      <img src="https://files.catbox.moe/nzlmrh.jpeg" alt="app icon 1">
+    </a>
+    <div class="label" title="Call of Duty Mobile">Call of Duty ...</div>
+  </div>
+
+  <!-- Item 2 -->
+  <div class="app-item" role="listitem">
+    <a class="icon" href="#" aria-label="Free Fire">
+      <!-- ranplase ak URL imaj ou / ikon -->
+      <img src="https://files.catbox.moe/pkovl9.jpeg" alt="Free Fire icon">
+    </a>
+    <div class="label" title="Free Fire">Free Fire</div>
+  </div>
+
+  <!-- Item 3 -->
+  <div class="app-item" role="listitem">
+    <a class="icon" href="#" aria-label="PUBG Mobile">
+      <img src="https://files.catbox.moe/trgt3f.jpeg" alt="PUBG icon">
+    </a>
+    <div class="label" title="PUBG Mobile">PUBG Mobile</div>
+  </div>
+
+  <!-- Item 4 -->
+  <div class="app-item" role="listitem">
+    <a class="icon" href="#" aria-label="Genshin">
+      <img src="https://files.catbox.moe/z1bwa6.jpeg" alt="Genshin icon">
+    </a>
+    <div class="label" title="Genshin Impact">Genshin Imp...</div>
+  </div>
+
+  <!-- Item 5 -->
+  <div class="app-item" role="listitem">
+    <a class="icon" href="#" aria-label="Honkai">
+      <img src="https://files.catbox.moe/p3a0uw.jpeg" alt="Honkai icon">
+    </a>
+    <div class="label" title="Honkai">Honkai: S...</div>
+  </div>
+
+<!-- Item 6 -->
+  <div class="app-item" role="listitem">
+    <a class="icon" href="#" aria-label="Honkai">
+      <img src="https://files.catbox.moe/bnhva9.jpeg" alt="Honkai icon">
+    </a>
+    <div class="label" title="Mobile">Mobile leg...</div>
+  </div>
+
+<!-- Item 7 -->
+  <div class="app-item" role="listitem">
+    <a class="icon" href="#" aria-label="Honkai">
+      <img src="https://files.catbox.moe/6m529e.jpeg" alt="Honkai icon">
+    </a>
+    <div class="label" title="Love">Love and De...</div>
+  </div>
+
+<!-- Item 8 -->
+  <div class="app-item" role="listitem">
+    <a class="icon" href="#" aria-label="Honkai">
+      <img src="https://files.catbox.moe/4cv459.jpeg" alt="Honkai icon">
+    </a>
+    <div class="label" title="Honor">Honor of Kin...</div>
+  </div>
+
+<!-- Item 9 -->
+  <div class="app-item" role="listitem">
+    <a class="icon" href="#" aria-label="Honkai">
+      <img src="https://files.catbox.moe/16xv9d.jpeg" alt="Honkai icon">
+    </a>
+    <div class="label" title="Zenless">Zenless Zon...</div>
+  </div>
+
+<!-- Item 10 -->
+  <div class="app-item" role="listitem">
+    <a class="icon" href="#" aria-label="Honkai">
+      <img src="https://files.catbox.moe/h59jlg.jpeg" alt="Honkai icon">
+    </a>
+    <div class="label" title="GearUp">GearUp Boos...</div>
+  </div>
+
+<!-- Item 11 -->
+  <div class="app-item" role="listitem">
+    <a class="icon" href="#" aria-label="Honkai">
+      <img src="https://files.catbox.moe/hcazi7.jpeg" alt="Honkai icon">
+    </a>
+    <div class="label" title="Exitlag">Exitlag</div>
+  </div>
+
+<!-- Item 12 -->
+  <div class="app-item" role="listitem">
+    <a class="icon" href="#" aria-label="Honkai">
+      <img src="https://files.catbox.moe/g5g6k5.jpeg" alt="Honkai icon">
+    </a>
+    <div class="label" title="Valorant">Valorant</div>
+  </div>
+
+<!-- Item 13 -->
+  <div class="app-item" role="listitem">
+    <a class="icon" href="#" aria-label="Honkai">
+      <img src="https://files.catbox.moe/uf5vg8.jpeg" alt="Honkai icon">
+    </a>
+    <div class="label" title="PlayStation">PlayStation</div>
+  </div>
 </div>
 
 <main>
@@ -971,6 +1154,9 @@ setInterval(showPromoBanner, 50000);
            GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged } 
   from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 
+  import { getFirestore, doc, setDoc } 
+  from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
   const firebaseConfig = {
     apiKey: "AIzaSyCfQZySxPAeUGio11u6zWZCS_bsiK_CYKk",
     authDomain: "mini-jesus-crash.firebaseapp.com",
@@ -984,6 +1170,7 @@ setInterval(showPromoBanner, 50000);
   const app = initializeApp(firebaseConfig);
   const auth = getAuth(app);
   const provider = new GoogleAuthProvider();
+  const db = getFirestore();
 
   const loginBtn = document.getElementById('loginBtn');
   const loginModal = document.getElementById('loginModal');
@@ -994,7 +1181,7 @@ setInterval(showPromoBanner, 50000);
   const signupForm = document.getElementById('signupForm');
   const authLoader = document.getElementById('authLoader');
 
-  // Functions for loader
+  // Loader Functions
   const showLoader = (text) => {
     if (!authLoader) return;
     authLoader.style.display = 'flex';
@@ -1004,41 +1191,48 @@ setInterval(showPromoBanner, 50000);
     if (authLoader) authLoader.style.display = 'none';
   };
 
-  // Modal control
-  if(loginBtn && loginModal){
+  // Modal Control
+  if (loginBtn && loginModal) {
     loginBtn.onclick = () => loginModal.style.display = 'block';
   }
-  if(closeLogin){
-    closeLogin.onclick = () => loginModal.style.display = 'none';
-  }
-  window.onclick = (e) => { if (e.target == loginModal) loginModal.style.display = 'none'; };
+  if (closeLogin) closeLogin.onclick = () => loginModal.style.display = 'none';
 
-  if(showSignup){
-    showSignup.onclick = () => { loginForm.style.display = 'none'; signupForm.style.display = 'block'; };
+  window.onclick = (e) => { 
+    if (e.target == loginModal) loginModal.style.display = 'none';
+  };
+
+  if (showSignup) {
+    showSignup.onclick = () => {
+      loginForm.style.display = 'none';
+      signupForm.style.display = 'block';
+    };
   }
-  if(showLogin){
-    showLogin.onclick = () => { signupForm.style.display = 'none'; loginForm.style.display = 'block'; };
+
+  if (showLogin) {
+    showLogin.onclick = () => {
+      signupForm.style.display = 'none';
+      loginForm.style.display = 'block';
+    };
   }
 
   // LOGIN
   const loginSubmit = document.getElementById('loginSubmit');
-  if(loginSubmit){
+  if (loginSubmit) {
     loginSubmit.onclick = async () => {
       const email = loginEmail.value, pass = loginPassword.value;
       try {
         showLoader("Connexion en cours...");
         await signInWithEmailAndPassword(auth, email, pass);
-        setTimeout(() => {
-          hideLoader();
-          Swal.fire({
-            icon: 'success',
-            title: 'Bienvenue 👋',
-            text: 'Connexion réussie avec succès !',
-            background: '#0b0b0b',
-            color: '#00e0ff'
-          });
-          loginModal.style.display = 'none';
-        }, 1000);
+
+        hideLoader();
+        Swal.fire({
+          icon: 'success',
+          title: 'Bienvenue 👋',
+          text: 'Connexion réussie avec succès !',
+          background: '#0b0b0b',
+          color: '#00e0ff'
+        });
+        loginModal.style.display = 'none';
       } catch (err) {
         hideLoader();
         Swal.fire({ icon: 'error', title: 'Erreur', text: err.message });
@@ -1048,23 +1242,22 @@ setInterval(showPromoBanner, 50000);
 
   // SIGNUP
   const signupSubmit = document.getElementById('signupSubmit');
-  if(signupSubmit){
+  if (signupSubmit) {
     signupSubmit.onclick = async () => {
       const email = signupEmail.value, pass = signupPassword.value;
       try {
         showLoader("Création de votre compte...");
         await createUserWithEmailAndPassword(auth, email, pass);
-        setTimeout(() => {
-          hideLoader();
-          Swal.fire({
-            icon: 'success',
-            title: 'Bienvenue 🎉',
-            text: 'Compte créé avec succès !',
-            background: '#0b0b0b',
-            color: '#00e0ff'
-          });
-          loginModal.style.display = 'none';
-        }, 1000);
+
+        hideLoader();
+        Swal.fire({
+          icon: 'success',
+          title: 'Bienvenue 🎉',
+          text: 'Compte créé avec succès !',
+          background: '#0b0b0b',
+          color: '#00e0ff'
+        });
+        loginModal.style.display = 'none';
       } catch (err) {
         hideLoader();
         Swal.fire({ icon: 'error', title: 'Erreur', text: err.message });
@@ -1074,22 +1267,21 @@ setInterval(showPromoBanner, 50000);
 
   // GOOGLE LOGIN
   const googleLogin = document.getElementById('googleLogin');
-  if(googleLogin){
+  if (googleLogin) {
     googleLogin.onclick = async () => {
       try {
         showLoader("Connexion via Google...");
         await signInWithPopup(auth, provider);
-        setTimeout(() => {
-          hideLoader();
-          Swal.fire({
-            icon: 'success',
-            title: 'Connecté via Google ✅',
-            text: 'Bienvenue sur DaveTopUp !',
-            background: '#0b0b0b',
-            color: '#00e0ff'
-          });
-          loginModal.style.display = 'none';
-        }, 1000);
+
+        hideLoader();
+        Swal.fire({
+          icon: 'success',
+          title: 'Connecté via Google ✅',
+          text: 'Bienvenue sur DaveTopUp !',
+          background: '#0b0b0b',
+          color: '#00e0ff'
+        });
+        loginModal.style.display = 'none';
       } catch (err) {
         hideLoader();
         Swal.fire({ icon: 'error', title: 'Erreur', text: err.message });
@@ -1097,10 +1289,28 @@ setInterval(showPromoBanner, 50000);
     };
   }
 
-  // AUTH STATE
-  onAuthStateChanged(auth, (user) => {
+  // AUTH STATE — ADD EMAIL SENDER HERE
+  onAuthStateChanged(auth, async (user) => {
     if (user) {
       loginBtn.textContent = "Déconnexion";
+
+      // 1️⃣ SAVE USER IN FIRESTORE
+      await setDoc(doc(db, "users", user.uid), {
+        email: user.email,
+        lastLogin: new Date()
+      }, { merge: true });
+
+      // 2️⃣ SEND IMMEDIATE EMAIL VIA SERVER
+      fetch("https://YOUR-SERVER.com/send-login-email", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: user.email })
+      })
+      .then(res => res.json())
+      .then(() => console.log("Login email sent successfully"))
+      .catch(err => console.error("Email error:", err));
+
+      // LOGOUT BTN
       loginBtn.onclick = async () => {
         await signOut(auth);
         Swal.fire({
@@ -1112,6 +1322,7 @@ setInterval(showPromoBanner, 50000);
         });
         loginBtn.textContent = "Connexion";
       };
+
     } else {
       loginBtn.textContent = "Connexion";
       loginBtn.onclick = () => loginModal.style.display = 'block';
