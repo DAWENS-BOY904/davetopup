@@ -1310,50 +1310,6 @@ const menuBtn = document.querySelector('.menu-btn');
     return stack.join(" > ");
   }
 
-  // --- Shake detection ---
-  let shakeEnabled = true;
-  let lastX=null, lastY=null, lastZ=null, lastTime=0;
-  const shakeModal = document.getElementById('shakeModal');
-
-  if(window.DeviceMotionEvent){
-    window.addEventListener('devicemotion', function(event){
-      if(!shakeEnabled) return;
-      const acc = event.accelerationIncludingGravity;
-      const currTime = new Date().getTime();
-      if((currTime - lastTime) < 100) return;
-      lastTime = currTime;
-      if(lastX!==null){
-        const delta = Math.abs(lastX-acc.x)+Math.abs(lastY-acc.y)+Math.abs(lastZ-acc.z);
-        if(delta>15){
-          shakeModal.style.display='flex';
-        }
-      }
-      lastX=acc.x; lastY=acc.y; lastZ=acc.z;
-    });
-  } else {
-    // If device does not support shake detection, show manual report button
-    const manualBtn = document.getElementById('manualReportBtn');
-    manualBtn.style.display='block';
-    manualBtn.addEventListener('click', ()=> {
-      shakeModal.style.display='flex';
-    });
-  }
-
-  // --- Modal buttons ---
-  document.getElementById('modalYes').addEventListener('click', ()=>{
-    shakeModal.style.display='none';
-    openReportBugPage();
-  });
-
-  document.getElementById('modalNo').addEventListener('click', ()=>{
-    shakeModal.style.display='none';
-  });
-
-  document.getElementById('disableShake').addEventListener('click', ()=>{
-    shakeEnabled=false;
-    shakeModal.style.display='none';
-    alert('Shake detection dezaktive.');
-  });
 
   // --- Open report-bug page with screenshot ---
   function openReportBugPage(){
