@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+<html lang="ht">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chats</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+<style>
+:root {
+  --bg: #fff;
+  --text: #000;
+  --header-bg: #f5f5f5;
+  --header-text: #000;
+  --icon-bg: #e0e0e0;
+  --nav-bg: #f5f5f5;
+  --nav-active: #4cd964;
+  --modal-bg: rgba(0,0,0,0.2);
+  --plus-bg: #f5f5f5;
+  --plus-item-border: #ccc;
+  --plus-icon: #1dd75f;
+  --input-bg: #eee;
+  --sub-text: #555;
+  --accent: #2ecc71;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  height: 100vh;
+  overflow: hidden;
+}
+
+/* HEADER */
+.header {
+  padding: 15px;
+  font-size: 22px;
+  font-weight: 600;
+  text-align: center;
+  position: fixed;
+  top: 0;
+  width: 100%;
+  background: var(--header-bg);
+  color: var(--header-text);
+  z-index: 100;
+}
+
+.header-icons {
+  position: absolute;
+  right: 15px;
+  top: 14px;
+  display: flex;
+  gap: 15px;
+}
+
+.icon-circle {
+  width: 33px;
+  height: 33px;
+  border-radius: 50%;
+  background: var(--icon-bg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+/* SEARCH BOX */
+.search-box {
+  margin: 70px 20px 0 20px; /* anba header */
+  padding: 14px;
+  background: #d0e0ff;
+  border-radius: 12px;
+  text-align: center;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+/* PAGE CONTAINER */
+#pageContainer {
+  position: fixed;
+  top: 124px; /* header + search */
+  left: 0;
+  width: 100%;
+  height: calc(100% - 180px); /* header + search + bottom nav */
+  overflow-y: auto;
+  background: var(--bg);
+  z-index: 1;
+  padding: 0 20px 60px 20px;
+}
+
+.page {
+  width: 100%;
+  height: 100%;
+  animation-duration: 0.25s;
+  animation-fill-mode: both;
+}
+
+.slide-left { animation-name: slideLeft; }
+.slide-right { animation-name: slideRight; }
+
+@keyframes slideLeft { from { transform: translateX(100%); opacity:0 } to { transform: translateX(0); opacity:1 } }
+@keyframes slideRight { from { transform: translateX(-100%); opacity:0 } to { transform: translateX(0); opacity:1 } }
+
+/* BOTTOM NAV */
+.nav {
+  position: fixed;
+  bottom: 0;
+  width: 100%;
+  background: var(--nav-bg);
+  display: flex;
+  justify-content: space-around;
+  padding: 10px 0;
+  border-top: 1px solid #ccc;
+  z-index: 100;
+}
+
+.nav-item {
+  text-align: center;
+  color: #888;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.nav-item.active { color: var(--nav-active); }
+
+/* MODALS */
+.modal, .plus-modal {
+  position: fixed;
+  inset: 0;
+  display: none;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+}
+
+.modal { background: var(--modal-bg); backdrop-filter: blur(6px); }
+
+.modal-content {
+  width: 90%;
+  max-width: 450px;
+  background: #fff;
+  padding: 25px;
+  border-radius: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  position: relative;
+}
+
+.modal-content input {
+  padding: 12px 15px;
+  font-size: 16px;
+  width: 100%;
+  border: 1px solid #ccc;
+  border-radius: 12px;
+  outline: none;
+}
+
+#closeModal {
+  position: absolute;
+  top: 12px;
+  right: 15px;
+  font-size: 20px;
+  cursor: pointer;
+}
+
+/* PLUS MENU */
+.plus-modal { background: rgba(0,0,0,0.15); backdrop-filter: blur(4px); }
+.close-area { position: absolute; inset:0; }
+
+.plus-content {
+  background: var(--plus-bg);
+  width: 90%;
+  max-width: 430px;
+  margin: 70px auto 0;
+  padding: 20px;
+  border-radius: 18px;
+  color: var(--text);
+  position: relative;
+  z-index: 2;
+}
+
+.title { text-align:center; margin-bottom:20px; font-size:20px; }
+
+.search-input {
+  width:100%;
+  padding:12px 15px;
+  border-radius:12px;
+  background: var(--input-bg);
+  border:none;
+  color: var(--text);
+  margin-bottom:20px;
+}
+
+.plus-item {
+  display:flex;
+  align-items:center;
+  gap:15px;
+  padding:12px 0;
+  border-bottom:1px solid var(--plus-item-border);
+  cursor:pointer;
+}
+
+.plus-item i { font-size:20px; color: var(--plus-icon); }
+.main { font-size:16px; }
+.sub { font-size:12px; color: var(--sub-text); }
+
+.chat-group {
+  display: flex;
+  align-items: center;
+  padding: 10px 0;
+  border-bottom: 1px solid #ddd;
+  cursor: pointer;
+}
+
+.chat-img {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin-right: 12px;
+}
+
+.chat-info {
+  flex-grow: 1;
+}
+
+.chat-title {
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.chat-sub {
+  font-size: 13px;
+  color: gray;
+  margin-top: 2px;
+}
+
+.chat-time {
+  font-size: 12px;
+  color: gray;
+}
+
+.delete-btn {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: red;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  padding: 2px 6px;
+  display: none;
+  z-index: 2;
+}
+
+.chat-group.show-delete .delete-btn {
+  display: block;
+}
+
+</style>
+</head>
+<body>
+<!-- LOGIN MODAL -->
+<div id="loginModal" class="modal" style="display:flex;">
+  <div class="modal-content">
+    <h3 style="text-align:center; margin-bottom:15px;">Login</h3>
+    <input type="text" id="usernameInput" placeholder="Username" autofocus>
+    <input type="text" id="numberInput" placeholder="Phone number">
+    <button id="loginBtn" style="padding:10px; background:#4CAF50; color:#fff; border:none; border-radius:6px;">Login</button>
+  </div>
+</div>
+
+
+<!-- HEADER -->
+<div class="header">Chats<div class="header-icons">
+    <div class="icon-circle"><i class="fas fa-camera"></i></div>
+    <div class="icon-circle" id="openPlusMenu"><i class="fas fa-plus"></i></div>
+  </div>
+</div>
+
+<!-- SEARCH BOX -->
+<div class="search-box" id="openSearch">Ask Meta AI or Search</div>
+
+<div id="pageContainer">
+  <div class="page">
+
+    <!-- Archived -->
+    <div style="margin: 10px 0; font-size:14px; color:#4cd964;">
+      <i class="fas fa-box-archive"></i> Archived
+    </div>
+
+    <!-- GROUP SECTION AJOUTE -->
+<div class="chat-group" onclick="goToGroup(this)" 
+     onmousedown="startPress(this)" onmouseup="endPress(this)" onmouseleave="endPress(this)">
+  <img src="https://files.catbox.moe/ph9rzu.jpeg" class="chat-img">
+  <div class="chat-info">
+    <div class="chat-title">𝙋𝙐𝙎𝙃 𝙐𝙋 4𝙀𝙑𝙀𝙍 💨🔥</div>
+    <div class="chat-sub">~Dawens  ·  Sticker</div>
+  </div>
+  <div class="chat-time">3:54 AM</div>
+  <button class="delete-btn" onclick="deleteChat(this); event.stopPropagation();">Delete</button>
+</div>
+
+    <!-- Default text -->
+    <div class="info">Welcome to DaveTopUp Chat.</div>
+
+  </div>
+</div>
+
+<!-- BOTTOM NAV -->
+<div class="nav" id="bottomNav">
+  <div class="nav-item" data-page="chat.html"><i class="fas fa-comment-dots"></i> Chats</div>
+  <div class="nav-item" data-page="updates.html"><i class="fas fa-bell"></i> Updates</div>
+  <div class="nav-item" data-page="calls.html"><i class="fas fa-phone"></i> Calls</div>
+  <div class="nav-item" data-page="settings.html"><i class="fas fa-cog"></i> Settings</div>
+</div>
+
+<!-- SEARCH MODAL -->
+<div id="searchModal" class="modal">
+  <div class="modal-content">
+    <input type="text" id="searchInput" placeholder="Search anything..." autofocus>
+    <div id="closeModal">✖</div>
+  </div>
+</div>
+
+
+
+<!-- PLUS MENU -->
+<div class="plus-modal" id="plusModal">
+  <div class="plus-content">
+    <h2 class="title">New chat</h2>
+    <input type="text" class="search-input" placeholder="Search name or number">
+
+<!-- Bouton New Group -->
+<div class="plus-item" id="newGroupBtn">
+    <i class="fas fa-users"></i>
+    <div>
+        <div class="main">New group</div>
+    </div>
+</div>
+
+<!-- Modal pou antre non group -->
+<div id="groupModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); justify-content:center; align-items:center; z-index:9999;">
+    <div style="background:#fff; padding:20px; border-radius:10px; width:300px; display:flex; flex-direction:column; gap:10px;">
+        <h3 style="margin:0;">Create New Group</h3>
+        <input type="text" id="groupNameInput" placeholder="Group name" style="padding:8px; border-radius:5px; border:1px solid #ccc;">
+        <button id="createGroupBtn" style="padding:8px; background:#4CAF50; color:#fff; border:none; border-radius:5px;">Create</button>
+        <button id="cancelGroupBtn" style="padding:8px; background:red; color:#fff; border:none; border-radius:5px;">Cancel</button>
+    </div>
+</div>
+
+<!-- Container pou chat groups -->
+<div id="chatContainer">
+  <!-- Egzanp group ki egziste deja -->
+  </div>
+
+
+<!-- Container pou chat groups -->
+<div id="chatList"></div>
+    <div class="plus-item" data-page="new-contact.html"><i class="fas fa-user-plus"></i><div><div class="main">New contact</div></div></div>
+    <div class="plus-item" data-page="new-community.html"><i class="fas fa-people-group"></i><div><div class="main">New community</div><div class="sub">Bring together topic-based groups</div></div></div>
+    <div class="plus-item" data-page="chat-ai.html"><i class="fas fa-face-smile"></i><div><div class="main">Chat with AIs</div></div></div>
+    <div class="plus-item" data-page="new-broadcast.html"><i class="fas fa-bullhorn"></i><div><div class="main">New broadcast</div></div></div>
+  </div>
+  <div id="closePlus" class="close-area"></div>
+</div>
+
+<script>
+// ======= VARIABLES =======
+const newGroupBtn = document.getElementById("newGroupBtn");
+const groupModal = document.getElementById("groupModal");
+const groupNameInput = document.getElementById("groupNameInput");
+const createGroupBtn = document.getElementById("createGroupBtn");
+const cancelGroupBtn = document.getElementById("cancelGroupBtn");
+const chatContainer = document.getElementById("chatContainer");
+
+const openSearch = document.getElementById('openSearch');
+const searchModal = document.getElementById('searchModal');
+const closeModal = document.getElementById('closeModal');
+
+const openPlusMenu = document.getElementById('openPlusMenu');
+const plusModal = document.getElementById('plusModal');
+const closePlus = document.getElementById('closePlus');
+
+const navItems = document.querySelectorAll('.nav-item');
+
+const loginModal = document.getElementById('loginModal');
+const usernameInput = document.getElementById('usernameInput');
+const numberInput = document.getElementById('numberInput');
+const loginBtn = document.getElementById('loginBtn');
+
+const searchInput = document.getElementById('searchInput');
+
+let pressTimer;
+let longPressTriggered = false;
+
+// ======= LOGIN SYSTEM =======
+let currentUser = JSON.parse(localStorage.getItem('currentUser'));
+if(!currentUser){
+    loginModal.style.display = 'flex';
+} else {
+    console.log("Logged in as:", currentUser.username);
+    updateChatSubs();
+}
+
+loginBtn.addEventListener('click', () => {
+    const username = usernameInput.value.trim();
+    const number = numberInput.value.trim();
+
+    if(!username || !number){
+        alert("Please enter username and number!");
+        return;
+    }
+
+    currentUser = {username, number};
+    localStorage.setItem('currentUser', JSON.stringify(currentUser));
+    loginModal.style.display = 'none';
+    alert(`Welcome ${username}!`);
+
+    updateChatSubs();
+});
+
+// ======= FUNCTION TO UPDATE CHAT-SUB WITH CURRENT USER =======
+function updateChatSubs(){
+    const chatGroups = document.querySelectorAll('.chat-group');
+    chatGroups.forEach(chat => {
+        const sub = chat.querySelector('.chat-sub');
+        if(sub){
+            sub.textContent = `~${currentUser.username} · Sticker`;
+        }
+    });
+}
+
+// ======= SEARCH MODAL =======
+openSearch.addEventListener('click', () => {
+  searchModal.style.display = 'flex';
+  searchInput.focus();
+});
+
+closeModal.addEventListener('click', () => searchModal.style.display = 'none');
+
+searchModal.addEventListener('click', (e) => {
+  if (e.target === searchModal) searchModal.style.display = 'none';
+});
+
+// ======= SEARCH FUNCTION =======
+searchInput.addEventListener('input', () => {
+    const query = searchInput.value.toLowerCase();
+    const chats = document.querySelectorAll('.chat-group');
+
+    chats.forEach(chat => {
+        const title = chat.querySelector('.chat-title').textContent.toLowerCase();
+        const sub = chat.querySelector('.chat-sub').textContent.toLowerCase();
+        chat.style.display = (title.includes(query) || sub.includes(query)) ? 'flex' : 'none';
+    });
+});
+
+// ======= NEW GROUP MODAL =======
+newGroupBtn.addEventListener("click", () => {
+    groupNameInput.value = "";
+    groupModal.style.display = "flex";
+});
+
+cancelGroupBtn.addEventListener("click", () => groupModal.style.display = "none");
+
+// ======= CREATE NEW GROUP =======
+createGroupBtn.addEventListener("click", () => {
+    const name = groupNameInput.value.trim();
+    if(!name) return alert("Please enter a group name!");
+
+    const groupDiv = document.createElement("div");
+    groupDiv.className = "chat-group";
+    groupDiv.innerHTML = `
+        <img src="https://files.catbox.moe/ph9rzu.jpeg" class="chat-img">
+        <div class="chat-info">
+            <div class="chat-title">${name}</div>
+            <div class="chat-sub">~${currentUser ? currentUser.username : 'Admin'} · Sticker</div>
+        </div>
+        <div class="chat-time">${new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})}</div>
+        <button class="delete-btn" onclick="deleteChat(this); event.stopPropagation();">Delete</button>
+    `;
+    chatContainer.prepend(groupDiv);
+
+    // Click & long press
+    groupDiv.addEventListener("click", () => goToGroup(groupDiv));
+    groupDiv.addEventListener("mousedown", () => startPress(groupDiv));
+    groupDiv.addEventListener("mouseup", () => endPress(groupDiv));
+    groupDiv.addEventListener("mouseleave", () => endPress(groupDiv));
+
+    groupModal.style.display = "none";
+});
+
+// ======= DELETE CHAT =======
+function deleteChat(btn){
+    const group = btn.closest(".chat-group");
+    if(group) group.remove();
+}
+
+// ======= LONG PRESS =======
+function startPress(elem) {
+  longPressTriggered = false;
+  pressTimer = setTimeout(() => {
+    elem.classList.add('show-delete');
+    longPressTriggered = true;
+  }, 800);
+}
+
+function endPress(elem) {
+  clearTimeout(pressTimer);
+}
+
+// ======= GO TO GROUP =======
+function goToGroup(elem) {
+  if(longPressTriggered) return;
+  alert(`Navigating to group: ${elem.querySelector('.chat-title').textContent}`);
+}
+
+// ======= PLUS MENU =======
+openPlusMenu.addEventListener('click', () => plusModal.style.display = 'flex');
+closePlus.addEventListener('click', () => plusModal.style.display = 'none');
+plusModal.addEventListener('click', (e) => {
+  if (e.target === plusModal) plusModal.style.display = 'none';
+});
+
+// PLUS MENU ITEMS NAVIGATION
+document.querySelectorAll('.plus-item').forEach(item => {
+    if(item.id === 'newGroupBtn') return; // skip new group
+    item.addEventListener('click', () => {
+        const page = item.getAttribute('data-page');
+        if(page) window.location.href = page;
+    });
+});
+
+// ======= BOTTOM NAV =======
+navItems.forEach(item => {
+  item.addEventListener('click', () => {
+    navItems.forEach(i => i.classList.remove('active'));
+    item.classList.add('active');
+    const page = item.getAttribute('data-page');
+    if(page) window.location.href = page;
+  });
+});
+</script>
+
+</body>
+</html>

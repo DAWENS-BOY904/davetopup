@@ -1,0 +1,805 @@
+<!doctype html>
+<html lang="ht">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Group Chat — Mock</title>
+
+<!-- Font Awesome for icons -->
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+
+<style>
+:root{
+  --bg:#0b0b0b;
+  --bubble-left:#2f2f2f;
+  --bubble-right:#064e3b; /* dark green */
+  --accent:#10b981;
+  --muted:#9ca3af;
+  --header-grad-start:#0f172a;
+  --header-grad-end:#0b1220;
+  --time:#9aa1a6;
+}
+
+/* Reset */
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial;color:#e6eef5;background:var(--bg);}
+
+/* WhatsApp-like subtle pattern background (SVG as CSS) */
+body::before{
+  content:"";
+  position:fixed;inset:0;opacity:0.06;
+  background-image:
+    url("data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200' viewBox='0 0 24 24'%3E%3Cg fill='none' stroke='%23ffffff' stroke-width='1' opacity='0.08'%3E%3Cpath d='M3 6h18M3 18h18M3 12h18'/%3E%3C/g%3E%3C/svg%3E");
+  background-repeat:repeat;
+  z-index:0;
+}
+
+/* Container */
+.app {
+  position:relative;
+  min-height:100vh;
+  display:flex;
+  flex-direction:column;
+  z-index:1;
+}
+
+/* HEADER */
+.header {
+  display:flex;
+  align-items:center;
+  gap:12px;
+  padding:12px 14px;
+  background:linear-gradient(90deg,var(--header-grad-start),var(--header-grad-end));
+  border-bottom:1px solid rgba(255,255,255,0.04);
+  position:sticky;
+  top:0;
+  z-index:10;
+}
+.btn-back{
+  color:#fff;font-size:20px;padding:8px;border-radius:8px;cursor:pointer;
+}
+.group-thumb{
+  width:40px;height:40px;border-radius:50%;object-fit:cover;border:2px solid rgba(255,255,255,0.06);
+}
+.header-main{
+  flex:1;display:flex;flex-direction:column;gap:2px;
+}
+.group-name{font-weight:700;font-size:15px;color:#fff}
+.group-sub{font-size:12px;color:var(--muted);display:flex;gap:6px;align-items:center}
+.header-actions{display:flex;gap:12px}
+.icon-circle{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,0.03);cursor:pointer;color:#fff}
+
+/* MESSAGES AREA */
+.messages{
+  flex:1;
+  overflow:auto;
+  padding:18px 12px 90px;
+  display:flex;
+  flex-direction:column;
+  gap:12px;
+}
+
+/* Single message row */
+.msg-row{
+  display:flex;
+  gap:10px;
+  align-items:flex-end;
+}
+
+.msg-left{justify-content:flex-start}
+.msg-right{
+  justify-content:flex-end;
+  flex-direction:row-reverse;
+}
+
+/* avatar */
+.avatar{
+  width:36px;
+  height:36px;
+  border-radius:50%;
+  object-fit:cover;
+  flex-shrink:0;
+  border:2px solid rgba(0,0,0,0.3);
+}
+
+/* bubble common */
+.bubble{
+  max-width:72%;
+  padding:10px 12px;
+  border-radius:12px;
+  position:relative;
+  font-size:14px;
+  line-height:1.3;
+  word-wrap: break-word;
+}
+
+/* left bubble style (others) */
+.bubble.left{
+  background:var(--bubble-left);
+  color:#e6eef5;
+  border: 1px solid rgba(255,255,255,0.02);
+  border-top-left-radius:4px;
+}
+
+/* right bubble style (you) */
+.bubble.right{
+  background: linear-gradient(180deg,var(--bubble-right), #044a37);
+  color:#fff;
+  border-top-right-radius:4px;
+  border:1px solid rgba(0,0,0,0.25);
+}
+
+/* container for bubble + meta */
+.bubble-container{
+  display:flex;
+  flex-direction:column;
+  gap:4px;
+}
+
+/* sub text (time/tick) */
+.msg-meta{
+  display:flex;
+  gap:6px;
+  align-items:center;
+  font-size:12px;
+  color:var(--time);
+}
+
+/* voice message UI (left bubble) */
+.voice {
+  display:flex;
+  align-items:center;
+  gap:10px;
+  padding:8px 10px;
+  background:transparent;
+}
+.play-btn{
+  width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,0.03);cursor:pointer;font-size:16px;
+}
+.wave {
+  flex:1;height:30px;display:flex;align-items:center;gap:4px;padding-right:8px;
+}
+.wave span{
+  display:inline-block;
+  width:4px;height:6px;background:rgba(255,255,255,0.6);
+  border-radius:2px;
+  transform-origin:bottom;
+  animation:wave 900ms linear infinite;
+}
+.wave span:nth-child(1){animation-delay:0ms}
+.wave span:nth-child(2){animation-delay:120ms}
+.wave span:nth-child(3){animation-delay:240ms}
+.wave span:nth-child(4){animation-delay:360ms}
+.wave span:nth-child(5){animation-delay:480ms}
+.wave span:nth-child(6){animation-delay:600ms}
+@keyframes wave {
+  0%{height:6px;opacity:0.6}
+  50%{height:22px;opacity:1}
+  100%{height:6px;opacity:0.6}
+}
+
+/* sticker (large image bubble on right) */
+.sticker-img{width:140px;height:160px;border-radius:8px;object-fit:cover;display:block}
+
+/* message footer time and ticks */
+.msg-time{font-size:12px;color:var(--time);margin-left:6px;white-space:nowrap}
+
+/* rounded small profile bubble (reply avatar) */
+.small-avatar{width:36px;height:36px;border-radius:50%;object-fit:cover;border:2px solid rgba(255,255,255,0.05)}
+
+/* input bar (fixed bottom) */
+.input-bar{
+  position:fixed;left:0;right:0;bottom:0;padding:10px 12px;background:linear-gradient(180deg, rgba(0,0,0,0.6), rgba(0,0,0,0.8));display:flex;gap:10px;align-items:center;border-top:1px solid rgba(255,255,255,0.03);
+  z-index:20;
+}
+.btn-plus{width:38px;height:38px;border-radius:10px;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,0.03);cursor:pointer;color:#fff}
+.input-inner{flex:1;display:flex;align-items:center;gap:10px;background:rgba(255,255,255,0.02);padding:8px 10px;border-radius:25px}
+.input-inner input{flex:1;background:transparent;border:none;color:#fff;font-size:15px;outline:none;padding:6px}
+.icon-send{width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:var(--accent);color:#fff;cursor:pointer}
+
+/* small timestamp strip for the top (voice indicator) */
+.top-indicator{display:flex;align-items:center;gap:8px;padding:8px 12px;background:rgba(255,255,255,0.02);border-radius:10px;color:var(--muted);margin:8px 12px}
+.pin-icon{width:28px;height:28;border-radius:8px;background:rgba(255,255,255,0.03);display:flex;align-items:center;justify-content:center}
+
+/* tiny phone bubble or small read tick */
+.tick{font-size:13px;color:rgba(255,255,255,0.85)}
+/* responsive */
+@media (max-width:420px){ .sticker-img{width:120px;height:140px} .bubble{max-width:80%} }
+
+.picker-modal{
+  position:absolute;
+  bottom:60px; /* pi anlè input area */
+  right:12px;
+  width:250px;
+  background:#fff;
+  border:1px solid #ccc;
+  border-radius:12px;
+  box-shadow:0 4px 12px rgba(0,0,0,0.2);
+  padding:10px;
+  z-index:100;
+}
+
+.hidden{display:none;}
+
+.picker-header{
+  display:flex;
+  gap:4px;
+  margin-bottom:8px;
+}
+
+.picker-btn{
+  flex:1;
+  padding:6px 0;
+  border:none;
+  border-radius:6px;
+  background:#eee;
+  cursor:pointer;
+}
+
+.picker-btn.active{
+  background:#1db954;
+  color:#fff;
+}
+
+.picker-content{
+  max-height:200px;
+  overflow:auto;
+}
+
+.tab-content img{
+  width:40px;
+  height:40px;
+  margin:4px;
+  cursor:pointer;
+}
+.tab-content span{
+  cursor:pointer;
+  font-size:20px;
+  margin:2px;
+}
+
+.attach-modal{
+  position:absolute;
+  bottom:60px; /* pi anlè input */
+  left:0;
+  width:100%;
+  background:#fff;
+  border-top-left-radius:12px;
+  border-top-right-radius:12px;
+  box-shadow:0 -4px 12px rgba(0,0,0,0.2);
+  padding:16px;
+  z-index:200;
+}
+
+.hidden{display:none;}
+
+.attach-grid{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:12px;
+  text-align:center;
+}
+
+.attach-item{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  cursor:pointer;
+  font-size:18px;
+  color:#333;
+}
+
+.attach-item i{
+  font-size:28px;
+  margin-bottom:6px;
+  color:#1db954;
+}
+
+.attach-item span{
+  font-size:12px;
+}
+</style>
+</head>
+<body>
+
+<!-- USER / ADMIN ACCESS MODAL -->
+<div id="userSetup" style="position:fixed;inset:0;background:rgba(0,0,0,0.85);display:flex;align-items:center;justify-content:center;z-index:9999;">
+  <div style="background:#fff;padding:20px;border-radius:12px;width:320px;text-align:center;color:#111">
+    <h3>Welcome</h3>
+    <p>Select how you want to enter</p><br>
+
+    <button onclick="openUserForm()" style="width:100%;background:#3b82f6;color:white;padding:10px;border-radius:6px;border:none;font-weight:600;margin-bottom:8px">Join Group</button>
+
+    <button onclick="openAdminForm()" style="width:100%;background:#6b7280;color:white;padding:10px;border-radius:6px;border:none;font-weight:600">Admin Login</button>
+  </div>
+</div>
+
+<!-- USER REGISTER FORM -->
+<div id="register-box" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.85);align-items:center;justify-content:center;z-index:9999;">
+  <div style="background:#fff;padding:20px;border-radius:12px;width:320px;text-align:center;color:#111">
+    <h3>Join Group</h3><br>
+
+    <input id="regName" type="text" placeholder="Enter full name" style="width:100%;padding:10px;margin-bottom:10px;border-radius:6px;border:1px solid #ccc">
+
+    <input id="regNumber" type="text" placeholder="Phone Number" style="width:100%;padding:10px;margin-bottom:10px;border-radius:6px;border:1px solid #ccc">
+
+    <input id="regImg" type="text" placeholder="Profile Image URL (Optional)" style="width:100%;padding:10px;margin-bottom:10px;border-radius:6px;border:1px solid #ccc">
+
+    <button onclick="addUser()" style="width:100%;background:#10b981;color:white;padding:10px;border-radius:6px;border:none;font-weight:600">Continue</button>
+  </div>
+</div>
+
+<!-- ADMIN LOGIN MODAL -->
+<div id="admin-box" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.85);align-items:center;justify-content:center;z-index:9999;">
+  <div style="background:#fff;padding:20px;border-radius:12px;width:320px;text-align:center;color:#111">
+    <h3>Admin Login</h3><br>
+
+    <input id="adminCode" type="password" placeholder="Enter Admin Code" style="width:100%;padding:10px;margin-bottom:10px;border-radius:6px;border:1px solid #ccc">
+
+    <button onclick="verifyAdmin()" style="width:100%;background:#ef4444;color:white;padding:10px;border-radius:6px;border:none;font-weight:600">Verify</button>
+  </div>
+</div>
+
+<div class="app">
+
+  <!-- HEADER -->
+  <div class="header">
+    <div class="btn-back" id="backBtn"><i class="fas fa-arrow-left"></i></div>
+    <!-- Replace src with your group photo path -->
+    <img class="group-thumb" id="groupThumb" src="https://files.catbox.moe/vjq3ez.jpeg" alt="group">
+    <div class="header-main">
+      <div class="group-name">𝙋𝙐𝙎𝙃 𝙐𝙋 4𝙀𝙑𝙀𝙍 💨🔥</div>
+      <div class="group-sub">
+        <div>Dawens ✨ • Broh💙金 Ｒ Ａ Ｙ, ?SilvaX, ~𝗨𝘀𝗲𝗿𝗧𝘄𝗼𝟵...</div>
+      </div>
+    </div>
+
+    <div class="header-actions">
+      <!-- Icon Video -->
+<div class="icon-circle" title="Video" id="videoBtn">
+    <i class="fas fa-video"></i>
+</div>
+
+<!-- Modal Fullscreen -->
+<div id="videoModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:#000; z-index:9999; flex-direction:column; justify-content:center; align-items:center;">
+    <video id="remoteVideo" autoplay playsinline style="width:70%; height:auto; background:#333; border-radius:10px;"></video>
+    <video id="localVideo" autoplay playsinline muted style="width:150px; height:120px; position:absolute; bottom:20px; right:20px; border:2px solid #fff; border-radius:8px;"></video>
+    
+    <!-- Kontwòl -->
+    <div style="position:absolute; bottom:20px; display:flex; gap:15px;">
+        <button id="endCall" style="padding:10px 15px; background:red; color:#fff; border:none; border-radius:5px;">End Call</button>
+        <button id="muteMic" style="padding:10px 15px; background:gray; color:#fff; border:none; border-radius:5px;">Mute</button>
+        <button id="switchSpeaker" style="padding:10px 15px; background:gray; color:#fff; border:none; border-radius:5px;">Speaker</button>
+    </div>
+</div>
+
+      <div class="icon-circle" title="More"><i class="fas fa-ellipsis-v"></i></div>
+    </div>
+  </div>
+
+
+
+  <!-- small pinned voice indicator -->
+  <div style="padding:10px 12px;">
+    <div class="top-indicator">
+      <div class="pin-icon"><i class="fas fa-thumbtack" style="font-size:14px;color:var(--accent)"></i></div>
+      <div style="font-size:13px;color:var(--muted)"><i class="fas fa-microphone" style="color:var(--accent)"></i> Voice message (0:04)</div>
+    </div>
+  </div>
+
+  <!-- MESSAGES -->
+  <div class="messages" id="messages">
+
+    <!-- sticker message (right) -->
+    <div class="msg-row msg-right">
+      <!-- right bubble -->
+      <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px">
+        <div class="bubble right">
+          <img class="sticker-img" src="https://files.catbox.moe/3qqdmx.jpeg" alt="sticker">
+        </div>
+        <div class="msg-meta" style="justify-content:flex-end">
+          <div class="msg-time">9:09 PM</div>
+          <div class="tick"><i class="fas fa-check-double"></i></div>
+        </div>
+      </div>
+      <img class="avatar" src="https://files.catbox.moe/o1ai21.png" alt="you">
+    </div>
+
+    <!-- left text bubble with pink name label (TOKYO) -->
+    <div class="msg-row msg-left">
+      <img class="avatar" src="https://files.catbox.moe/pvsygr.jpeg" alt="tokyo">
+      <div>
+        <div class="bubble left">
+          <div class="name-label" style="color:#ff6b81">~𝗨𝘀𝗲𝗿𝗧𝘄𝗼𝟵</div>
+          <div>Ekwè Mw pale Avhw deja 😩</div>
+        </div>
+        <div class="msg-meta"><div class="msg-time">10:29 PM</div></div>
+      </div>
+    </div>
+
+    <!-- left voice message with nested reply card (simulating the screenshot) -->
+    <div class="msg-row msg-left">
+      <img class="avatar" src="https://files.catbox.moe/5uzq31.jpeg" alt="angel">
+      <div>
+        <div class="bubble left" style="padding:8px 10px;">
+          <div class="name-label" style="color:#f97316">𝗨𝘀𝗲𝗿𝗧𝘄𝗼𝟵 <span style="font-weight:600;font-size:12px;color:var(--muted)">‪+1 (336) 905‑5524‬</span></div>
+
+          <!-- nested reply box (green left strip) -->
+          <div style="display:flex;gap:8px;align-items:flex-start;background:rgba(16,185,129,0.04);border-left:3px solid #10b981;padding:8px;border-radius:8px;margin-bottom:8px">
+            <div style="font-weight:700;color:#10b981;font-size:13px">~𝟽𝚙𝚊𝚋𝚕𝚘🧛⭐️</div>
+            <div style="font-size:13px;color:#e6eef5;flex:1">Mpaka pranl sousa 😭<br> mal sou droid i p compatible</div>
+          </div>
+
+          <!-- voice UI -->
+          <div class="voice" style="background:transparent;padding:0">
+            <div class="play-btn"><i class="fas fa-play"></i></div>
+            <div class="wave" aria-hidden="true">
+              <span></span><span></span><span></span><span></span><span></span><span></span>
+            </div>
+            <div style="min-width:36px;text-align:right;font-size:13px;color:var(--time)">0:03</div>
+          </div>
+        </div>
+
+        <div class="msg-meta"><div class="msg-time">9:10 PM</div></div>
+      </div>
+    </div>
+
+    <!-- small left text (MAFIA) -->
+    <div class="msg-row msg-left">
+      <img class="avatar" src="https://files.catbox.moe/3vbp10.jpeg" alt="mafia">
+      <div>
+        <div class="bubble left">
+          <div class="name-label" style="color:#38bdf8">Broh💙金 Ｒ Ａ Ｙ</div>
+          <div><span style="color:#10b981;font-weight:700">Oh oh ou bon vre sou mom ou 😂🔥</span> Eh patnè a ki poko fh livraison yo oui</div>
+        </div>
+        <div class="msg-meta"><div class="msg-time">10:30 PM</div></div>
+      </div>
+    </div>
+    </div>
+
+    <!-- more filler to show scroll -->
+    <div style="height:40px"></div>
+
+  </div> <!-- end messages -->
+
+  <!-- INPUT BAR -->
+  <div class="input-bar">
+    <!-- Attach Button -->
+
+  <div class="btn-plus" id="attachBtn" style="font-size:18px;cursor:pointer;">
+    <i class="fas fa-plus"></i>
+  </div>
+
+<!-- ATTACH MODAL -->
+<div id="attachModal" class="attach-modal hidden" style="position:absolute;bottom:60px;left:0;width:100%;background:#fff;border-top-left-radius:12px;border-top-right-radius:12px;box-shadow:0 -4px 12px rgba(0,0,0,0.2);padding:16px;z-index:200;">
+  <div class="attach-grid" style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;text-align:center;">
+    
+    <!-- Photo -->
+    <div class="attach-item" id="photoUpload" style="display:flex;flex-direction:column;align-items:center;cursor:pointer;">
+      <i class="fas fa-image" style="font-size:28px;margin-bottom:6px;color:#1db954;"></i>
+      <span style="font-size:12px;">Photo</span>
+      <input type="file" id="photoInput" accept="image/*" style="display:none">
+    </div>
+
+    <!-- Document -->
+    <div class="attach-item" id="documentUpload" style="display:flex;flex-direction:column;align-items:center;cursor:pointer;">
+      <i class="fas fa-file-alt" style="font-size:28px;margin-bottom:6px;color:#1db954;"></i>
+      <span style="font-size:12px;">Document</span>
+      <input type="file" id="docInput" accept=".pdf,.doc,.docx,.txt" style="display:none">
+    </div>
+
+    <!-- Poll -->
+    <div class="attach-item" id="pollOption" style="display:flex;flex-direction:column;align-items:center;cursor:pointer;">
+      <i class="fas fa-poll" style="font-size:28px;margin-bottom:6px;color:#1db954;"></i>
+      <span style="font-size:12px;">Poll</span>
+    </div>
+
+    <!-- Location -->
+    <div class="attach-item" id="locationOption" style="display:flex;flex-direction:column;align-items:center;cursor:pointer;">
+      <i class="fas fa-map-marker-alt" style="font-size:28px;margin-bottom:6px;color:#1db954;"></i>
+      <span style="font-size:12px;">Location</span>
+    </div>
+
+  </div>
+</div>
+    <div class="input-inner">
+      <input id="msgInput" placeholder="Type a message" autocomplete="off">
+      <div style="display:flex;gap:8px;align-items:center">
+        <!-- Emoji/Sticker/Gift Trigger -->
+<div id="openPicker" style="font-size:18px;color:var(--muted);cursor:pointer;">
+    <i class="far fa-smile"></i>
+  </div>
+
+
+<!-- Modal Picker (emoji/sticker/gift) -->
+<div id="pickerModal" class="picker-modal hidden">
+  <div class="picker-header">
+    <button class="picker-btn active" data-tab="emoji">Emoji</button>
+    <button class="picker-btn" data-tab="sticker">Sticker</button>
+    <button class="picker-btn" data-tab="gift">Gift</button>
+  </div>
+  <div class="picker-content">
+    <div class="tab-content" id="emojiTab">
+      <span>😃</span> <span>😄</span> <span>😁</span> <span>😂</span>
+    </div>
+    <div class="tab-content hidden" id="stickerTab">
+      <img src="https://i.pravatar.cc/40?img=1" alt="sticker">
+      <img src="https://i.pravatar.cc/40?img=2" alt="sticker">
+    </div>
+    <div class="tab-content hidden" id="giftTab">
+      <span>🎁</span> <span>🎂</span> <span>🥳</span>
+    </div>
+  </div>
+</div>
+        <div style="font-size:18px;color:var(--muted);cursor:pointer" id="cameraBtn">
+    <i class="fas fa-camera"></i>
+</div>
+
+<input type="file" id="cameraInput" accept="image/*" capture="environment" style="display:none">
+      </div>
+    </div>
+    <div class="icon-send" id="sendBtn"><i class="fas fa-paper-plane"></i></div>
+  </div>
+<!-- Egzanp div chat -->
+<div id="chat" style="margin-top:20px;"></div>
+</div>
+
+<script>
+const cameraBtn = document.getElementById("cameraBtn");
+const cameraInput = document.getElementById("cameraInput");
+
+cameraBtn.addEventListener("click", () => {
+    cameraInput.click(); // Ouvri kamera oswa galeri
+});
+
+cameraInput.addEventListener("change", (event) => {
+    const file = event.target.files[0];
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            const imageData = e.target.result;
+            
+            // Egzanp: montre imaj nan chat
+            const chat = document.getElementById("chat"); // Asire ou gen div chat
+            const img = document.createElement("img");
+            img.src = imageData;
+            img.style.maxWidth = "150px";
+            img.style.borderRadius = "8px";
+            chat.appendChild(img);
+
+            // Ou ka tou voye `imageData` nan sèvè a avèk fetch/ajax
+        }
+        reader.readAsDataURL(file);
+    }
+});
+
+
+let currentUser = null;
+let isAdmin = false;
+const ADMIN_SECRET = "1986";
+
+// Display forms
+function openUserForm() {
+  document.getElementById("register-box").style.display = "flex";
+}
+
+function openAdminForm() {
+  document.getElementById("admin-box").style.display = "flex";
+}
+
+// Verify admin login
+function verifyAdmin() {
+  const code = document.getElementById("adminCode").value.trim();
+  
+  if (code === ADMIN_SECRET) {
+    isAdmin = true;
+    document.getElementById("admin-box").style.display = "none";
+    document.getElementById("userSetup").style.display = "none";
+    alert("Admin Access Granted 🔑");
+  } else {
+    alert("Invalid Code!");
+  }
+}
+
+// Register user
+function addUser() {
+  const name = document.getElementById("regName").value.trim();
+  const number = document.getElementById("regNumber").value.trim();
+  const img = document.getElementById("regImg").value.trim() || "https://i.pravatar.cc/150";
+
+  if (!name || !number) return alert("Please fill name and number!");
+
+  currentUser = { name, number, img };
+  document.getElementById("register-box").style.display = "none";
+  document.getElementById("userSetup").style.display = "none";
+
+  console.log("User joined:", currentUser);
+}
+
+// --- ELEMENTS ---
+const sendBtn = document.getElementById('sendBtn');
+const msgInput = document.getElementById('msgInput');
+const messages = document.getElementById('messages');
+const openPicker = document.getElementById('openPicker');
+const pickerModal = document.getElementById('pickerModal');
+const pickerBtns = document.querySelectorAll('.picker-btn');
+const tabContents = document.querySelectorAll('.tab-content');
+const attachBtn = document.getElementById('attachBtn');
+const attachModal = document.getElementById('attachModal');
+const photoUpload = document.getElementById('photoUpload');
+const photoInput = document.getElementById('photoInput');
+const docUpload = document.getElementById('documentUpload');
+const docInput = document.getElementById('docInput');
+
+// --- HELPER FUNCTIONS ---
+function escapeHtml(text) {
+  const div = document.createElement('div');
+  div.innerText = text;
+  return div.innerHTML;
+}
+
+function timeNow() {
+  const d = new Date();
+  return d.getHours().toString().padStart(2,'0') + ':' + d.getMinutes().toString().padStart(2,'0');
+}
+
+// --- SEND MESSAGE FUNCTION ---
+function sendMessage(content) {
+  if (!content) return;
+  const msg = document.createElement('div');
+  msg.className = 'msg-row msg-right';
+  msg.innerHTML = `
+    <img class="avatar" src="https://i.pravatar.cc/36?img=5" alt="you">
+    <div class="bubble-container">
+      <div class="bubble right">${content}</div>
+      <div class="msg-meta"><span>${timeNow()}</span><span><i class="fas fa-check"></i></span></div>
+    </div>
+  `;
+  messages.appendChild(msg);
+  messages.scrollTop = messages.scrollHeight;
+}
+
+// --- SEND BUTTON CLICK ---
+sendBtn.addEventListener('click', () => {
+  sendMessage(escapeHtml(msgInput.value.trim()));
+  msgInput.value = '';
+});
+
+// --- EMOJI / STICKER / GIFT PICKER ---
+openPicker.addEventListener('click', () => pickerModal.classList.toggle('hidden'));
+
+// Tab switch
+pickerBtns.forEach(btn => {
+  btn.addEventListener('click', () => {
+    pickerBtns.forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    const tab = btn.dataset.tab;
+    tabContents.forEach(tc => {
+      if(tc.id === tab+'Tab') tc.classList.remove('hidden');
+      else tc.classList.add('hidden');
+    });
+  });
+});
+
+// Click emoji/sticker/gift
+tabContents.forEach(tab => {
+  tab.addEventListener('click', e => {
+    if(e.target.tagName === 'IMG') sendMessage(`<img src="${e.target.src}" alt="sticker">`);
+    if(e.target.tagName === 'SPAN') sendMessage(escapeHtml(e.target.textContent));
+    pickerModal.classList.add('hidden');
+  });
+});
+
+// --- ATTACH MODAL ---
+attachBtn.addEventListener('click', () => attachModal.classList.toggle('hidden'));
+
+// Photo upload
+photoUpload.addEventListener('click', () => photoInput.click());
+photoInput.addEventListener('change', e => {
+  const files = Array.from(e.target.files);
+  files.forEach(file => sendMessage(`📷 ${file.name}`));
+  photoInput.value = '';
+  attachModal.classList.add('hidden');
+});
+
+// Document upload
+docUpload.addEventListener('click', () => docInput.click());
+docInput.addEventListener('change', e => {
+  const files = Array.from(e.target.files);
+  files.forEach(file => sendMessage(`📄 ${file.name}`));
+  docInput.value = '';
+  attachModal.classList.add('hidden');
+});
+
+// Poll
+document.getElementById('pollOption').addEventListener('click', () => {
+  const question = prompt("Antre kesyon poll la:");
+  if(!question) return;
+
+  const options = [];
+  while(true){
+    const opt = prompt("Antre yon opsyon (kite vid pou fini):");
+    if(!opt) break;
+    options.push(opt);
+  }
+  if(options.length === 0) return;
+
+  let pollHTML = `<b>📊 ${question}</b><br>`;
+  options.forEach((opt,i)=> pollHTML += `${i+1}. ${opt}<br>`);
+  sendMessage(pollHTML);
+  attachModal.classList.add('hidden');
+});
+
+// Location
+document.getElementById('locationOption').addEventListener('click', () => {
+  if(navigator.geolocation){
+    navigator.geolocation.getCurrentPosition(pos => {
+      const lat = pos.coords.latitude.toFixed(6);
+      const lng = pos.coords.longitude.toFixed(6);
+      sendMessage(`📍 Lokasyon mwen: Lat ${lat}, Lng ${lng}`);
+      attachModal.classList.add('hidden');
+    }, () => sendMessage("❌ Pa kapab jwenn lokasyon"));
+  } else {
+    sendMessage("❌ Geolocation pa sipòte nan navigatè sa a");
+  }
+});
+
+// Jwenn bouton an pa ID
+  const backBtn = document.getElementById("backBtn");
+
+  // Ajoute klik pou retounen nan index.html
+  backBtn.addEventListener("click", () => {
+    window.location.href = "index.html";
+  });
+
+
+const videoBtn = document.getElementById("videoBtn");
+const videoModal = document.getElementById("videoModal");
+const localVideo = document.getElementById("localVideo");
+const remoteVideo = document.getElementById("remoteVideo");
+const endCall = document.getElementById("endCall");
+const muteMic = document.getElementById("muteMic");
+const switchSpeaker = document.getElementById("switchSpeaker");
+
+let localStream;
+let peerConnection;
+
+// Konfig WebRTC
+const config = { iceServers: [{ urls: "stun:stun.l.google.com:19302" }] };
+
+videoBtn.addEventListener("click", async () => {
+    videoModal.style.display = "flex";
+    localStream = await navigator.mediaDevices.getUserMedia({ video:true, audio:true });
+    localVideo.srcObject = localStream;
+
+    // Konekte ak lòt moun (WebRTC) - senp egzanp peerConnection
+    peerConnection = new RTCPeerConnection(config);
+    localStream.getTracks().forEach(track => peerConnection.addTrack(track, localStream));
+
+    peerConnection.ontrack = (event) => {
+        remoteVideo.srcObject = event.streams[0];
+    };
+
+    // TODO: Ou bezwen signaling server pou konekte lòt moun
+});
+
+// Bouton kontwòl
+endCall.addEventListener("click", () => {
+    videoModal.style.display = "none";
+    if (localStream) localStream.getTracks().forEach(track => track.stop());
+    if (peerConnection) peerConnection.close();
+});
+
+muteMic.addEventListener("click", () => {
+    if (!localStream) return;
+    localStream.getAudioTracks().forEach(track => track.enabled = !track.enabled);
+});
+
+switchSpeaker.addEventListener("click", () => {
+    if (remoteVideo.srcObject) {
+        remoteVideo.muted = !remoteVideo.muted;
+    }
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Group Info - Modal Fullscreen</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<style>
+    :root{
+        --bg:#000000;
+        --card:#111312;
+        --text:#ffffff;
+        --muted:#8c979f;
+        --whatsapp-green:#00a884;
+        --modal-bg:rgba(0,0,0,0.95);
+        --toggle-bg:#555;
+        --toggle-active:#00a884;
+    }
+    body{
+        margin:0; padding:0;
+        font-family:-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial;
+        background:var(--bg);
+        color:var(--text);
+    }
+    .header{
+        position:sticky; top:0;
+        background:rgba(0,0,0,0.65); backdrop-filter:blur(10px);
+        display:flex; align-items:center; padding:14px 12px; gap:10px; z-index:5;
+    }
+    .header i{font-size:20px; cursor:pointer;}
+    .header-title{flex:1; font-weight:700; font-size:17px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+    .header-edit{font-size:15px; opacity:.9; cursor:pointer;}
+
+    .profile-wrap{padding:12px;}
+    .card{width:100%; background:linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0.02)); border-radius:16px; padding:18px; box-shadow:0 20px 50px rgba(0,0,0,0.65); backdrop-filter:blur(9px);}
+    .top{display:flex; gap:14px; align-items:center;}
+    .thumb{width:84px; height:84px; border-radius:50%; object-fit:cover; border:3px solid rgba(255,255,255,0.08); box-shadow:0 8px 25px rgba(0,0,0,0.65);}
+    .meta{flex:1; min-width:0;}
+    .name{display:flex; align-items:center; gap:8px; font-weight:800; font-size:18px; line-height:1; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+    .members{font-size:13px; font-weight:500; color:var(--muted); margin-top:3px;}
+    .sub{font-size:14px; margin-top:7px; line-height:1.3; color:#cfd3d8; max-height:3.4em; overflow:hidden; text-overflow:ellipsis;}
+
+    .row-icon{display:flex; padding:18px 14px; background:var(--card); border-radius:12px; align-items:center; justify-content:center; flex-direction:column; gap:6px; flex:1; color:var(--whatsapp-green); cursor:pointer;}
+    .row-icon span{font-size:13px; color:var(--text);}
+    .icon-row{display:flex; gap:10px; margin:12px;}
+
+    .section{padding:14px; background:var(--card); border-radius:12px; margin:12px;}
+    .item{padding:15px 10px; border-bottom:1px solid rgba(255,255,255,0.05); display:flex; justify-content:space-between; align-items:center; font-size:15px; cursor:pointer;}
+    .item:last-child{border-bottom:none;}
+    .item small{color:var(--muted);}
+    .members-header{padding:12px; font-weight:600; font-size:15px; color:var(--muted);}
+    .addbox{display:flex; justify-content:space-between; align-items:center; background:var(--card); margin:0 12px; border-radius:12px; padding:14px;}
+    .addbox-left{display:flex; align-items:center; gap:10px;}
+    .circle{width:36px; height:36px; border-radius:50%; background:var(--whatsapp-green); display:flex; align-items:center; justify-content:center; color:white; font-size:18px;}
+
+    /* MODAL FULLSCREEN */
+    .modal{
+        position:fixed; top:0; left:0; width:100%; height:100%; background:var(--modal-bg);
+        display:none; flex-direction:column; z-index:999; padding:20px; overflow-y:auto;
+    }
+    .modal.active{display:flex;}
+    .modal-header{display:flex; align-items:center; justify-content:space-between; margin-bottom:20px;}
+    .modal-header h2{margin:0; font-size:20px;}
+    .modal-close{font-size:24px; cursor:pointer;}
+    .modal-content{flex:1;}
+    .modal-section{margin-bottom:20px;}
+    .toggle-btn{
+        padding:6px 14px; border:none; border-radius:14px; cursor:pointer;
+        background:var(--toggle-bg); color:#fff;
+    }
+    .toggle-btn.active{background:var(--toggle-active);}
+    .save-btn{
+        background:var(--whatsapp-green); border:none; padding:10px 16px; border-radius:12px;
+        color:#fff; cursor:pointer; font-weight:600; width:100%; margin-top:20px;
+    }
+    .option-list{display:flex; flex-direction:column; gap:12px;}
+    .option-list button{padding:10px 14px; border-radius:12px; border:none; cursor:pointer; background:#222; color:#fff; text-align:left;}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="header">
+    <i class="fas fa-arrow-left"></i>
+    <div class="header-title">Haitian Player🇭🇹</div>
+    <div class="header-edit">Edit</div>
+</div>
+
+<!-- GROUP PROFILE CARD -->
+<div class="profile-wrap">
+    <div class="card">
+        <div class="top">
+            <img class="thumb" src="https://files.catbox.moe/ph9rzu.jpeg" alt="group photo">
+            <div class="meta">
+                <div class="name"><span class="emoji">🏄‍♂️🥇</span> Haitian Player🇭🇹</div>
+                <div class="members">• 163 members</div>
+                <div class="sub">Respèkte vibe la, respekte règ la! — Pa lage link san ADM...</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ICON BUTTONS -->
+<div class="icon-row">
+    <div class="row-icon"><i class="fas fa-microphone-lines"></i><span>Voice Chat</span></div>
+    <div class="row-icon"><i class="fas fa-user-plus"></i><span>Add</span></div>
+    <div class="row-icon"><i class="fas fa-search"></i><span>Search</span></div>
+</div>
+
+<!-- OPTIONS -->
+<div class="section">
+    <div class="item" data-modal="media"><span><i class="fas fa-camera"></i> Media, links and docs</span><small>60</small></div>
+    <div class="item" data-modal="starred"><span><i class="fas fa-star"></i> Starred</span><small>None</small></div>
+    <div class="item" data-modal="notifications"><span><i class="fas fa-bell"></i> Notifications</span></div>
+    <div class="item" data-modal="chat-theme"><span><i class="fas fa-palette"></i> Chat theme</span></div>
+    <div class="item" data-modal="save-photos"><span><i class="fas fa-download"></i> Save to Photos</span><small>Default</small></div>
+</div>
+
+<div class="section">
+    <div class="item" data-modal="disappearing-messages"><span><i class="fas fa-moon"></i> Disappearing messages</span><small>Off</small></div>
+    <div class="item" data-modal="group-permissions"><span><i class="fas fa-shield-alt"></i> Group permissions</span></div>
+    <div class="item" data-modal="lock-chat"><span><i class="fas fa-lock"></i> Lock chat</span></div>
+    <div class="item" data-modal="advanced-privacy"><span><i class="fas fa-puzzle-piece"></i> Advanced chat privacy</span><small>Off</small></div>
+    <div class="item" data-modal="encryption"><span><i class="fas fa-lock"></i> Encryption</span></div>
+</div>
+
+<div class="section">
+    <div class="item" data-modal="community"><span><i class="fas fa-users"></i> Add group to a community</span></div>
+</div>
+
+<div class="members-header">163 members</div>
+
+<div class="addbox">
+    <div class="addbox-left">
+        <div class="circle">+</div>
+        <span>Add Members</span>
+    </div>
+    <i class="fas fa-search"></i>
+</div>
+
+<!-- MODAL FULLSCREEN -->
+<div id="modal" class="modal">
+    <div class="modal-header">
+        <h2 id="modal-title">Title</h2>
+        <i class="fas fa-times modal-close"></i>
+    </div>
+    <div class="modal-content" id="modal-content">
+        <!-- Kontni dinamik -->
+    </div>
+    <button class="save-btn" id="save-btn">Save</button>
+</div>
+
+<script>
+const modal = document.getElementById('modal');
+const modalTitle = document.getElementById('modal-title');
+const modalContent = document.getElementById('modal-content');
+const saveBtn = document.getElementById('save-btn');
+const modalClose = document.querySelector('.modal-close');
+
+const modalData = {
+    'notifications': {
+        title:'Notifications',
+        options:['Mute: No','Mute: 1h','Mute: 8h','Alert tone: Default','Alert tone: Tone 1','Alert tone: Tone 2']
+    },
+    'chat-theme': {
+        title:'Chat Theme',
+        options:['Default','Red','Blue','Green','Purple']
+    },
+    'save-photos': {
+        title:'Save to Photos',
+        options:['Yes','Always','Never']
+    },
+    'disappearing-messages': {
+        title:'Disappearing Messages',
+        options:['Off','24 hours','7 days','90 days']
+    },
+    'group-permissions': {
+        title:'Group Permissions',
+        toggles:['Member can edit group settings','Member can send messages','Admin can approve members']
+    },
+    'lock-chat': {
+        title:'Lock Chat',
+        toggle:true
+    },
+    'encryption': {
+        title:'Encryption',
+        text:'Messages are end-to-end encrypted.'
+    }
+}
+
+// Open modal on item click
+document.querySelectorAll('.item').forEach(item => {
+    item.addEventListener('click', ()=> {
+        const key = item.dataset.modal;
+        if(!key || !modalData[key]) return;
+        modalTitle.innerText = modalData[key].title;
+        modalContent.innerHTML = '';
+
+        // Text content
+        if(modalData[key].text){
+            modalContent.innerHTML = `<p>${modalData[key].text}</p>`;
+        }
+
+        // Options list
+        if(modalData[key].options){
+            const list = document.createElement('div');
+            list.className = 'option-list';
+            modalData[key].options.forEach(opt=>{
+                const btn = document.createElement('button');
+                btn.innerText = opt;
+                btn.addEventListener('click', ()=>{alert('You selected: '+opt)});
+                list.appendChild(btn);
+            });
+            modalContent.appendChild(list);
+        }
+
+        // Toggle buttons
+        if(modalData[key].toggles){
+            modalData[key].toggles.forEach(t=>{
+                const btn = document.createElement('button');
+                btn.className = 'toggle-btn';
+                btn.innerText = t;
+                btn.addEventListener('click', ()=>btn.classList.toggle('active'));
+                modalContent.appendChild(btn);
+            });
+        }
+
+        // Single toggle
+        if(modalData[key].toggle){
+            const btn = document.createElement('button');
+            btn.className = 'toggle-btn';
+            btn.innerText = 'Activate';
+            btn.addEventListener('click', ()=>btn.classList.toggle('active'));
+            modalContent.appendChild(btn);
+        }
+
+        modal.classList.add('active');
+    })
+})
+
+// Close modal
+modalClose.addEventListener('click', ()=> modal.classList.remove('active'));
+
+// Save button
+saveBtn.addEventListener('click', ()=>{
+    alert('Settings saved!');
+    modal.classList.remove('active');
+});
+</script>
+</body>
+</html>

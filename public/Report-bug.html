@@ -1,0 +1,226 @@
+<!doctype html>
+<html lang="ht">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Report Bug — Dave</title>
+  <style>
+    body { font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial; padding: 18px; max-width:800px; margin:auto; }
+    h1 { font-size: 1.4rem; margin-bottom: 6px; }
+    label { display:block; margin-top:12px; font-weight:600; }
+    textarea { width:100%; min-height:120px; padding:8px; font-size:0.95rem; }
+    .small { font-size:0.85rem; color:#555; margin-top:6px; }
+    .box { background:#f9f9f9; border:1px solid #eee; padding:10px; border-radius:8px; margin-top:8px; }
+    .row { display:flex; gap:10px; align-items:center; margin-top:10px; }
+    button { padding:10px 14px; border-radius:8px; border:0; background:#0b78e3; color:white; cursor:pointer; }
+    button:disabled { opacity:0.6; cursor:not-allowed; }
+    .meta { font-family: monospace; font-size:0.85rem; color:#333; }
+    .note { color:#b33; font-weight:600; margin-top:10px; }
+    input[type="file"] { margin-top:8px; }
+  </style>
+  <!-- EmailJS SDK (optional) -->
+  <script src="https://cdn.emailjs.com/sdk/3.6.2/email.min.js"></script>
+</head>
+<body>
+  <h1>What happened</h1>
+  <p class="small">Ranmase enfòmasyon kote w te klike "Report bug" otomatikman. Upload foto si w vle pou ede dekri pwoblèm nan.</p>
+
+  <form id="bugForm" class="box">
+    <label for="description">Dekri bug la (ki sa k ap pase, etap pou repwodui):</label>
+    <textarea id="description" name="description" placeholder="Tell us about the issue you encountered..."></textarea>
+
+    <label>
+      <input type="checkbox" id="wantPhoto" /> Eske w vle upload foto?
+    </label>
+
+    <div id="photoArea" style="display:none;">
+      <input id="photoFile" name="photoFile" type="file" accept="image/*" />
+      <div class="small">Maksimòm: 10MB. Preferab: .png / .jpg</div>
+    </div>
+
+    <div id="capturedInfo" class="box" style="margin-top:12px;">
+      <strong>Kote klike (captured):</strong>
+      <div id="clickDetails" class="meta">Pa gen done kaptire.</div>
+    </div>
+
+    <div class="row" style="margin-top:12px;">
+      <button id="sendBtn" type="button">Voye Rapò</button>
+      <button id="mailtoBtn" type="button">Mailto Fallback</button>
+      <div id="status" style="margin-left:10px;"></div>
+    </div>
+
+    <div class="note" id="note"></div>
+  </form>
+
+<script>
+  // Initialize EmailJS (optional)
+  try {
+    emailjs.init('YOUR_EMAILJS_USER_ID'); // <-- REPLACE with your EmailJS user ID
+  } catch(e) {
+    // EmailJS not available or not initialized
+    console.warn('EmailJS init failed (ok if you don\'t use EmailJS).', e);
+  }
+
+  const wantPhoto = document.getElementById('wantPhoto');
+  const photoArea = document.getElementById('photoArea');
+  const photoFile = document.getElementById('photoFile');
+  const clickDetails = document.getElementById('clickDetails');
+  const sendBtn = document.getElementById('sendBtn');
+  const mailtoBtn = document.getElementById('mailtoBtn');
+  const status = document.getElementById('status');
+  const note = document.getElementById('note');
+  const description = document.getElementById('description');
+
+  // Toggle photo upload field
+  wantPhoto.addEventListener('change', () => {
+    photoArea.style.display = wantPhoto.checked ? 'block' : 'none';
+  });
+
+  // Try to read sessionStorage capture from the previous page
+  const stored = sessionStorage.getItem('reportBugClickInfo');
+  let clickInfo = null;
+  if (stored) {
+    try {
+      clickInfo = JSON.parse(stored);
+      clickDetails.innerHTML = `
+        <div><strong>Page:</strong> ${escapeHtml(clickInfo.pageUrl)}</div>
+        <div><strong>Timestamp:</strong> ${escapeHtml(clickInfo.timestamp)}</div>
+        <div><strong>ClientX, ClientY:</strong> ${clickInfo.clientX}, ${clickInfo.clientY}</div>
+        <div><strong>Selector:</strong> ${escapeHtml(clickInfo.selector || '(pa gen selector)')}</div>
+        <div><strong>Viewport:</strong> ${clickInfo.viewportWidth} × ${clickInfo.viewportHeight}</div>
+      `;
+    } catch(e) {
+      clickDetails.textContent = 'Pa kapab li info kaptire a.';
+    }
+  } else {
+    clickDetails.textContent = 'Pa gen done kaptire (asire w meni an itilize snippet JS la anvan navigasyon an).';
+  }
+
+  function escapeHtml(s) {
+    if (!s) return '';
+    return s.replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;');
+  }
+
+  // Build a mailto URL as fallback (no attachments)
+  function buildMailto(descriptionText, clickInfo) {
+    const to = 'youremail@example.com'; // <-- REPLACE with your receiving email
+    const subject = encodeURIComponent('Rapò Bug soti nan sit ou');
+    let body = '';
+    body += 'Dekri bug:%0D%0A' + encodeURIComponent(descriptionText) + '%0D%0A%0D%0A';
+    if (clickInfo) {
+      body += encodeURIComponent('Kote klike:') + '%0D%0A';
+      body += encodeURIComponent(`Page: ${clickInfo.pageUrl}`) + '%0D%0A';
+      body += encodeURIComponent(`Timestamp: ${clickInfo.timestamp}`) + '%0D%0A';
+      body += encodeURIComponent(`ClientX,ClientY: ${clickInfo.clientX}, ${clickInfo.clientY}`) + '%0D%0A';
+      body += encodeURIComponent(`Selector: ${clickInfo.selector}`) + '%0D%0A';
+    }
+    return `mailto:${to}?subject=${subject}&body=${body}`;
+  }
+
+  // Handler: fallback mailto button
+  mailtoBtn.addEventListener('click', () => {
+    const mailto = buildMailto(description.value || '[pa gen deskripsyon]', clickInfo);
+    window.location.href = mailto;
+  });
+
+  // Handler: send via EmailJS (if configured), will also fallback to mailto if EmailJS not configured
+  sendBtn.addEventListener('click', async () => {
+    sendBtn.disabled = true;
+    status.textContent = 'Ap voye...';
+    note.textContent = '';
+
+    const desc = description.value.trim();
+    if (!desc) {
+      note.textContent = 'Tanpri ekri yon ti deskripsyon sou bug la.';
+      sendBtn.disabled = false;
+      status.textContent = '';
+      return;
+    }
+
+    // If EmailJS available and you have configured a template that accepts attachments:
+    // Replace 'service_id' and 'template_id' with your EmailJS config.
+    const SERVICE_ID = 'YOUR_EMAILJS_SERVICE_ID';
+    const TEMPLATE_ID = 'YOUR_EMAILJS_TEMPLATE_ID';
+    const USER_ID = 'YOUR_EMAILJS_USER_ID'; // already passed to init above
+
+    // If EmailJS not configured, fallback to mailto
+    if (typeof emailjs === 'undefined' || !SERVICE_ID || SERVICE_ID.startsWith('YOUR_')) {
+      status.textContent = 'EmailJS pa konfigire — ap louvri mail pou voye (fallback).';
+      setTimeout(() => {
+        window.location.href = buildMailto(desc, clickInfo);
+      }, 600);
+      return;
+    }
+
+    // Use FormData to include file
+    const formData = new FormData();
+    formData.append('description', desc);
+    if (clickInfo) {
+      formData.append('pageUrl', clickInfo.pageUrl || '');
+      formData.append('timestamp', clickInfo.timestamp || '');
+      formData.append('clientX', clickInfo.clientX !== undefined ? clickInfo.clientX : '');
+      formData.append('clientY', clickInfo.clientY !== undefined ? clickInfo.clientY : '');
+      formData.append('selector', clickInfo.selector || '');
+    }
+    if (photoFile.files && photoFile.files[0]) {
+      formData.append('attachment', photoFile.files[0]);
+    }
+
+    // EmailJS browser API cannot receive raw FormData with file via simple send() in older templates.
+    // We'll use emailjs.sendForm with a temporary form element to include file attachments.
+    // Create form element and append inputs
+    const tempForm = document.createElement('form');
+    tempForm.style.display = 'none';
+    // required fields for your template: adjust names to match template params
+    const inputs = {
+      'description': desc,
+      'pageUrl': clickInfo ? clickInfo.pageUrl : '',
+      'timestamp': clickInfo ? clickInfo.timestamp : '',
+      'clientX': clickInfo ? clickInfo.clientX : '',
+      'clientY': clickInfo ? clickInfo.clientY : '',
+      'selector': clickInfo ? clickInfo.selector : ''
+    };
+    for (const k in inputs) {
+      const inp = document.createElement('input');
+      inp.name = k;
+      inp.value = inputs[k];
+      tempForm.appendChild(inp);
+    }
+    // file input
+    if (photoFile.files && photoFile.files[0]) {
+      const fileInput = document.createElement('input');
+      fileInput.type = 'file';
+      fileInput.name = 'attachment'; // should match template param expecting file
+      // append the same File object
+      // workaround: use DataTransfer to attach file to input
+      const dt = new DataTransfer();
+      dt.items.add(photoFile.files[0]);
+      fileInput.files = dt.files;
+      tempForm.appendChild(fileInput);
+    }
+
+    document.body.appendChild(tempForm);
+
+    try {
+      const result = await emailjs.sendForm(SERVICE_ID, TEMPLATE_ID, tempForm, USER_ID);
+      console.log('EmailJS result:', result);
+      status.textContent = 'Rapò voye avèk siksè!';
+      note.textContent = '';
+      // clear stored click info to avoid duplicate reports
+      try { sessionStorage.removeItem('reportBugClickInfo'); } catch(e){}
+      description.value = '';
+      photoFile.value = '';
+    } catch (err) {
+      console.error('EmailJS send failed', err);
+      status.textContent = 'Echèk voye avèk EmailJS — louvri mail (fallback).';
+      setTimeout(()=> window.location.href = buildMailto(desc, clickInfo), 900);
+    } finally {
+      sendBtn.disabled = false;
+      // cleanup temp form
+      try { tempForm.remove(); } catch(e){}
+    }
+  });
+
+</script>
+</body>
+</html>

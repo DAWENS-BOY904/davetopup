@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Settings UI — Pro White</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrious/4.0.2/qrious.min.js"></script>
+<style>
+  body{
+    margin:0;
+    font-family: Inter, sans-serif;
+    background:#fff;
+    color:#222;
+  }
+  .section{
+    padding:20px;
+    border-bottom:1px solid #e5e5e5;
+  }
+  .item{
+    padding:16px 0;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    cursor:pointer;
+    font-size:16px;
+  }
+  .item:hover{opacity:0.7;}
+
+  /* MODALS */
+  .modal{
+    position:fixed;
+    top:0;left:0;
+    width:100%;height:100%;
+    background:#00000025;
+    display:none;
+    justify-content:center;
+    align-items:flex-start;
+    padding-top:60px;
+    animation:fade .25s ease;
+  }
+  @keyframes fade{from{opacity:0}to{opacity:1}}
+
+  .modal-box{
+    background:#fff;
+    width:92%;
+    max-width:520px;
+    border-radius:18px;
+    box-shadow:0 10px 30px rgba(0,0,0,0.15);
+    overflow:hidden;
+    animation:popup .25s ease;
+  }
+  @keyframes popup{from{transform:scale(.95);opacity:0}to{transform:scale(1);opacity:1}}
+
+  .modal-header{
+    padding:20px;
+    font-size:22px;
+    font-weight:600;
+    border-bottom:1px solid #eee;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+  }
+  .close-btn{
+    font-size:17px;
+    color:#007aff;
+    cursor:pointer;
+  }
+  .modal-content{
+    padding:20px;
+  }
+
+  input, select{
+    width:100%;
+    padding:12px;
+    background:#f4f4f4;
+    border:1px solid #ddd;
+    border-radius:10px;
+    color:#222;
+    margin-bottom:15px;
+    font-size:15px;
+  }
+  button{
+    width:100%;
+    padding:14px;
+    background:#007aff;
+    border:none;
+    border-radius:10px;
+    color:#fff;
+    font-weight:600;
+    cursor:pointer;
+    font-size:16px;
+  }
+  button:hover{opacity:0.8;}
+
+  .toggle{
+    width:48px;height:26px;
+    background:#ccc;
+    border-radius:20px;
+    position:relative;
+    transition:.25s;
+  }
+  .toggle::after{
+    content:"";
+    width:20px;height:20px;
+    background:#fff;
+    border-radius:50%;
+    position:absolute;
+    top:3px;left:3px;
+    transition:.25s;
+    box-shadow:0 2px 4px rgba(0,0,0,0.15);
+  }
+  .toggle.active{background:#007aff;}
+  .toggle.active::after{left:25px;}
+
+/project-folder/
+   chats.html
+   settings.html
+   updates.html
+   calls.html
+   new-contact.html
+   new-group.html
+</style>
+</head>
+<body>
+
+<div class="section">
+  <div class="item" data-modal="accountModal">Account</div>
+  <div class="item" data-modal="linkedModal">Linked Devices</div>
+  <div class="item" data-modal="donateModal">Donate</div>
+</div>
+
+<div class="section">
+  <div class="item" data-modal="chatsModal">Chats</div>
+  <div class="item" data-modal="storiesModal">Stories</div>
+  <div class="item" data-modal="privacyModal">Privacy</div>
+  <div class="item" data-modal="dataModal">Data Usage</div>
+</div>
+
+<div class="section">
+  <div class="item" data-modal="helpModal">Help</div>
+  <div class="item" data-modal="inviteModal">Invite Friends</div>
+</div>
+
+<!-- ACCOUNT MODAL -->
+<div class="modal" id="accountModal">
+  <div class="modal-box">
+    <div class="modal-header">
+      Account 
+      <span class="close-btn" data-close="accountModal">✖</span>
+    </div>
+    <div class="modal-content">
+      <h3>Edit Username</h3>
+      <input id="usernameInput" placeholder="Username" />
+      <h3>About</h3>
+      <input id="aboutInput" placeholder="Write about you..." />
+      <hr style="border-color:#eee;margin:20px 0;">
+      <button id="deleteAccount" style="background:#ff3b30;">Delete My Account</button>
+      <button id="requestInfo" style="margin-top:10px;background:#007aff;color:#fff;">Request Account Info</button>
+      <button id="passkeysBtn" style="margin-top:10px;background:#8e8e93;color:#fff;">Passkeys</button>
+      <button id="securityNotifBtn" style="margin-top:10px;background:#e5e5ea;color:#000;">Security Notification</button>
+    </div>
+  </div>
+</div>
+
+<!-- LINKED DEVICES MODAL -->
+<div class="modal" id="linkedModal">
+  <div class="modal-box">
+    <div class="modal-header">
+      Linked Devices 
+      <span class="close-btn" data-close="linkedModal">✖</span>
+    </div>
+    <div class="modal-content">
+      <button id="generateCodeBtn">Generate 6-Digit Code</button>
+      <button id="showQRBtn">Show QR Code</button>
+      <button id="enterCodeBtn">Enter Code Manually</button>
+
+      <div id="codeDisplay" style="margin-top:15px; font-size:18px; font-weight:bold; display:none;"></div>
+      <div id="qrDisplay" style="margin-top:15px; display:none;"></div>
+      <div id="manualInput" style="margin-top:15px; display:none;">
+        <input type="text" id="manualCode" placeholder="Enter 6-digit code" maxlength="6" style="padding:8px; font-size:16px;">
+        <button id="submitManual">Submit</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- DONATE -->
+<div class="modal" id="donateModal">
+  <div class="modal-box">
+    <div class="modal-header">Donate <span class="close-btn" data-close="donateModal">Close</span></div>
+    <div class="modal-content">
+      <p>Support the project.</p>
+      <button>Donate</button>
+    </div>
+  </div>
+</div>
+
+<!-- CHATS -->
+<div class="modal" id="chatsModal">
+  <div class="modal-box">
+    <div class="modal-header">Chats <span class="close-btn" data-close="chatsModal">Close</span></div>
+    <div class="modal-content">
+      <div class="item">Generate link previews <div class="toggle"></div></div>
+      <div class="item">Share contacts with iOS <div class="toggle"></div></div>
+      <button style="margin-top:20px;background:#ff3b30;">Clear chat history</button>
+    </div>
+  </div>
+</div>
+
+<!-- STORIES -->
+<div class="modal" id="storiesModal">
+  <div class="modal-box">
+    <div class="modal-header">Stories <span class="close-btn" data-close="storiesModal">Close</span></div>
+    <div class="modal-content">
+      <select>
+        <option>All Connections</option>
+        <option>All Except...</option>
+        <option>Only Share With...</option>
+      </select>
+      <h3>Replies & Reactions</h3>
+      <div class="toggle"></div>
+    </div>
+  </div>
+</div>
+
+<!-- PRIVACY -->
+<div class="modal" id="privacyModal">
+  <div class="modal-box">
+    <div class="modal-header">Privacy <span class="close-btn" data-close="privacyModal">Close</span></div>
+    <div class="modal-content">
+      <input placeholder="Phone number" />
+      <button style="margin-bottom:20px;">Blocked List</button>
+      <div class="item">Read receipts <div class="toggle"></div></div>
+      <div class="item">Typing indicator <div class="toggle"></div></div>
+    </div>
+  </div>
+</div>
+
+<!-- DATA USAGE -->
+<div class="modal" id="dataModal">
+  <div class="modal-box">
+    <div class="modal-header">Data Usage <span class="close-btn" data-close="dataModal">Close</span></div>
+    <div class="modal-content">
+      <h3>Photos</h3>
+      <select><option>Cellular</option><option>WiFi</option><option>Never</option></select>
+
+      <h3>Videos</h3>
+      <select><option>Cellular</option><option>WiFi</option><option>Never</option></select>
+
+      <h3>Audio</h3>
+      <select><option>Cellular</option><option>WiFi</option><option>Never</option></select>
+
+      <h3>Documents</h3>
+      <select><option>Cellular</option><option>WiFi</option><option>Never</option></select>
+
+      <h3>Sent Media</h3>
+      <select><option>Standard</option><option>High</option></select>
+    </div>
+  </div>
+</div>
+
+<!-- HELP -->
+<div class="modal" id="helpModal">
+  <div class="modal-box">
+    <div class="modal-header">Help <span class="close-btn" data-close="helpModal">Close</span></div>
+    <div class="modal-content">
+      <button onclick="window.location.href='https://support.signal.org'">Support Center</button>
+      <button style="margin-top:10px;" onclick="window.location.href='https://signal.org'">Contact Us</button>
+    </div>
+  </div>
+</div>
+
+<!-- INVITE -->
+<div class="modal" id="inviteModal">
+  <div class="modal-box">
+    <div class="modal-header">Invite <span class="close-btn" data-close="inviteModal">Close</span></div>
+    <div class="modal-content">
+      <button>Message</button>
+      <button style="margin-top:10px;">Mail</button>
+      <button style="margin-top:10px;background:#ccc;color:#000;">Dismiss</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// OPEN
+const items = document.querySelectorAll('.item[data-modal]');
+items.forEach(i=>{
+  i.addEventListener('click',()=>{
+    document.getElementById(i.dataset.modal).style.display='flex';
+  });
+});
+
+// CLOSE
+const closeBtns=document.querySelectorAll('[data-close]');
+closeBtns.forEach(btn=>{
+  btn.addEventListener('click',()=>{
+    document.getElementById(btn.dataset.close).style.display='none';
+  });
+});
+
+// TOGGLES
+const toggles=document.querySelectorAll('.toggle');
+toggles.forEach(t=>{
+  t.addEventListener('click',()=>{
+    t.classList.toggle('active');
+  });
+});
+
+// ===== CLOSE MODAL =====
+document.querySelectorAll('.close-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const modalId = btn.getAttribute('data-close');
+    document.getElementById(modalId).style.display = 'none';
+  });
+});
+
+// ===== SHOW MODAL ===== (Egzanp: bouton ou ka mete nan UI)
+function openLinkedModal() {
+  document.getElementById('linkedModal').style.display = 'flex';
+}
+
+// ===== GENERATE 6-DIGIT CODE =====
+const generateBtn = document.getElementById('generateCodeBtn');
+const codeDisplay = document.getElementById('codeDisplay');
+
+generateBtn.addEventListener('click', () => {
+  const code = Math.floor(100000 + Math.random() * 900000); // 6-chif
+  codeDisplay.textContent = "Your code: " + code;
+  codeDisplay.style.display = 'block';
+  qrDisplay.style.display = 'none';
+  manualInput.style.display = 'none';
+});
+
+// ===== SHOW QR CODE =====
+const showQRBtn = document.getElementById('showQRBtn');
+const qrDisplay = document.getElementById('qrDisplay');
+
+showQRBtn.addEventListener('click', () => {
+  // Kreye QR code ak kòd aleatwa pou demo
+  const code = Math.floor(100000 + Math.random() * 900000);
+  qrDisplay.innerHTML = `<img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${code}" alt="QR Code">`;
+  qrDisplay.style.display = 'block';
+  codeDisplay.style.display = 'none';
+  manualInput.style.display = 'none';
+});
+
+// ===== MANUAL CODE ENTRY =====
+const enterCodeBtn = document.getElementById('enterCodeBtn');
+const manualInput = document.getElementById('manualInput');
+
+enterCodeBtn.addEventListener('click', () => {
+  manualInput.style.display = 'block';
+  codeDisplay.style.display = 'none';
+  qrDisplay.style.display = 'none';
+});
+
+document.getElementById('submitManual').addEventListener('click', () => {
+  const code = document.getElementById('manualCode').value;
+  if(code.length === 6) {
+    alert("Code submitted: " + code);
+    manualInput.style.display = 'none';
+  } else {
+    alert("Please enter a 6-digit code");
+  }
+});
+
+// ===== CLOSE MODAL =====
+document.querySelectorAll('.close-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const modalId = btn.getAttribute('data-close');
+    document.getElementById(modalId).style.display = 'none';
+  });
+});
+
+// ===== SAVE CHANGES =====
+const usernameInput = document.getElementById('usernameInput');
+const aboutInput = document.getElementById('aboutInput');
+
+function saveAccountChanges() {
+  fetch('/api/account/update', {
+    method: 'POST',
+    headers: {'Content-Type':'application/json'},
+    body: JSON.stringify({
+      username: usernameInput.value,
+      about: aboutInput.value
+    })
+  })
+  .then(res => res.json())
+  .then(data => alert(data.message))
+  .catch(err => alert('Error: ' + err.message));
+}
+
+// ===== DELETE ACCOUNT =====
+document.getElementById('deleteAccount').addEventListener('click', () => {
+  if(confirm("Are you sure you want to delete your account?")) {
+    fetch('/api/account/delete', { method: 'DELETE' })
+      .then(res => res.json())
+      .then(data => alert(data.message))
+      .catch(err => alert('Error: ' + err.message));
+  }
+});
+
+// ===== REQUEST ACCOUNT INFO =====
+document.getElementById('requestInfo').addEventListener('click', () => {
+  fetch('/api/account/info')
+    .then(res => res.json())
+    .then(data => console.log(data))
+    .catch(err => alert('Error: ' + err.message));
+});
+
+// ===== PASSKEYS & SECURITY NOTIF (exemple) =====
+document.getElementById('passkeysBtn').addEventListener('click', () => alert("Redirect to Passkeys management"));
+document.getElementById('securityNotifBtn').addEventListener('click', () => alert("Redirect to Security Notifications"));
+</script>
+
+</body>
+</html>
