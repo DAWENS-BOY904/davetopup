@@ -8,6 +8,8 @@ const cors = require('cors');
 const Stripe = require('stripe');
 const aws = require('aws-sdk');
 const twilio = require('twilio');
+const admin = require("firebase-admin");
+const cron = require("node-cron");
 const path = require('path');
 const mongoose = require('mongoose');
 const jwt = require('jsonwebtoken');
@@ -241,6 +243,59 @@ app.post('/api/admin/login', async (req,res)=>{
     return res.json({ token });
   }
   res.status(401).json({ error:'Invalid credentials' });
+});
+
+
+// my try
+admin.initializeApp({
+  credential: admin.credential.applicationDefault(),
+});
+const db = admin.firestore();
+
+// Gmail SMTP
+const transporter = nodemailer.createTransport({
+  service: "gmail",
+  auth: {
+    user: "kontgithub@gmail.com",
+    pass: "zmhf mtdj ztub oysq"
+  }
+});
+
+// 👉 1) API ROUTE : SEND EMAIL IMMEDIATELY WHEN USER LOGS IN
+app.post("/send-login-email", async (req, res) => {
+  const email = req.body.email;
+  if (!email) return res.json({ error: "No email provided" });
+
+  try {
+    await transporter.sendMail({
+      from: "kontgithub@gmail.com",
+      to: email,
+      subject: "Welcome Back!",
+      text: "Mèsi paske ou login sou DaveTopUp!"
+    });
+    res.json({ success: true });
+  } catch (err) {
+    res.json({ error: err.message });
+  }
+});
+
+// 👉 2) CRON JOB: Send email every 2 days
+cron.schedule("0 10 */2 * *", async () => {
+  console.log("⏰ Sending 2-day emails...");
+
+  const users = await db.collection("users").get();
+
+  users.forEach(async (doc) => {
+    const email = doc.data().email;
+
+    await transporter.sendMail({
+      from: "berryxoe@gmail.com",
+      to: email,
+      subject: "DaveTopUp Reminder",
+      text: "Nou toujou la pou ou! Pa bliye tcheke DaveTopUp 🚀"
+    });
+  });
+
 });
 
 // ====== EXPORT FOR VERCEL ======
