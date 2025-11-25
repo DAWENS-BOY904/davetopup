@@ -331,7 +331,44 @@ document.getElementById('mic-btn').onclick=()=>{
   if(recognition) recognition.start();
 };
 
-// Gemini Call
+  // Lis mo kle ilegal / ofansif
+const blockedWords = [
+  "hack", "pirate", "drugs", "kill", "violence", "terror", "illegal",
+  "sex", "nsfw", "bomb", "crime", "attack"
+];
+
+// Fonksyon pou verifye tèks
+function isTextAllowed(text) {
+  const lower = text.toLowerCase();
+  return !blockedWords.some(word => lower.includes(word));
+}
+
+// Modify bouton send
+document.getElementById('send-btn').onclick = () => {
+  const text = input.value.trim();
+  if (!text) return;
+
+  if(!isTextAllowed(text)) {
+    addMessage("🚫 Kesyon sa a entèdi. Eseye poze yon lòt kesyon.", 'bot', botPhoto);
+    input.value = '';
+    return;
+  }
+
+  addMessage(text, 'user');
+  sendToGemini(text);
+  input.value = '';
+};
+
+// Modify sendToGemini pou verifye mesaj ki soti nan foto / vwa
+async function sendToGemini(prompt){
+  if(!isTextAllowed(prompt)){
+    addMessage("🚫 Kesyon sa a entèdi. Eseye poze yon lòt kesyon.", 'bot', botPhoto);
+    return;
+  }
+
+  // … rès kòd Gemini la rete menm jan
+}
+// Gemini Call dirèk
 async function sendToGemini(prompt){
   if(messageCount>=50){
     const now=Date.now();
@@ -342,21 +379,37 @@ async function sendToGemini(prompt){
   }
   messageCount++;
   localStorage.setItem('lastTime',Date.now());
+
   const lang=document.getElementById('lang').value;
-  const botMsg=addMessage('<i>Le bot réfléchit...</i>','bot',botPhoto);
+  addMessage('<i>Le bot réfléchit...</i>','bot',botPhoto);
 
-  const res=await fetch('/api/gemini',{
-    method:'POST',
-    headers:{'Content-Type':'application/json'},
-    body:JSON.stringify({prompt,lang})
-  });
-  const data=await res.json();
-  const reply=data.reply||'Erreur.';
-  addMessage(reply,'bot',botPhoto);
-  speakReply(reply,lang);
+  // Mete API key ou la a
+  const GEMINI_API_KEY = "AIzaSyB7URXCSpZtdCdKCjBGkvV27nLURDDn1FM"; // <-- mete kle w isit
 
-  if(prompt.toLowerCase().includes("kiyes")||prompt.toLowerCase().includes("créé")||prompt.toLowerCase().includes("creator")){
-    addMessage("👑 Bot créé par <b>Dawens</b> 🔥",'bot',botPhoto);
+  try {
+    const res = await fetch("https://api.gemini.com/v1/complete", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${GEMINI_API_KEY}`
+      },
+      body: JSON.stringify({
+        prompt: prompt,
+        max_tokens: 150
+      })
+    });
+
+    const data = await res.json();
+    const reply = data.reply || data.text || "Erreur.";
+    addMessage(reply,'bot',botPhoto);
+    speakReply(reply,lang);
+
+    if(prompt.toLowerCase().includes("kiyes")||prompt.toLowerCase().includes("créé")||prompt.toLowerCase().includes("creator")){
+      addMessage("👑 Bot créé par <b>Dawens</b> 🔥",'bot',botPhoto);
+    }
+  } catch(e) {
+    console.error(e);
+    addMessage("❌ Erreur lors de l'appel API Gemini.",'bot',botPhoto);
   }
 }
 
