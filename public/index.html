@@ -1273,138 +1273,87 @@ const menuBtn = document.querySelector('.menu-btn');
     window.location.href = 'index1.html';
   });
 
-// ===============================
-// 1. FIREBASE CONFIG
-// ===============================
-const firebaseConfig = {
-  apiKey: "AIzaSyBT_d6f9kVwEpytfzo7ZbeBoTGoCMCGHRg",
-  authDomain: "dawensflix.firebaseapp.com",
-  projectId: "dawensflix",
-  storageBucket: "dawensflix.firebasestorage.app",
-  messagingSenderId: "767303159744",
-  appId: "1:767303159744:web:8ab33247b2cb8361e24225",
-  measurementId: "G-C0V46JTDVH"
-};
-
-firebase.initializeApp(firebaseConfig);
-const db = firebase.firestore();
 
 
-// ===============================
-// 2. LOAD COMMENTS FROM FIRESTORE
-// ===============================
-function loadComments() {
-  db.collection("comments")
-    .orderBy("timestamp", "asc")
-    .onSnapshot(snapshot => {
-      const commentsContainer = document.getElementById('comments-container');
-      commentsContainer.innerHTML = ""; // efase pou re-render
-
-      snapshot.forEach(doc => {
-        renderComment(doc.data());
-      });
-    });
-}
-loadComments();
-
-
-// ===============================
-// 3. RENDER COMMENT IN HTML
-// ===============================
-function renderComment({ name, email, commentText, date }) {
-  const commentsContainer = document.getElementById('comments-container');
-
-  const div = document.createElement('div');
-  div.classList.add('comment');
-
-  div.innerHTML = `
-    <div class="comment-header">
-      <strong>${name}</strong> (<span class="comment-email">${email}</span>) -
-      <span class="comment-date">${date}</span>
-    </div>
-    <p>${commentText}</p>
-
-    <div class="comment-actions">
-      <button class="like-btn">👍 0</button>
-      <button class="reply-btn">Reply</button>
-    </div>
-
-    <div class="replies"></div>
-  `;
-
-  commentsContainer.appendChild(div);
-
-  // LIKE
-  let likes = 0;
-  const likeBtn = div.querySelector('.like-btn');
-  likeBtn.addEventListener('click', () => {
-    likes++;
-    likeBtn.textContent = `👍 ${likes}`;
+  // --- Capture last click ---
+  let lastClick = null;
+  document.addEventListener('click', function(e){
+    lastClick = {
+      clientX: e.clientX,
+      clientY: e.clientY,
+      selector: getCssPath(e.target),
+      pageUrl: location.href,
+      timestamp: new Date().toISOString(),
+      viewportWidth: window.innerWidth,
+      viewportHeight: window.innerHeight
+    };
+    sessionStorage.setItem('reportBugClickInfo', JSON.stringify(lastClick));
   });
 
-  // REPLY
-  const replyBtn = div.querySelector('.reply-btn');
-  const repliesDiv = div.querySelector('.replies');
-
-  replyBtn.addEventListener('click', () => {
-    const replyName = prompt("Non ou:");
-    const replyEmail = prompt("Imèl ou:");
-    const replyText = prompt("Repons ou:");
-
-    if (replyName && replyEmail && replyText) {
-      const rDate = new Date().toLocaleString();
-
-      const reply = document.createElement("div");
-      reply.classList.add("comment");
-      reply.innerHTML = `
-        <div class="comment-header">
-          <strong>${replyName}</strong> (${replyEmail}) - ${rDate}
-        </div>
-        <p>${replyText}</p>
-      `;
-
-      repliesDiv.appendChild(reply);
+  function getCssPath(el){
+    if(!el) return '';
+    const stack=[];
+    while(el.parentElement){
+      let sibCount=0, sibIndex=0;
+      for(let i=0;i<el.parentElement.children.length;i++){
+        const sib=el.parentElement.children[i];
+        if(sib.nodeName===el.nodeName){
+          if(sib===el) sibIndex=++sibCount;
+          else sibCount++;
+        }
+      }
+      let nodeName=el.nodeName.toLowerCase();
+      if(sibCount>1) nodeName+=`:nth-of-type(${sibIndex})`;
+      stack.unshift(nodeName);
+      el=el.parentElement;
     }
+    return stack.join(" > ");
+  }
+
+  // --- Shake detection ---
+  let shakeEnabled = true;
+  let lastX=null, lastY=null, lastZ=null, lastTime=0;
+  const shakeModal = document.getElementById('shakeModal');
+
+  if(window.DeviceMotionEvent){
+    window.addEventListener('devicemotion', function(event){
+      if(!shakeEnabled) return;
+      const acc = event.accelerationIncludingGravity;
+      const currTime = new Date().getTime();
+      if((currTime - lastTime) < 100) return;
+      lastTime = currTime;
+      if(lastX!==null){
+        const delta = Math.abs(lastX-acc.x)+Math.abs(lastY-acc.y)+Math.abs(lastZ-acc.z);
+        if(delta>15){
+          shakeModal.style.display='flex';
+        }
+      }
+      lastX=acc.x; lastY=acc.y; lastZ=acc.z;
+    });
+  } else {
+    // If device does not support shake detection, show manual report button
+    const manualBtn = document.getElementById('manualReportBtn');
+    manualBtn.style.display='block';
+    manualBtn.addEventListener('click', ()=> {
+      shakeModal.style.display='flex';
+    });
+  }
+
+  // --- Modal buttons ---
+  document.getElementById('modalYes').addEventListener('click', ()=>{
+    shakeModal.style.display='none';
+    openReportBugPage();
   });
-}
 
-
-// ===============================
-// 4. SUBMIT COMMENT
-// ===============================
-const commentForm = document.getElementById('comment-form');
-
-commentForm.addEventListener('submit', function(e){
-  e.preventDefault();
-
-  const name = document.getElementById('name').value;
-  const email = document.getElementById('email').value;
-  const commentText = document.getElementById('comment').value;
-  const date = new Date().toLocaleString();
-
-  const commentData = {
-    name,
-    email,
-    commentText,
-    date,
-    timestamp: Date.now()
-  };
-
-  // SAVE FIRESTORE
-  db.collection("comments").add(commentData)
-    .then(() => {
-      commentForm.reset();
-    })
-    .catch(err => console.error(err));
-
-  // EMAILJS
-  emailjs.send("service_w2e0uwl", "template_c86ovbt", {
-    from_name: name,
-    from_email: email,
-    message: commentText,
-    to_email: "berryxoe@gmail.com"
+  document.getElementById('modalNo').addEventListener('click', ()=>{
+    shakeModal.style.display='none';
   });
-});
+
+  document.getElementById('disableShake').addEventListener('click', ()=>{
+    shakeEnabled=false;
+    shakeModal.style.display='none';
+    alert('Shake detection dezaktive.');
+  });
 
   // --- Open report-bug page with screenshot ---
   function openReportBugPage(){
