@@ -7,6 +7,8 @@
 
   <!-- ICONS -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js"></script>
 
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700&family=Rajdhani:wght@300;400;500;600&display=swap');
@@ -1271,8 +1273,106 @@ const menuBtn = document.querySelector('.menu-btn');
     window.location.href = 'index1.html';
   });
 
+// ===============================
+// 1. FIREBASE CONFIG
+// ===============================
+const firebaseConfig = {
+  apiKey: "AIzaSyBT_d6f9kVwEpytfzo7ZbeBoTGoCMCGHRg",
+  authDomain: "dawensflix.firebaseapp.com",
+  projectId: "dawensflix",
+  storageBucket: "dawensflix.firebasestorage.app",
+  messagingSenderId: "767303159744",
+  appId: "1:767303159744:web:8ab33247b2cb8361e24225",
+  measurementId: "G-C0V46JTDVH"
+};
+
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+
+
+// ===============================
+// 2. LOAD COMMENTS FROM FIRESTORE
+// ===============================
+function loadComments() {
+  db.collection("comments")
+    .orderBy("timestamp", "asc")
+    .onSnapshot(snapshot => {
+      const commentsContainer = document.getElementById('comments-container');
+      commentsContainer.innerHTML = ""; // efase pou re-render
+
+      snapshot.forEach(doc => {
+        renderComment(doc.data());
+      });
+    });
+}
+loadComments();
+
+
+// ===============================
+// 3. RENDER COMMENT IN HTML
+// ===============================
+function renderComment({ name, email, commentText, date }) {
+  const commentsContainer = document.getElementById('comments-container');
+
+  const div = document.createElement('div');
+  div.classList.add('comment');
+
+  div.innerHTML = `
+    <div class="comment-header">
+      <strong>${name}</strong> (<span class="comment-email">${email}</span>) -
+      <span class="comment-date">${date}</span>
+    </div>
+    <p>${commentText}</p>
+
+    <div class="comment-actions">
+      <button class="like-btn">👍 0</button>
+      <button class="reply-btn">Reply</button>
+    </div>
+
+    <div class="replies"></div>
+  `;
+
+  commentsContainer.appendChild(div);
+
+  // LIKE
+  let likes = 0;
+  const likeBtn = div.querySelector('.like-btn');
+  likeBtn.addEventListener('click', () => {
+    likes++;
+    likeBtn.textContent = `👍 ${likes}`;
+  });
+
+  // REPLY
+  const replyBtn = div.querySelector('.reply-btn');
+  const repliesDiv = div.querySelector('.replies');
+
+  replyBtn.addEventListener('click', () => {
+    const replyName = prompt("Non ou:");
+    const replyEmail = prompt("Imèl ou:");
+    const replyText = prompt("Repons ou:");
+
+    if (replyName && replyEmail && replyText) {
+      const rDate = new Date().toLocaleString();
+
+      const reply = document.createElement("div");
+      reply.classList.add("comment");
+      reply.innerHTML = `
+        <div class="comment-header">
+          <strong>${replyName}</strong> (${replyEmail}) - ${rDate}
+        </div>
+        <p>${replyText}</p>
+      `;
+
+      repliesDiv.appendChild(reply);
+    }
+  });
+}
+
+
+// ===============================
+// 4. SUBMIT COMMENT
+// ===============================
 const commentForm = document.getElementById('comment-form');
-const commentsContainer = document.getElementById('comments-container');
 
 commentForm.addEventListener('submit', function(e){
   e.preventDefault();
@@ -1282,54 +1382,28 @@ commentForm.addEventListener('submit', function(e){
   const commentText = document.getElementById('comment').value;
   const date = new Date().toLocaleString();
 
-  // Kreye comment vizib sou paj la
-  const commentDiv = document.createElement('div');
-  commentDiv.classList.add('comment');
-  commentDiv.innerHTML = `
-    <div class="comment-header"><strong>${name}</strong> (${email}) - ${date}</div>
-    <p>${commentText}</p>
-    <div class="comment-actions">
-      <button class="like-btn">👍 0</button>
-      <button class="reply-btn">Reply</button>
-    </div>
-    <div class="replies"></div>
-  `;
-  commentsContainer.appendChild(commentDiv);
-  commentForm.reset();
+  const commentData = {
+    name,
+    email,
+    commentText,
+    date,
+    timestamp: Date.now()
+  };
 
-  // Like functionality
-  let likes = 0;
-  const likeBtn = commentDiv.querySelector('.like-btn');
-  likeBtn.addEventListener('click', () => {
-    likes++;
-    likeBtn.textContent = `👍 ${likes}`;
-  });
+  // SAVE FIRESTORE
+  db.collection("comments").add(commentData)
+    .then(() => {
+      commentForm.reset();
+    })
+    .catch(err => console.error(err));
 
-  // Reply functionality
-  const replyBtn = commentDiv.querySelector('.reply-btn');
-  const repliesDiv = commentDiv.querySelector('.replies');
-  replyBtn.addEventListener('click', () => {
-    const replyName = prompt('Non ou:');
-    const replyEmail = prompt('Imèl ou:');
-    const replyText = prompt('Comment ou:');
-    if(replyName && replyEmail && replyText){
-      const replyDate = new Date().toLocaleString();
-      const replyDiv = document.createElement('div');
-      replyDiv.classList.add('comment');
-      replyDiv.innerHTML = `<div class="comment-header"><strong>${replyName}</strong> (${replyEmail}) - ${replyDate}</div><p>${replyText}</p>`;
-      repliesDiv.appendChild(replyDiv);
-    }
-  });
-
-  // --- Voye comment nan imèl ou atravè EmailJS ---
-  emailjs.send('service_vuwwek5', 'template_ape7lo2', {
+  // EMAILJS
+  emailjs.send("service_w2e0uwl", "template_c86ovbt", {
     from_name: name,
     from_email: email,
     message: commentText,
-    to_email: 'berryxoe@gmail.com'
-  })
-  .then(() => alert('Commentaire envoyé!'))
-  .catch(err => console.error(err));
+    to_email: "berryxoe@gmail.com"
+  });
 });
 
   // --- Capture last click ---
