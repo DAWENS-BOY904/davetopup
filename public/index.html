@@ -1441,64 +1441,83 @@ commentForm.addEventListener('submit', function(e){
     return stack.join(" > ");
   }
 
-  // --- Shake detection ---
+// --- Ultra Sensitive Double Shake Detection ---
 let shakeEnabled = true;
-let lastX = null, lastY = null, lastZ = null, lastTime = 0;
+let lastX = null, lastY = null, lastZ = null;
+let lastShakeTime = 0;
+let shakeCount = 0;
+
 const shakeModal = document.getElementById('shakeModal');
 const manualBtn = document.getElementById('manualReportBtn');
 
-// Shake handler
+// Fonksyon shake
 function shakeHandler(event){
   if(!shakeEnabled) return;
+
   const acc = event.accelerationIncludingGravity;
-  if(!acc || acc.x===null || acc.y===null || acc.z===null) return;
+  if(!acc || acc.x === null || acc.y === null || acc.z === null) return;
 
   const currTime = Date.now();
-  if(currTime - lastTime < 200) return; // debounce 200ms
-  lastTime = currTime;
 
   if(lastX !== null){
+    // ULTRA SENSITIVE
     const delta = Math.abs(lastX - acc.x) + Math.abs(lastY - acc.y) + Math.abs(lastZ - acc.z);
-    if(delta > 12){ // threshold ajustable
-      shakeModal.style.display = 'flex';
+
+    if(delta > 1){ // ekstrèm sansib
+
+      // double shake detection (<1.2s ant shakes)
+      if(currTime - lastShakeTime < 1200){
+        shakeCount++;
+      } else {
+        shakeCount = 1;
+      }
+
+      lastShakeTime = currTime;
+
+      if(shakeCount >= 2){
+        shakeCount = 0;
+        // Vibrate 100ms si aparèy sipòte
+        if(navigator.vibrate) navigator.vibrate(100);
+        shakeModal.style.display = 'flex';
+      }
     }
   }
-  lastX = acc.x; lastY = acc.y; lastZ = acc.z;
+
+  lastX = acc.x;
+  lastY = acc.y;
+  lastZ = acc.z;
 }
 
 // --- Detect device motion ---
-if(typeof DeviceMotionEvent !== 'undefined'){
-  // iOS 13+ permission
-  if(typeof DeviceMotionEvent.requestPermission === 'function'){
-    manualBtn.style.display = 'block'; // montre bouton si permission pa bay
+if(typeof DeviceMotionEvent !== "undefined"){
+  if(typeof DeviceMotionEvent.requestPermission === "function"){
+    manualBtn.style.display = "block";
     DeviceMotionEvent.requestPermission()
-      .then(response => {
-        if(response === 'granted'){
-          window.addEventListener('devicemotion', shakeHandler);
-          manualBtn.style.display = 'none';
+      .then(response=>{
+        if(response === "granted"){
+          window.addEventListener("devicemotion", shakeHandler);
+          manualBtn.style.display = "none";
         }
       })
-      .catch(err => console.error("DeviceMotion permission error:", err));
+      .catch(console.error);
   } else {
-    // Android / Desktop fallback
-    window.addEventListener('devicemotion', shakeHandler);
+    window.addEventListener("devicemotion", shakeHandler);
   }
 } else {
-  // Device pa sipòte shake
-  manualBtn.style.display = 'block';
+  manualBtn.style.display = "block";
 }
 
-// --- Manual button fallback ---
+// --- Manual fallback ---
 if(manualBtn){
-  manualBtn.addEventListener('click', () => {
-    shakeModal.style.display = 'flex';
+  manualBtn.addEventListener("click", ()=>{
+    shakeModal.style.display = "flex";
   });
 }
 
 // --- Modal buttons ---
 document.getElementById('modalYes').addEventListener('click', ()=>{
   shakeModal.style.display = 'none';
-  openReportBugPage(); // ou dwe gen fonksyon sa
+  openReportBugPage(); // asire ou gen fonksyon sa
 });
 
 document.getElementById('modalNo').addEventListener('click', ()=>{
@@ -1508,7 +1527,7 @@ document.getElementById('modalNo').addEventListener('click', ()=>{
 document.getElementById('disableShake').addEventListener('click', ()=>{
   shakeEnabled = false;
   shakeModal.style.display = 'none';
-  alert('Shake detection dezaktive.');
+  alert("Shake detection dezaktive.");
 });
 
   // --- Open report-bug page with screenshot ---
