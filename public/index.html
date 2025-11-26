@@ -1214,10 +1214,12 @@ header {
 </div>
 
 <script>
+// =============== MENU ===============
 const menuBtn = document.querySelector('.menu-btn');
-  const sideMenu = document.getElementById('sideMenu');
-  const overlay = document.getElementById('overlay');
+const sideMenu = document.getElementById('sideMenu');
+const overlay = document.getElementById('overlay');
 
+if (menuBtn && sideMenu && overlay) {
   menuBtn.addEventListener('click', () => {
     sideMenu.classList.toggle('open');
     overlay.classList.toggle('show');
@@ -1227,163 +1229,242 @@ const menuBtn = document.querySelector('.menu-btn');
     sideMenu.classList.remove('open');
     overlay.classList.remove('show');
   });
-  // --- FAQ toggle ---
-  document.querySelectorAll('.accordion .qa button').forEach(btn=>{
-    btn.addEventListener('click',()=>{
-      const qa=btn.closest('.qa');
-      const open=qa.classList.contains('open');
-      document.querySelectorAll('.accordion .qa').forEach(x=>{
-        x.classList.remove('open');
-        x.querySelector('button').setAttribute('aria-expanded','false');
-      });
-      if(!open){
-        qa.classList.add('open');
-        btn.setAttribute('aria-expanded','true');
-      }
+}
+
+// =============== FAQ ACCORDION ===============
+document.querySelectorAll('.accordion .qa button').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const qa = btn.closest('.qa');
+    if (!qa) return;
+
+    const open = qa.classList.contains('open');
+
+    document.querySelectorAll('.accordion .qa').forEach(x => {
+      x.classList.remove('open');
+      const b = x.querySelector('button');
+      if (b) b.setAttribute('aria-expanded', 'false');
     });
-  });
 
-  // --- Video controls ---
-  const video=document.getElementById('demoVideo');
-  const btn=document.getElementById('unmuteBtn');
-
-  video.play().catch(()=>console.warn('Autoplay san son sèlman — normal.'));
-  btn.addEventListener('click',()=>{
-    video.muted=false;
-    video.play();
-    btn.style.opacity='0';
-    btn.style.pointerEvents='none';
+    if (!open) {
+      qa.classList.add('open');
+      btn.setAttribute('aria-expanded', 'true');
+    }
   });
-  video.addEventListener('pause',()=>{
-    if(!video.ended) video.play().catch(()=>{});
-  });
+});
 
-// Fè chak segment ouvè lyen sou click
-  document.querySelectorAll('.circle .segment').forEach(seg=>{
-    seg.addEventListener('click', ()=>{
-      const link = seg.getAttribute('data-link');
-      if(link){
-        window.location.href = link;
-      }
+// =============== VIDEO CONTROLS ===============
+const video = document.getElementById('demoVideo');
+const unmuteBtn = document.getElementById('unmuteBtn');
+
+if (video) {
+  video.play().catch(() => console.warn('Autoplay san son sèlman — normal.'));
+
+  if (unmuteBtn) {
+    unmuteBtn.addEventListener('click', () => {
+      video.muted = false;
+      video.play();
+      unmuteBtn.style.opacity = '0';
+      unmuteBtn.style.pointerEvents = 'none';
     });
-  });
+  }
 
-  // Si ou vle, flèch nan mitan ka ouvè menm paj la
-  document.querySelector('.circle .center-icon').addEventListener('click', ()=>{
+  video.addEventListener('pause', () => {
+    if (!video.ended) video.play().catch(() => {});
+  });
+}
+
+// =============== CIRCLE SEGMENTS CLICK ===============
+document.querySelectorAll('.circle .segment').forEach(seg => {
+  seg.addEventListener('click', () => {
+    const link = seg.getAttribute('data-link');
+    if (link) window.location.href = link;
+  });
+});
+
+// center icon
+const centerIcon = document.querySelector('.circle .center-icon');
+if (centerIcon) {
+  centerIcon.addEventListener('click', () => {
     window.location.href = 'index1.html';
   });
+}
 
+// =============== CAPTURE LAST CLICK ===============
+let lastClick = null;
 
+document.addEventListener('click', function (e) {
+  lastClick = {
+    clientX: e.clientX,
+    clientY: e.clientY,
+    selector: getCssPath(e.target),
+    pageUrl: location.href,
+    timestamp: new Date().toISOString(),
+    viewportWidth: window.innerWidth,
+    viewportHeight: window.innerHeight
+  };
 
-  // --- Capture last click ---
-  let lastClick = null;
-  document.addEventListener('click', function(e){
-    lastClick = {
-      clientX: e.clientX,
-      clientY: e.clientY,
-      selector: getCssPath(e.target),
-      pageUrl: location.href,
-      timestamp: new Date().toISOString(),
-      viewportWidth: window.innerWidth,
-      viewportHeight: window.innerHeight
-    };
-    sessionStorage.setItem('reportBugClickInfo', JSON.stringify(lastClick));
-  });
+  sessionStorage.setItem('reportBugClickInfo', JSON.stringify(lastClick));
+});
 
-  function getCssPath(el){
-    if(!el) return '';
-    const stack=[];
-    while(el.parentElement){
-      let sibCount=0, sibIndex=0;
-      for(let i=0;i<el.parentElement.children.length;i++){
-        const sib=el.parentElement.children[i];
-        if(sib.nodeName===el.nodeName){
-          if(sib===el) sibIndex=++sibCount;
-          else sibCount++;
-        }
+function getCssPath(el) {
+  if (!el) return '';
+  const stack = [];
+
+  while (el.parentElement) {
+    let sibCount = 0,
+      sibIndex = 0;
+
+    for (let i = 0; i < el.parentElement.children.length; i++) {
+      const sib = el.parentElement.children[i];
+      if (sib.nodeName === el.nodeName) {
+        if (sib === el) sibIndex = ++sibCount;
+        else sibCount++;
       }
-      let nodeName=el.nodeName.toLowerCase();
-      if(sibCount>1) nodeName+=`:nth-of-type(${sibIndex})`;
-      stack.unshift(nodeName);
-      el=el.parentElement;
     }
-    return stack.join(" > ");
+
+    let nodeName = el.nodeName.toLowerCase();
+    if (sibCount > 1) nodeName += `:nth-of-type(${sibIndex})`;
+
+    stack.unshift(nodeName);
+    el = el.parentElement;
   }
+  return stack.join(' > ');
+}
 
+// =============== SHAKE DETECTION ===============
+const shakeModal = document.getElementById('shakeModal');
+let shakeEnabled = true;
+let lastX = null, lastY = null, lastZ = null, lastTime = 0;
 
-  // --- Open report-bug page with screenshot ---
-  function openReportBugPage(){
-    html2canvas(document.body).then(canvas=>{
-      const screenshotData = canvas.toDataURL('image/png');
-      // store screenshot in sessionStorage
-      sessionStorage.setItem('reportBugScreenshot', screenshotData);
-      // navigate to report-bug.html
-      window.location.href='bot/Report-bug2.html';
+if (window.DeviceMotionEvent) {
+  window.addEventListener('devicemotion', function (event) {
+    if (!shakeEnabled) return;
+
+    const acc = event.accelerationIncludingGravity;
+    const currTime = new Date().getTime();
+
+    if (currTime - lastTime < 100) return;
+    lastTime = currTime;
+
+    if (lastX !== null) {
+      const delta = Math.abs(lastX - acc.x) + Math.abs(lastY - acc.y) + Math.abs(lastZ - acc.z);
+      if (delta > 15 && shakeModal) {
+        shakeModal.style.display = 'flex';
+      }
+    }
+
+    lastX = acc.x; 
+    lastY = acc.y; 
+    lastZ = acc.z;
+  });
+} else {
+  const manualBtn = document.getElementById('manualReportBtn');
+  if (manualBtn) {
+    manualBtn.style.display = 'block';
+    manualBtn.addEventListener('click', () => {
+      if (shakeModal) shakeModal.style.display = 'flex';
     });
   }
+}
 
+// =============== SHAKE MODAL BUTTONS ===============
+const modalYes = document.getElementById('modalYes');
+if (modalYes) {
+  modalYes.addEventListener('click', () => {
+    shakeModal.style.display = 'none';
+    openReportBugPage();
+  });
+}
+
+const modalNo = document.getElementById('modalNo');
+if (modalNo) {
+  modalNo.addEventListener('click', () => {
+    shakeModal.style.display = 'none';
+  });
+}
+
+const disableShake = document.getElementById('disableShake');
+if (disableShake) {
+  disableShake.addEventListener('click', () => {
+    shakeEnabled = false;
+    shakeModal.style.display = 'none';
+    alert('Shake detection dezaktive.');
+  });
+}
+
+// =============== SCREENSHOT + REPORT PAGE ===============
+function openReportBugPage() {
+  if (typeof html2canvas === 'undefined') {
+    alert("html2canvas pa chaje.");
+    return;
+  }
+
+  html2canvas(document.body).then(canvas => {
+    const screenshotData = canvas.toDataURL('image/png');
+    sessionStorage.setItem('reportBugScreenshot', screenshotData);
+    window.location.href = 'bot/Report-bug2.html';
+  });
+}
+
+// =============== COOKIE BANNER ===============
 const banner = document.getElementById('cookieBanner');
 const consent = localStorage.getItem('cookiesConsent');
 
-// Fonksyon pou montre banner ak animasyon
 function showBanner() {
-  banner.style.bottom = '30px'; // retabli pozisyon
+  if (!banner) return;
+  banner.style.bottom = '30px';
   banner.style.opacity = '1';
   banner.style.animation = 'bannerBounce 0.5s ease forwards';
 }
 
-// Si itilizatè poko fè chwa
-if (!consent) {
-  // Montre li premye fwa
+if (!consent && banner) {
   setTimeout(showBanner, 0);
 
-  // Reparèt chak 5s si toujou pa gen chwa
   setInterval(() => {
     const currentConsent = localStorage.getItem('cookiesConsent');
     if (!currentConsent) showBanner();
-  }, 80000); // 80000 ms = 80 segonn
+  }, 80000);
 }
 
-// Bouton Accept
-document.getElementById('acceptBtn').addEventListener('click', () => {
-  localStorage.setItem('cookiesConsent','accepted');
-  banner.style.opacity = '0';
-  banner.style.bottom = '-150px';
-});
-
-// Bouton Refuse
-document.getElementById('refuseBtn').addEventListener('click', () => {
-  localStorage.setItem('cookiesConsent','refused');
-  banner.style.opacity = '0';
-  banner.style.bottom = '-150px';
-});
-
-// Bouton Learn More
-document.getElementById('learnBtn').addEventListener('click', () => {
-  alert('Pour en savoir plus sur nos cookies, visitez: www.example.com/cookies');
-});
-
-
-// JS pou aksyon accordion (pa depann de bibliyotèk)
-  document.querySelectorAll('.accordion-toggle').forEach(btn => {
-    btn.addEventListener('click', () => {
-      const expanded = btn.getAttribute('aria-expanded') === 'true';
-      const icon = btn.querySelector('.icon');
-      // jwenn panel ki vin apre bouton an
-      const panel = btn.nextElementSibling;
-      if (!panel) return;
-
-      if (expanded) {
-        btn.setAttribute('aria-expanded', 'false');
-        icon.textContent = '+';
-        panel.hidden = true;
-      } else {
-        btn.setAttribute('aria-expanded', 'true');
-        icon.textContent = '−';
-        panel.hidden = false;
-      }
-    });
+const acceptBtn = document.getElementById('acceptBtn');
+if (acceptBtn) {
+  acceptBtn.addEventListener('click', () => {
+    localStorage.setItem('cookiesConsent', 'accepted');
+    banner.style.opacity = '0';
+    banner.style.bottom = '-150px';
   });
+}
+
+const refuseBtn = document.getElementById('refuseBtn');
+if (refuseBtn) {
+  refuseBtn.addEventListener('click', () => {
+    localStorage.setItem('cookiesConsent', 'refused');
+    banner.style.opacity = '0';
+    banner.style.bottom = '-150px';
+  });
+}
+
+const learnBtn = document.getElementById('learnBtn');
+if (learnBtn) {
+  learnBtn.addEventListener('click', () => {
+    alert('Pou plis detay sou cookies: www.example.com/cookies');
+  });
+}
+
+// =============== 2nd ACCORDION (Simple) ===============
+document.querySelectorAll('.accordion-toggle').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const panel = btn.nextElementSibling;
+    if (!panel) return;
+
+    const expanded = btn.getAttribute('aria-expanded') === 'true';
+    const icon = btn.querySelector('.icon');
+
+    btn.setAttribute('aria-expanded', expanded ? 'false' : 'true');
+    if (icon) icon.textContent = expanded ? '+' : '−';
+    panel.hidden = expanded;
+  });
+});
 </script>
 </body>
 </html>
