@@ -1215,7 +1215,7 @@ header {
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js"></script>
          
 <script>
-// =============== MENU ===============
+// ================= MENU =================
 const menuBtn = document.querySelector('.menu-btn');
 const sideMenu = document.getElementById('sideMenu');
 const overlay = document.getElementById('overlay');
@@ -1232,12 +1232,10 @@ if (menuBtn && sideMenu && overlay) {
   });
 }
 
-// =============== FAQ ACCORDION ===============
-document.querySelectorAll('.accordion .qa button').forEach(btn => {
-  btn.addEventListener('click', () => {
-    const qa = btn.closest('.qa');
-    if (!qa) return;
-
+// ================= FAQ ACCORDION =================
+document.querySelectorAll('.accordion .qa button').forEach(faqBtn => {
+  faqBtn.addEventListener('click', () => {
+    const qa = faqBtn.closest('.qa');
     const open = qa.classList.contains('open');
 
     document.querySelectorAll('.accordion .qa').forEach(x => {
@@ -1248,12 +1246,12 @@ document.querySelectorAll('.accordion .qa button').forEach(btn => {
 
     if (!open) {
       qa.classList.add('open');
-      btn.setAttribute('aria-expanded', 'true');
+      faqBtn.setAttribute('aria-expanded', 'true');
     }
   });
 });
 
-// =============== VIDEO CONTROLS ===============
+// ================= VIDEO CONTROL =================
 const video = document.getElementById('demoVideo');
 const unmuteBtn = document.getElementById('unmuteBtn');
 
@@ -1274,7 +1272,7 @@ if (video) {
   });
 }
 
-// =============== CIRCLE SEGMENTS CLICK ===============
+// ================= SEGMENTS =================
 document.querySelectorAll('.circle .segment').forEach(seg => {
   seg.addEventListener('click', () => {
     const link = seg.getAttribute('data-link');
@@ -1282,118 +1280,81 @@ document.querySelectorAll('.circle .segment').forEach(seg => {
   });
 });
 
-// center icon
+// ================= CENTER ICON =================
 const centerIcon = document.querySelector('.circle .center-icon');
 if (centerIcon) {
   centerIcon.addEventListener('click', () => {
-    window.location.href = 'index1.html';
+    window.location.href = 'public/index1.html';
   });
 }
 
-// =============== CAPTURE LAST CLICK ===============
-let lastClick = null;
+// ================= COMMENT SYSTEM =================
+const commentForm = document.getElementById('comment-form');
+const commentsContainer = document.getElementById('comments-container');
 
-document.addEventListener('click', function (e) {
-  lastClick = {
-    clientX: e.clientX,
-    clientY: e.clientY,
-    selector: getCssPath(e.target),
-    pageUrl: location.href,
-    timestamp: new Date().toISOString(),
-    viewportWidth: window.innerWidth,
-    viewportHeight: window.innerHeight
-  };
+if (commentForm && commentsContainer) {
+  commentForm.addEventListener('submit', function (e) {
+    e.preventDefault();
 
-  sessionStorage.setItem('reportBugClickInfo', JSON.stringify(lastClick));
-});
+    const name = document.getElementById('name')?.value || '';
+    const email = document.getElementById('email')?.value || '';
+    const commentText = document.getElementById('comment')?.value || '';
+    const date = new Date().toLocaleString();
 
-function getCssPath(el) {
-  if (!el) return '';
-  const stack = [];
+    const commentDiv = document.createElement('div');
+    commentDiv.classList.add('comment');
+    commentDiv.innerHTML = `
+      <div class="comment-header"><strong>${name}</strong> (${email}) - ${date}</div>
+      <p>${commentText}</p>
+      <div class="comment-actions">
+        <button class="like-btn">👍 0</button>
+        <button class="reply-btn">Reply</button>
+      </div>
+      <div class="replies"></div>
+    `;
+    commentsContainer.appendChild(commentDiv);
+    commentForm.reset();
 
-  while (el.parentElement) {
-    let sibCount = 0,
-      sibIndex = 0;
-
-    for (let i = 0; i < el.parentElement.children.length; i++) {
-      const sib = el.parentElement.children[i];
-      if (sib.nodeName === el.nodeName) {
-        if (sib === el) sibIndex = ++sibCount;
-        else sibCount++;
-      }
-    }
-
-    let nodeName = el.nodeName.toLowerCase();
-    if (sibCount > 1) nodeName += `:nth-of-type(${sibIndex})`;
-
-    stack.unshift(nodeName);
-    el = el.parentElement;
-  }
-  return stack.join(' > ');
-}
-
-// =============== SHAKE DETECTION ===============
-const shakeModal = document.getElementById('shakeModal');
-let shakeEnabled = true;
-let lastX = null, lastY = null, lastZ = null, lastTime = 0;
-
-if (window.DeviceMotionEvent) {
-  window.addEventListener('devicemotion', function (event) {
-    if (!shakeEnabled) return;
-
-    const acc = event.accelerationIncludingGravity;
-    const currTime = new Date().getTime();
-
-    if (currTime - lastTime < 100) return;
-    lastTime = currTime;
-
-    if (lastX !== null) {
-      const delta = Math.abs(lastX - acc.x) + Math.abs(lastY - acc.y) + Math.abs(lastZ - acc.z);
-      if (delta > 15 && shakeModal) {
-        shakeModal.style.display = 'flex';
-      }
-    }
-
-    lastX = acc.x; 
-    lastY = acc.y; 
-    lastZ = acc.z;
-  });
-} else {
-  const manualBtn = document.getElementById('manualReportBtn');
-  if (manualBtn) {
-    manualBtn.style.display = 'block';
-    manualBtn.addEventListener('click', () => {
-      if (shakeModal) shakeModal.style.display = 'flex';
+    // LIKE
+    let likes = 0;
+    const likeBtn = commentDiv.querySelector('.like-btn');
+    likeBtn.addEventListener('click', () => {
+      likes++;
+      likeBtn.textContent = `👍 ${likes}`;
     });
-  }
-}
 
-// =============== SHAKE MODAL BUTTONS ===============
-const modalYes = document.getElementById('modalYes');
-if (modalYes) {
-  modalYes.addEventListener('click', () => {
-    shakeModal.style.display = 'none';
-    openReportBugPage();
+    // REPLY
+    const replyBtn = commentDiv.querySelector('.reply-btn');
+    const repliesDiv = commentDiv.querySelector('.replies');
+    replyBtn.addEventListener('click', () => {
+      const replyName = prompt('Non ou:');
+      const replyEmail = prompt('Imèl ou:');
+      const replyText = prompt('Comment ou:');
+      if (replyName && replyEmail && replyText) {
+        const replyDate = new Date().toLocaleString();
+        const replyDiv = document.createElement('div');
+        replyDiv.classList.add('comment');
+        replyDiv.innerHTML =
+          `<div class="comment-header"><strong>${replyName}</strong> (${replyEmail}) - ${replyDate}</div><p>${replyText}</p>`;
+        repliesDiv.appendChild(replyDiv);
+      }
+    });
+
+    // EMAILJS
+    if (typeof emailjs !== "undefined") {
+      emailjs.send('service_vuwwek5', 'template_ape7lo2', {
+        from_name: name,
+        from_email: email,
+        message: commentText,
+        to_email: 'berryxoe@gmail.com'
+      })
+        .then(() => alert('Commentaire envoyé!'))
+        .catch(err => console.error(err));
+    }
   });
 }
 
-const modalNo = document.getElementById('modalNo');
-if (modalNo) {
-  modalNo.addEventListener('click', () => {
-    shakeModal.style.display = 'none';
-  });
-}
-
-const disableShake = document.getElementById('disableShake');
-if (disableShake) {
-  disableShake.addEventListener('click', () => {
-    shakeEnabled = false;
-    shakeModal.style.display = 'none';
-    alert('Shake detection dezaktive.');
-  });
-}
-
-// =============== SCREENSHOT + REPORT PAGE ===============
+// ================= SCREENSHOT + REPORT =================
 function openReportBugPage() {
   if (typeof html2canvas === 'undefined') {
     alert("html2canvas pa chaje.");
@@ -1407,7 +1368,7 @@ function openReportBugPage() {
   });
 }
 
-// =============== COOKIE BANNER ===============
+// ================= COOKIE BANNER =================
 const banner = document.getElementById('cookieBanner');
 const consent = localStorage.getItem('cookiesConsent');
 
@@ -1422,8 +1383,8 @@ if (!consent && banner) {
   setTimeout(showBanner, 0);
 
   setInterval(() => {
-    const currentConsent = localStorage.getItem('cookiesConsent');
-    if (!currentConsent) showBanner();
+    const c = localStorage.getItem('cookiesConsent');
+    if (!c) showBanner();
   }, 80000);
 }
 
@@ -1452,16 +1413,16 @@ if (learnBtn) {
   });
 }
 
-// =============== 2nd ACCORDION (Simple) ===============
-document.querySelectorAll('.accordion-toggle').forEach(btn => {
-  btn.addEventListener('click', () => {
-    const panel = btn.nextElementSibling;
+// ================= SIMPLE ACCORDION (2nd) =================
+document.querySelectorAll('.accordion-toggle').forEach(toggleBtn => {
+  toggleBtn.addEventListener('click', () => {
+    const panel = toggleBtn.nextElementSibling;
     if (!panel) return;
 
-    const expanded = btn.getAttribute('aria-expanded') === 'true';
-    const icon = btn.querySelector('.icon');
+    const expanded = toggleBtn.getAttribute('aria-expanded') === 'true';
+    const icon = toggleBtn.querySelector('.icon');
 
-    btn.setAttribute('aria-expanded', expanded ? 'false' : 'true');
+    toggleBtn.setAttribute('aria-expanded', expanded ? 'false' : 'true');
     if (icon) icon.textContent = expanded ? '+' : '−';
     panel.hidden = expanded;
   });
