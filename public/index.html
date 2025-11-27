@@ -1210,8 +1210,106 @@ const menuBtn = document.querySelector('.menu-btn');
     window.location.href = 'public/index1.html';
   });
 
+// ===============================
+// 1. FIREBASE CONFIG
+// ===============================
+const firebaseConfig = {
+  apiKey: "AIzaSyBT_d6f9kVwEpytfzo7ZbeBoTGoCMCGHRg",
+  authDomain: "dawensflix.firebaseapp.com",
+  projectId: "dawensflix",
+  storageBucket: "dawensflix.firebasestorage.app",
+  messagingSenderId: "767303159744",
+  appId: "1:767303159744:web:8ab33247b2cb8361e24225",
+  measurementId: "G-C0V46JTDVH"
+};
+
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+
+
+// ===============================
+// 2. LOAD COMMENTS FROM FIRESTORE
+// ===============================
+function loadComments() {
+  db.collection("comments")
+    .orderBy("timestamp", "asc")
+    .onSnapshot(snapshot => {
+      const commentsContainer = document.getElementById('comments-container');
+      commentsContainer.innerHTML = ""; // efase pou re-render
+
+      snapshot.forEach(doc => {
+        renderComment(doc.data());
+      });
+    });
+}
+loadComments();
+
+
+// ===============================
+// 3. RENDER COMMENT IN HTML
+// ===============================
+function renderComment({ name, email, commentText, date }) {
+  const commentsContainer = document.getElementById('comments-container');
+
+  const div = document.createElement('div');
+  div.classList.add('comment');
+
+  div.innerHTML = `
+    <div class="comment-header">
+      <strong>${name}</strong> (<span class="comment-email">${email}</span>) -
+      <span class="comment-date">${date}</span>
+    </div>
+    <p>${commentText}</p>
+
+    <div class="comment-actions">
+      <button class="like-btn">👍 0</button>
+      <button class="reply-btn">Reply</button>
+    </div>
+
+    <div class="replies"></div>
+  `;
+
+  commentsContainer.appendChild(div);
+
+  // LIKE
+  let likes = 0;
+  const likeBtn = div.querySelector('.like-btn');
+  likeBtn.addEventListener('click', () => {
+    likes++;
+    likeBtn.textContent = `👍 ${likes}`;
+  });
+
+  // REPLY
+  const replyBtn = div.querySelector('.reply-btn');
+  const repliesDiv = div.querySelector('.replies');
+
+  replyBtn.addEventListener('click', () => {
+    const replyName = prompt("Non ou:");
+    const replyEmail = prompt("Imèl ou:");
+    const replyText = prompt("Repons ou:");
+
+    if (replyName && replyEmail && replyText) {
+      const rDate = new Date().toLocaleString();
+
+      const reply = document.createElement("div");
+      reply.classList.add("comment");
+      reply.innerHTML = `
+        <div class="comment-header">
+          <strong>${replyName}</strong> (${replyEmail}) - ${rDate}
+        </div>
+        <p>${replyText}</p>
+      `;
+
+      repliesDiv.appendChild(reply);
+    }
+  });
+}
+
+
+// ===============================
+// 4. SUBMIT COMMENT
+// ===============================
 const commentForm = document.getElementById('comment-form');
-const commentsContainer = document.getElementById('comments-container');
 
 commentForm.addEventListener('submit', function(e){
   e.preventDefault();
@@ -1221,70 +1319,227 @@ commentForm.addEventListener('submit', function(e){
   const commentText = document.getElementById('comment').value;
   const date = new Date().toLocaleString();
 
-  // Kreye comment vizib sou paj la
-  const commentDiv = document.createElement('div');
-  commentDiv.classList.add('comment');
-  commentDiv.innerHTML = `
-    <div class="comment-header"><strong>${name}</strong> (${email}) - ${date}</div>
-    <p>${commentText}</p>
-    <div class="comment-actions">
-      <button class="like-btn">👍 0</button>
-      <button class="reply-btn">Reply</button>
-    </div>
-    <div class="replies"></div>
-  `;
-  commentsContainer.appendChild(commentDiv);
-  commentForm.reset();
+  const commentData = {
+    name,
+    email,
+    commentText,
+    date,
+    timestamp: Date.now()
+  };
 
-  // Like functionality
-  let likes = 0;
-  const likeBtn = commentDiv.querySelector('.like-btn');
-  likeBtn.addEventListener('click', () => {
-    likes++;
-    likeBtn.textContent = `👍 ${likes}`;
-  });
+  // SAVE FIRESTORE
+  db.collection("comments").add(commentData)
+    .then(() => {
+      commentForm.reset();
+    })
+    .catch(err => console.error(err));
 
-  // Reply functionality
-  const replyBtn = commentDiv.querySelector('.reply-btn');
-  const repliesDiv = commentDiv.querySelector('.replies');
-  replyBtn.addEventListener('click', () => {
-    const replyName = prompt('Non ou:');
-    const replyEmail = prompt('Imèl ou:');
-    const replyText = prompt('Comment ou:');
-    if(replyName && replyEmail && replyText){
-      const replyDate = new Date().toLocaleString();
-      const replyDiv = document.createElement('div');
-      replyDiv.classList.add('comment');
-      replyDiv.innerHTML = `<div class="comment-header"><strong>${replyName}</strong> (${replyEmail}) - ${replyDate}</div><p>${replyText}</p>`;
-      repliesDiv.appendChild(replyDiv);
-    }
-  });
-
-  // --- Voye comment nan imèl ou atravè EmailJS ---
-  emailjs.send('service_vuwwek5', 'template_ape7lo2', {
+  // EMAILJS
+  emailjs.send("service_w2e0uwl", "template_c86ovbt", {
     from_name: name,
     from_email: email,
     message: commentText,
-    to_email: 'berryxoe@gmail.com'
-  })
-  .then(() => alert('Commentaire envoyé!'))
-  .catch(err => console.error(err));
-});
-
-// =============== 2nd ACCORDION (Simple) ===============
-document.querySelectorAll('.accordion-toggle').forEach(btn => {
-  btn.addEventListener('click', () => {
-    const panel = btn.nextElementSibling;
-    if (!panel) return;
-
-    const expanded = btn.getAttribute('aria-expanded') === 'true';
-    const icon = btn.querySelector('.icon');
-
-    btn.setAttribute('aria-expanded', expanded ? 'false' : 'true');
-    if (icon) icon.textContent = expanded ? '+' : '−';
-    panel.hidden = expanded;
+    to_email: "berryxoe@gmail.com"
   });
 });
+
+  // --- Capture last click ---
+  let lastClick = null;
+  document.addEventListener('click', function(e){
+    lastClick = {
+      clientX: e.clientX,
+      clientY: e.clientY,
+      selector: getCssPath(e.target),
+      pageUrl: location.href,
+      timestamp: new Date().toISOString(),
+      viewportWidth: window.innerWidth,
+      viewportHeight: window.innerHeight
+    };
+    sessionStorage.setItem('reportBugClickInfo', JSON.stringify(lastClick));
+  });
+
+  function getCssPath(el){
+    if(!el) return '';
+    const stack=[];
+    while(el.parentElement){
+      let sibCount=0, sibIndex=0;
+      for(let i=0;i<el.parentElement.children.length;i++){
+        const sib=el.parentElement.children[i];
+        if(sib.nodeName===el.nodeName){
+          if(sib===el) sibIndex=++sibCount;
+          else sibCount++;
+        }
+      }
+      let nodeName=el.nodeName.toLowerCase();
+      if(sibCount>1) nodeName+=`:nth-of-type(${sibIndex})`;
+      stack.unshift(nodeName);
+      el=el.parentElement;
+    }
+    return stack.join(" > ");
+  }
+
+// --- Ultra Sensitive Double Shake Detection ---
+let shakeEnabled = true;
+let lastX = null, lastY = null, lastZ = null;
+let lastShakeTime = 0;
+let shakeCount = 0;
+
+const shakeModal = document.getElementById('shakeModal');
+const manualBtn = document.getElementById('manualReportBtn');
+
+// Fonksyon shake
+function shakeHandler(event){
+  if(!shakeEnabled) return;
+
+  const acc = event.accelerationIncludingGravity;
+  if(!acc || acc.x === null || acc.y === null || acc.z === null) return;
+
+  const currTime = Date.now();
+
+  if(lastX !== null){
+    // ULTRA SENSITIVE
+    const delta = Math.abs(lastX - acc.x) + Math.abs(lastY - acc.y) + Math.abs(lastZ - acc.z);
+
+    if(delta > 1){ // ekstrèm sansib
+
+      // double shake detection (<1.2s ant shakes)
+      if(currTime - lastShakeTime < 1200){
+        shakeCount++;
+      } else {
+        shakeCount = 1;
+      }
+
+      lastShakeTime = currTime;
+
+      if(shakeCount >= 2){
+        shakeCount = 0;
+        // Vibrate 100ms si aparèy sipòte
+        if(navigator.vibrate) navigator.vibrate(100);
+        shakeModal.style.display = 'flex';
+      }
+    }
+  }
+
+  lastX = acc.x;
+  lastY = acc.y;
+  lastZ = acc.z;
+}
+
+// --- Detect device motion ---
+if(typeof DeviceMotionEvent !== "undefined"){
+  if(typeof DeviceMotionEvent.requestPermission === "function"){
+    manualBtn.style.display = "block";
+    DeviceMotionEvent.requestPermission()
+      .then(response=>{
+        if(response === "granted"){
+          window.addEventListener("devicemotion", shakeHandler);
+          manualBtn.style.display = "none";
+        }
+      })
+      .catch(console.error);
+  } else {
+    window.addEventListener("devicemotion", shakeHandler);
+  }
+} else {
+  manualBtn.style.display = "block";
+}
+
+// --- Manual fallback ---
+if(manualBtn){
+  manualBtn.addEventListener("click", ()=>{
+    shakeModal.style.display = "flex";
+  });
+}
+
+// --- Modal buttons ---
+document.getElementById('modalYes').addEventListener('click', ()=>{
+  shakeModal.style.display = 'none';
+  openReportBugPage(); // asire ou gen fonksyon sa
+});
+
+document.getElementById('modalNo').addEventListener('click', ()=>{
+  shakeModal.style.display = 'none';
+});
+
+document.getElementById('disableShake').addEventListener('click', ()=>{
+  shakeEnabled = false;
+  shakeModal.style.display = 'none';
+  alert("Shake detection dezaktive.");
+});
+
+  // --- Open report-bug page with screenshot ---
+  function openReportBugPage(){
+    html2canvas(document.body).then(canvas=>{
+      const screenshotData = canvas.toDataURL('image/png');
+      // store screenshot in sessionStorage
+      sessionStorage.setItem('reportBugScreenshot', screenshotData);
+      // navigate to report-bug.html
+      window.location.href='bot/Report-bug2.html';
+    });
+  }
+
+const banner = document.getElementById('cookieBanner');
+const consent = localStorage.getItem('cookiesConsent');
+
+// Fonksyon pou montre banner ak animasyon
+function showBanner() {
+  banner.style.bottom = '30px'; // retabli pozisyon
+  banner.style.opacity = '1';
+  banner.style.animation = 'bannerBounce 0.5s ease forwards';
+}
+
+// Si itilizatè poko fè chwa
+if (!consent) {
+  // Montre li premye fwa
+  setTimeout(showBanner, 0);
+
+  // Reparèt chak 5s si toujou pa gen chwa
+  setInterval(() => {
+    const currentConsent = localStorage.getItem('cookiesConsent');
+    if (!currentConsent) showBanner();
+  }, 80000); // 80000 ms = 80 segonn
+}
+
+// Bouton Accept
+document.getElementById('acceptBtn').addEventListener('click', () => {
+  localStorage.setItem('cookiesConsent','accepted');
+  banner.style.opacity = '0';
+  banner.style.bottom = '-150px';
+});
+
+// Bouton Refuse
+document.getElementById('refuseBtn').addEventListener('click', () => {
+  localStorage.setItem('cookiesConsent','refused');
+  banner.style.opacity = '0';
+  banner.style.bottom = '-150px';
+});
+
+// Bouton Learn More
+document.getElementById('learnBtn').addEventListener('click', () => {
+  alert('Pour en savoir plus sur nos cookies, visitez: www.example.com/cookies');
+});
+
+
+// JS pou aksyon accordion (pa depann de bibliyotèk)
+  document.querySelectorAll('.accordion-toggle').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const expanded = btn.getAttribute('aria-expanded') === 'true';
+      const icon = btn.querySelector('.icon');
+      // jwenn panel ki vin apre bouton an
+      const panel = btn.nextElementSibling;
+      if (!panel) return;
+
+      if (expanded) {
+        btn.setAttribute('aria-expanded', 'false');
+        icon.textContent = '+';
+        panel.hidden = true;
+      } else {
+        btn.setAttribute('aria-expanded', 'true');
+        icon.textContent = '−';
+        panel.hidden = false;
+      }
+    });
+  });
 </script>
 </body>
 </html>
