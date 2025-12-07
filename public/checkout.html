@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Secure Payment</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<style>
+/* ——————————————————————————
+   GLOBAL STYLE
+—————————————————————————— */
+body {
+  font-family: "Inter", sans-serif;
+  background: #f2f4f7;
+  margin: 0;
+  padding: 0;
+  color: #111;
+}
+
+/* CONTAINER */
+.container {
+  width: 95%;
+  max-width: 1100px;
+  margin: 30px auto;
+  background: #fff;
+  padding: 35px;
+  border-radius: 18px;
+  box-shadow: 0 10px 35px rgba(0,0,0,0.08);
+  animation: fadeIn 0.6s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+h2 {
+  text-align: center;
+  color: #0b74ff;
+  margin-bottom: 25px;
+}
+
+
+
+/* ——————————————————————————
+   PAYMENT METHOD SELECTOR
+—————————————————————————— */
+.payment-methods {
+  display: grid;
+  grid-template-columns: 3fr 1fr 1fr;
+  /* 3.1fr exact TEMU style */
+  gap: 16px;
+  margin-bottom: 25px;
+}
+
+.pay-btn {
+  padding: 16px;
+  background: #f7f8fb;
+  border: 2px solid #d0d7e1;
+  border-radius: 14px;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  text-align: center;
+  transition: 0.25s;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+}
+
+.pay-btn i {
+  font-size: 18px;
+}
+
+.pay-btn:hover {
+  background: #e9f1ff;
+  border-color: #0b74ff;
+  transform: translateY(-4px);
+  box-shadow: 0 6px 14px rgba(11,116,255,0.18);
+}
+
+.pay-btn.active {
+  background: #e6f0ff;
+  border-color: #0b74ff;
+  box-shadow: 0 6px 20px rgba(11,116,255,0.28);
+}
+
+
+
+/* ——————————————————————————
+   TOTAL + PRICE BOX
+—————————————————————————— */
+.price-box {
+  margin-top: 10px;
+  background: #f7f9fc;
+  border: 1px solid #e0e6ef;
+  padding: 18px 20px;
+  border-radius: 12px;
+  font-size: 16px;
+}
+
+.price-box p {
+  margin: 3px 0;
+}
+
+.price-box h3 {
+  margin: 10px 0 0;
+  color: #0b74ff;
+}
+
+
+
+/* ——————————————————————————
+   PAYMENT FORMS (HIDDEN UNTIL CLICK)
+—————————————————————————— */
+.payform {
+  margin-top: 30px;
+  padding: 25px 20px;
+  border-radius: 16px;
+  background: #fff;
+  border: 1px solid #dce3ee;
+  box-shadow: 0 6px 20px rgba(0,0,0,0.06);
+  animation: slideDown 0.45s ease;
+}
+
+@keyframes slideDown {
+  from { opacity: 0; transform: translateY(-15px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.hidden {
+  display: none;
+}
+
+.payform h3 {
+  margin-top: 0;
+  margin-bottom: 20px;
+  color: #0b74ff;
+  font-size: 18px;
+}
+
+
+
+label {
+  font-weight: 600;
+  font-size: 14px;
+  margin-bottom: 6px;
+  display: block;
+}
+
+input[type="text"],
+input[type="email"],
+input[type="file"] {
+  width: 100%;
+  padding: 13px 12px;
+  border-radius: 10px;
+  border: 1px solid #c8d0db;
+  font-size: 14px;
+  outline: none;
+  background: #fafbfd;
+  transition: border 0.25s, background 0.25s;
+}
+
+input:focus {
+  border-color: #0b74ff;
+  background: #fff;
+  box-shadow: 0 0 0 3px rgba(11,116,255,0.18);
+}
+
+
+
+.form-row {
+  display: flex;
+  gap: 15px;
+}
+
+
+
+/* ——————————————————————————
+   MAIN PAY BUTTON
+—————————————————————————— */
+.pay-submit {
+  width: 100%;
+  padding: 15px;
+  border: none;
+  background: #0b74ff;
+  color: #fff;
+  font-weight: 700;
+  font-size: 16px;
+  border-radius: 12px;
+  cursor: pointer;
+  margin-top: 16px;
+  transition: 0.25s;
+}
+
+.pay-submit:hover {
+  background: #0954d6;
+  box-shadow: 0 8px 16px rgba(11,116,255,0.35);
+  transform: translateY(-2px);
+}
+
+
+
+/* ——————————————————————————
+   MOBILE RESPONSIVE
+—————————————————————————— */
+@media (max-width: 750px) {
+
+  .payment-methods {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .container {
+    padding: 20px;
+  }
+
+  .pay-btn {
+    padding: 14px 10px;
+    font-size: 14px;
+  }
+
+  .price-box {
+    font-size: 14px;
+  }
+
+  .form-row {
+    flex-direction: column;
+  }
+}
+
+@media (max-width: 480px) {
+
+  .payment-methods {
+    grid-template-columns: 1fr;
+  }
+
+  h2 {
+    font-size: 20px;
+  }
+
+  .pay-btn {
+    font-size: 15px;
+  }
+
+  .pay-submit {
+    font-size: 15px;
+  }
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+  <h2>Choose Your Payment Method</h2>
+
+  <!-- PAYMENT METHODS -->
+  <div class="payment-methods">
+    <button class="pay-btn" data-method="card">
+      <i class="fa-solid fa-credit-card"></i> Credit / Debit Card
+    </button>
+    <button class="pay-btn" data-method="paypal">
+      <i class="fa-brands fa-paypal"></i> PayPal
+    </button>
+    <button class="pay-btn" data-method="cashapp">
+      <i class="fa-solid fa-money-bill-wave"></i> Cash App
+    </button>
+    <button class="pay-btn" data-method="binance">
+      <i class="fa-solid fa-coins"></i> Binance / Binance.US
+    </button>
+    <button class="pay-btn" data-method="stripe">
+      <i class="fa-solid fa-signal"></i> Stripe
+    </button>
+  </div>
+
+  <!-- TAX + PRICE -->
+  <div class="price-box">
+    <p>Plan Price: <span id="planPrice">$0.00</span></p>
+    <p>Tax (8%): <span id="taxAmount">$0.00</span></p>
+    <h3>Total: <span id="totalAmount">$0.00</span></h3>
+  </div>
+
+
+  <!-- CARD PAYMENT -->
+  <form id="cardForm" class="hidden payform">
+    <h3><i class="fa-solid fa-credit-card"></i> Card Information</h3>
+
+    <label>Name on Card</label>
+    <input type="text" id="cardName">
+
+    <label>Card Number</label>
+    <input type="text" id="cardNumber" placeholder="xxxx xxxx xxxx xxxx">
+
+    <div class="form-row">
+      <div>
+        <label>Expiry</label>
+        <input type="text" id="expiry" placeholder="MM/YY">
+      </div>
+      <div>
+        <label>CVV</label>
+        <input type="text" id="cvv" placeholder="123">
+      </div>
+    </div>
+
+    <button type="button" class="pay-submit" onclick="finishPayment('card')">Pay Now</button>
+  </form>
+
+
+
+  <!-- PAYPAL -->
+  <form id="paypalForm" class="hidden payform">
+    <h3><i class="fa-brands fa-paypal"></i> PayPal Redirect</h3>
+    <p>You will be redirected to PayPal to complete your payment.</p>
+    <button type="button" class="pay-submit" onclick="finishPayment('paypal')">Continue to PayPal</button>
+  </form>
+
+
+
+  <!-- CASH APP -->
+  <form id="cashappForm" class="hidden payform">
+    <h3><i class="fa-solid fa-money-bill"></i> Cash App</h3>
+    <p>Send payment to: <strong>$berrxoe</strong></p>
+    <p>Upload screenshot receipt below:</p>
+    <input type="file" id="cashReceipt">
+    <button type="button" class="pay-submit" onclick="finishPayment('cashapp')">Submit Receipt</button>
+  </form>
+
+
+
+  <!-- BINANCE -->
+  <form id="binanceForm" class="hidden payform">
+    <h3><i class="fa-solid fa-coins"></i> Binance / Binance.US</h3>
+    <p>USDT (TRC20) Wallet:</p>
+    <code>TX4JDSD8H8SSUDSD88DSDS...</code>
+
+    <p>Upload proof:</p>
+    <input type="file" id="binanceProof">
+
+    <button type="button" class="pay-submit" onclick="finishPayment('binance')">Confirm Transfer</button>
+  </form>
+
+
+
+  <!-- STRIPE -->
+  <form id="stripeForm" class="hidden payform">
+    <h3><i class="fa-brands fa-cc-stripe"></i> Stripe Secure Checkout</h3>
+    <p>You will be redirected to Stripe Checkout.</p>
+    <button type="button" class="pay-submit" onclick="finishPayment('stripe')">Continue to Stripe</button>
+  </form>
+
+
+
+</div>
+
+<!-- include Stripe.js on the page (replace with your publishable key only on backend-created session redirect) -->
+<script src="https://js.stripe.com/v3/"></script>
+<script src="/js/checkout.js"></script>
+<script>
+/********************************************
+ * checkout.js - Payment Page (per-method tax)
+ ********************************************/
+
+// Elements
+const planPriceEl = document.getElementById("planPrice");
+const taxAmountEl = document.getElementById("taxAmount");
+const totalAmountEl = document.getElementById("totalAmount");
+const payBtns = document.querySelectorAll(".pay-btn");
+const payForms = document.querySelectorAll(".payform");
+
+let selectedPlan = null;
+let paymentMethod = null;
+
+// DIFFERENT TAX FOR EACH PAYMENT METHOD
+const taxRates = {
+  card: 0.08,     // 8%
+  paypal: 0.10,   // 10%
+  binance: 0.05,  // 5%
+  cashapp: 0.06,  // 6%
+  stripe: 0.20    // 20%
+};
+
+// ======== 1. LOAD PLAN FROM localStorage ========
+const savedData = localStorage.getItem("paymentData");
+if (!savedData) {
+  alert("Missing payment info. Please start again.");
+  window.location.href = "payment.html";
+} else {
+  const paymentData = JSON.parse(savedData);
+  selectedPlan = {
+    price: parseFloat(paymentData.plan.price),
+    duration: paymentData.plan.duration,
+    id: paymentData.plan.id || "noID"
+  };
+  updatePrice();
+}
+
+// ======== 2. UPDATE PRICE (DYNAMIC TAX BY METHOD) ========
+function updatePrice() {
+  if (!selectedPlan) return;
+
+  const basePrice = selectedPlan.price;
+
+  // If no method selected yet → tax 0
+  const taxRate = paymentMethod ? taxRates[paymentMethod] : 0;
+
+  const taxAmount = basePrice * taxRate;
+  const total = basePrice + taxAmount;
+
+  planPriceEl.textContent = `$${basePrice.toFixed(2)}`;
+  taxAmountEl.textContent = `$${taxAmount.toFixed(2)}`;
+  totalAmountEl.textContent = `$${total.toFixed(2)}`;
+}
+
+// ======== 3. PAYMENT METHOD SELECT ========
+payBtns.forEach(btn => {
+  btn.addEventListener("click", () => {
+    payBtns.forEach(b => b.classList.remove("active"));
+    btn.classList.add("active");
+
+    paymentMethod = btn.dataset.method;
+
+    payForms.forEach(f => f.classList.add("hidden"));
+    const targetForm = document.getElementById(paymentMethod + "Form");
+    if (targetForm) targetForm.classList.remove("hidden");
+
+    // Update price with new tax
+    updatePrice();
+  });
+});
+
+// ======== 4. POST UTILITY ========
+async function postJSON(url, body) {
+  const res = await fetch(url, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(body)
+  });
+  return res.json();
+}
+
+// ======== 5. FINISH PAYMENT ========
+async function finishPayment(method) {
+  if (!selectedPlan) return alert("Please select a plan first!");
+
+  const base = selectedPlan.price;
+  const taxRate = taxRates[method];
+  const total = (base + base * taxRate).toFixed(2);
+
+  try {
+    if (method === "card") {
+      const resp = await postJSON("/api/checkout/stripe", {
+        planId: selectedPlan.id,
+        price: total,
+        metadata: { duration: selectedPlan.duration }
+      });
+
+      if (!resp.sessionId) throw new Error(resp.message || "No session returned");
+
+      const stripe = Stripe(resp.publishableKey);
+      const { error } = await stripe.redirectToCheckout({ sessionId: resp.sessionId });
+      if (error) alert(error.message);
+      return;
+    }
+
+    if (method === "paypal") {
+      const resp = await postJSON("/api/checkout/paypal", {
+        planId: selectedPlan.id,
+        price: total
+      });
+
+      if (resp.approveUrl) {
+        window.location.href = resp.approveUrl;
+      } else throw new Error(resp.message || "PayPal error");
+      return;
+    }
+
+    if (method === "binance" || method === "cashapp") {
+      const formEl = document.getElementById(method + "Form");
+      const fd = new FormData();
+      fd.append("planId", selectedPlan.id);
+      fd.append("price", total);
+
+      const fileInput = formEl.querySelector("input[type=file]");
+      if (!fileInput || !fileInput.files.length) return alert("Upload your payment proof.");
+      fd.append("proof", fileInput.files[0]);
+
+      const res = await fetch(`/api/checkout/${method}`, { method: "POST", body: fd });
+      const data = await res.json();
+
+      if (data.success) {
+        alert("Payment submitted — awaiting verification.");
+        window.location.href = "movie.html";
+      } else {
+        alert("Payment failed.");
+      }
+      return;
+    }
+
+    if (method === "wallet") {
+      alert("Wallet system not configured.");
+      return;
+    }
+
+    alert("Unsupported payment method: " + method);
+
+  } catch (err) {
+    console.error(err);
+    alert("Payment error: " + err.message);
+  }
+}
+
+window.finishPayment = finishPayment;
+</script>
+</body>
+</html>

@@ -10,7 +10,7 @@
 <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
 <style>
   body{
-    margin:0;
+    margin:1;
     font-family: Inter, sans-serif;
     background:#000;
     color:#fff;
@@ -165,7 +165,7 @@ header {
 
 .side-logo {
   width: 60px;
-  filter: drop-shadow(0 0 8px #ff004c);
+  filter: drop-shadow(0 0 8px #ff004c); 
 }
 
 .close-side {
@@ -247,6 +247,84 @@ header {
   background: #ff2b65;
   box-shadow: 0 0 15px #ff2b65;
 }
+
+/* Basic styling pou lis la (ajiste jan ou vle) */
+.side-links {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+.side-links li {
+  position: relative;
+  padding: 12px 16px;
+  margin: 6px 0;
+  border-radius: 10px;
+  cursor: pointer;
+  user-select: none;
+  transition: transform .12s ease, box-shadow .18s ease, background-color .12s ease;
+  color: #ddd;
+  font-weight: 600;
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+/* Style default lè w hover */
+.side-links li:hover {
+  transform: translateY(-2px);
+  background: rgba(255,0,0,0.03);
+}
+
+/* Efè lè atik la selected / klike sou li / focus (accessibility) */
+.side-links li.selected,
+.side-links li:active,
+.side-links li:focus {
+  outline: none;
+  color: #fff;
+  background: rgba(255,0,0,0.12);
+  transform: translateY(-3px);
+  box-shadow:
+    0 2px 10px rgba(255,0,0,0.16),
+    0 0 18px rgba(255,0,0,0.14),
+    0 0 36px rgba(255,0,0,0.06);
+}
+
+/* Yon bag (ring) ki pulsan lè se selected */
+.side-links li.selected::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 82%;
+  height: 82%;
+  transform: translate(-50%, -50%);
+  border-radius: 14px;
+  pointer-events: none;
+  box-shadow: 0 0 0 0 rgba(255,0,0,0.25);
+  animation: pulse-red 1.6s infinite;
+  opacity: 0.85;
+}
+
+/* Animasyon pulse */
+@keyframes pulse-red {
+  0% {
+    box-shadow: 0 0 0 0 rgba(255,0,0,0.28);
+  }
+  60% {
+    box-shadow: 0 0 0 10px rgba(255,0,0,0.04);
+  }
+  100% {
+    box-shadow: 0 0 0 20px rgba(255,0,0,0);
+  }
+}
+
+/* Focus visual pou aksè klavye (Enter / Space) */
+.side-links li:focus {
+  box-shadow:
+    0 2px 12px rgba(255,0,0,0.18),
+    0 0 28px rgba(255,0,0,0.12);
+}
+
 
 /* ==========================
    FULLSCREEN SEARCH MODAL
@@ -1243,7 +1321,18 @@ header {
   transform: scale(1.05);
 }
 
+.genre-btn.locked {
+  opacity: 0.5;
+  position: relative;
+}
 
+.genre-btn.locked::after {
+  content: "🔒";
+  position: absolute;
+  right: -10px;
+  top: -10px;
+  font-size: 22px;
+}
 </style>
 </head>
 <body>
@@ -1366,14 +1455,14 @@ header {
     </div>
 
     <ul class="side-links">
-      <li><i class="fas fa-home"></i> Home</li>
-      <li><i class="fas fa-film"></i> Movies</li>
-      <li><i class="fas fa-tv"></i> Series</li>
-      <li><i class="fas fa-fire"></i> Trending</li>
-      <li><i class="fas fa-star"></i> Top Rated</li>
-      <li><i class="fas fa-heart"></i> Favorites</li>
-      <li><i class="fas fa-cog"></i> Settings</li>
-    </ul>
+  <li data-link="movie.html"><i class="fas fa-home"></i> Home</li>
+  <li data-link="movies.html"><i class="fas fa-film"></i> Movies</li>
+  <li data-link="series.html"><i class="fas fa-tv"></i> Series</li>
+  <li data-link="trending.html"><i class="fas fa-fire"></i> Trending</li>
+  <li data-link="top-rated.html"><i class="fas fa-star"></i> Top Rated</li>
+  <li data-link="about.html"><i class="fas fa-heart"></i> About Us</li>
+  <li data-link="settings.html"><i class="fas fa-cog"></i> Settings</li>
+</ul>
 
     <button class="logout-btn" id="logoutBtn"><i class="fas fa-sign-out-alt"></i> Logout</button>
   </div>
@@ -1414,10 +1503,19 @@ header {
     <button class="genre-btn active"><i class="fas fa-layer-group"></i> All</button>
 
     <button class="genre-btn promo-btn">
-  <i class="fas fa-fire"></i>
+  <i class="fas fa-unlock"></i>
   Porno
   <span class="promo-dot"></span>
 </button>
+
+   <button class="genre-btn promo-btn" id="pornoVipPromo" data-target="PornoVIP">
+  <i class="fas fa-lock"></i>
+  Porno VIP
+  <span class="promo-dot"></span>
+</button>
+
+
+<div id="PornoVIP" class="content-section"></div>
 
     <button class="genre-btn promo-btn">
   <i class="fas fa-star"></i>
@@ -1746,6 +1844,7 @@ const phoneLoginBtn = document.getElementById("phoneLoginBtn");
 const phoneLoginSection = document.getElementById("phoneLoginSection");
 const sendCodeBtn = document.getElementById("sendCodeBtn");
 const verifyCodeBtn = document.getElementById("verifyCodeBtn");
+const resendCodeBtn = document.getElementById("resendCodeBtn");
 const phoneNumberInput = document.getElementById("phoneNumber");
 const phoneCodeInput = document.getElementById("phoneCode");
 const numberInput = document.getElementById('number');
@@ -1759,6 +1858,23 @@ const logoutBtn = document.getElementById("logoutBtn");
 const saveBtn = document.getElementById('saveMeBtn');
 
 let isSignup = false;
+
+// ======= CHECK IF USER IS LOGGED IN =======
+auth.onAuthStateChanged(user => {
+  if(user){
+    // User logged in → hide login page
+    loginRoot.style.display = "none";
+    document.getElementById("mainContent").style.display = "block";
+    updateSideMenu(
+      user.displayName || "User",
+      user.photoURL || "https://files.catbox.moe/iufn3o.jpg"
+    );
+  } else {
+    // User not logged → show login page
+    document.getElementById("mainContent").style.display = "none";
+    loginRoot.style.display = "block";
+  }
+});
 
 // ======= TOGGLE LOGIN/SIGNUP =======
 toggleForm.addEventListener('click', () => {
@@ -1789,6 +1905,7 @@ phoneLoginBtn.addEventListener("click", () => {
   sendCodeBtn.style.display = "block";
   phoneCodeInput.style.display = "none";
   verifyCodeBtn.style.display = "none";
+  if(resendCodeBtn) resendCodeBtn.style.display = "none";
 });
 
 // Firebase reCAPTCHA
@@ -1797,6 +1914,8 @@ window.recaptchaVerifier = new firebase.auth.RecaptchaVerifier('recaptcha-contai
   'callback': (response) => { console.log("reCAPTCHA solved"); }
 });
 
+let confirmationResultGlobal = null;
+
 // Send SMS code
 sendCodeBtn.addEventListener("click", async () => {
   const phone = phoneNumberInput.value.trim();
@@ -1804,14 +1923,31 @@ sendCodeBtn.addEventListener("click", async () => {
 
   try {
     const confirmationResult = await auth.signInWithPhoneNumber(phone, window.recaptchaVerifier);
-    window.confirmationResult = confirmationResult;
+    confirmationResultGlobal = confirmationResult;
     alert("SMS sent! Enter the code below.");
     phoneCodeInput.style.display = "block";
     verifyCodeBtn.style.display = "block";
+    if(resendCodeBtn) resendCodeBtn.style.display = "block";
   } catch(err) {
     alert(err.message);
   }
 });
+
+// Resend code
+if(resendCodeBtn){
+  resendCodeBtn.addEventListener("click", async () => {
+    const phone = phoneNumberInput.value.trim();
+    if (!phone) return alert("Enter phone number first");
+
+    try {
+      const confirmationResult = await auth.signInWithPhoneNumber(phone, window.recaptchaVerifier);
+      confirmationResultGlobal = confirmationResult;
+      alert("SMS resent!");
+    } catch(err){
+      alert(err.message);
+    }
+  });
+}
 
 // Verify code
 verifyCodeBtn.addEventListener("click", async () => {
@@ -1819,7 +1955,7 @@ verifyCodeBtn.addEventListener("click", async () => {
   if (!code) { alert("Enter the verification code"); return; }
 
   try {
-    const result = await window.confirmationResult.confirm(code);
+    const result = await confirmationResultGlobal.confirm(code);
     const user = result.user;
     const name = displayNameInput.value || user.phoneNumber || "User";
     updateSideMenu(name, "https://files.catbox.moe/iufn3o.jpg");
@@ -1888,8 +2024,9 @@ document.getElementById('githubLoginBtn').addEventListener('click', async () => 
 });
 
 // ======= LOGOUT =======
-logoutBtn.addEventListener('click', () => {
-  updateSideMenu("User", "https://files.catbox.moe/iufn3o.jpg");
+logoutBtn.addEventListener('click', async () => {
+  await auth.signOut();
+  localStorage.clear();
   location.reload();
 });
 
@@ -1952,7 +2089,7 @@ function showLoader(onComplete) {
         welcomeScreen.classList.remove("hidden");
         setTimeout(() => {
           welcomeScreen.classList.add("show");
-        }, 50); // slight delay for CSS transition
+        }, 50);
 
         // OK button closes welcome and reveals main content
         welcomeOk.addEventListener('click', () => {
@@ -1961,7 +2098,7 @@ function showLoader(onComplete) {
             welcomeScreen.remove();
             if(loginRoot) loginRoot.style.display = 'block';
             if(onComplete) onComplete();
-          }, 500); // wait for fade out
+          }, 500);
         });
 
       }, 500);
@@ -1969,8 +2106,6 @@ function showLoader(onComplete) {
   }
 
   const interval = setInterval(tick, 80);
-
-  // Online / offline events
   window.addEventListener("online", () => { text.textContent = "Internet reconnected! Loading..."; });
   window.addEventListener("offline", () => { text.textContent = "No internet connection..."; });
 }
@@ -2300,6 +2435,9 @@ document.addEventListener("DOMContentLoaded", async () => {
 });
 
 
+/********************************************
+ * 1. CLICK BOUTON GENRE + SELECTION
+ ********************************************/
 document.querySelectorAll(".genre-btn").forEach(btn => {
   btn.addEventListener("click", () => {
 
@@ -2312,6 +2450,7 @@ document.querySelectorAll(".genre-btn").forEach(btn => {
 
     if (target) {
       document.getElementById(target).style.display = "block";
+      loadGenre(target);
     }
   });
 });
@@ -2324,6 +2463,13 @@ const GENRE_DATA = {
   { "title": "Levels", "img": "https://files.catbox.moe/651t3k.jpeg", "episodes": 20, "rating": 4, "type": "Movie", "page": "Movie/pages/actions_folder/action3.html" },
   { "title": "Twelve", "img": "https://files.catbox.moe/9tbq38.jpeg", "episodes": 10, "rating": 3, "type": "Series", "page": "Movie/pages/actions_folder/action23.html" }
 ],
+
+  "Hello": [
+    { "title": "Elemental Warriors", "img": "https://files.catbox.moe/jrfkxz.jpeg", "episodes": 16, "rating": 5, "type": "Xxx", "page": "Movie/pages/actions_folder/action1.html" },
+    { "title": "Master of Fists", "img": "https://files.catbox.moe/5wjpuq.jpeg", "episodes": 12, "rating": 4, "type": "Xxx", "page": "Movie/pages/actions_folder/action2.html" },
+    { "title": "Rise of Levels", "img": "https://files.catbox.moe/sn0url.jpeg", "episodes": 20, "rating": 4, "type": "Xxx", "page": "Movie/pages/actions_folder/action3.html" },
+    { "title": "Twelve: Origins", "img": "https://files.catbox.moe/lqo5si.jpeg", "episodes": 10, "rating": 3, "type": "Xxx", "page": "Movie/pages/actions_folder/action23.html" }
+  ],
 
   "Porno": [
   { "title": "Elemental Warriors", "img": "https://files.catbox.moe/jrfkxz.jpeg", "episodes": 16, "rating": 5, "type": "Xxx", "page": "Movie/pages/actions_folder/action1.html" },
@@ -2646,6 +2792,13 @@ const GENRE_DATA = {
     { title: "Black Panther: Wakanda Forever | Official Teaser", img: "https://files.catbox.moe/eun0ck.jpeg", episodes: 1, rating: 7.9, type: "Movie", page: "Movie/pages/marvel6.html" },
     { title: "Ms. Marvel", img: "https://files.catbox.moe/a14s8s.jpeg", episodes: 6, rating: 6, type: "Series", page: "Movie/pages/marvel7.html" },
     { title: "My Marvellous Dream Is You", img: "https://files.catbox.moe/awt8mh.jpeg", episodes: 1, rating: 6, type: "Series", page: "Movie/pages/marvel8.html" }
+  ],
+
+  "PornoVIP": [
+    { "title": "Elemental Warriors", "img": "https://files.catbox.moe/jrfkxz.jpeg", "episodes": 16, "rating": 5, "type": "Xxx", "page": "Movie/pages/actions_folder/action1.html" },
+    { "title": "Master of Fists", "img": "https://files.catbox.moe/5wjpuq.jpeg", "episodes": 12, "rating": 4, "type": "Xxx", "page": "Movie/pages/actions_folder/action2.html" },
+    { "title": "Rise of Levels", "img": "https://files.catbox.moe/sn0url.jpeg", "episodes": 20, "rating": 4, "type": "Xxx", "page": "Movie/pages/actions_folder/action3.html" },
+    { "title": "Twelve: Origins", "img": "https://files.catbox.moe/lqo5si.jpeg", "episodes": 10, "rating": 3, "type": "Xxx", "page": "Movie/pages/actions_folder/action23.html" }
   ]
 };
 
@@ -2738,6 +2891,81 @@ function closeMenu(){
 
 closeSide.addEventListener("click", closeMenu);
 backdrop.addEventListener("click", closeMenu);
+
+/********************************************
+ * Porno VIP LOCK — works with backend only
+ ********************************************/
+
+const pornoVipBtn = document.getElementById("pornoVipPromo");
+
+// CHECK VIP FROM BACKEND
+async function checkVip() {
+  try {
+    const res = await fetch("/api/user/vip-status", {
+      credentials: "include"
+    });
+    const data = await res.json();
+
+    if (data.vip === true) {
+      // User unlocked
+      pornoVipBtn.classList.remove("locked");
+      pornoVipBtn.textContent = "Enter Porno VIP 🔥";
+      pornoVipBtn.dataset.unlocked = "true";
+    } else {
+      // User still locked
+      pornoVipBtn.classList.add("locked");
+      pornoVipBtn.dataset.unlocked = "false";
+    }
+  } catch (err) {
+    console.error("Error checking VIP:", err);
+  }
+}
+
+pornoVipBtn.addEventListener("click", () => {
+  const isUnlocked = pornoVipBtn.dataset.unlocked === "true";
+
+  if (!isUnlocked) {
+    alert("This section is locked. Please pay to unlock.");
+    window.location.href = "payment.html";
+  } else {
+    window.location.href = "porno_vip.html";
+  }
+});
+
+// Run it
+checkVip();
+
+// Chak <li> gen data-link = paj pou l' ouvri
+  document.querySelectorAll(".side-links li").forEach(item => {
+    item.addEventListener("click", () => {
+      const page = item.dataset.link;
+      window.location.href = page;  // Al nan paj la
+    });
+  });
+
+ // JS: ajoute klas 'selected' sou click, epi navige si data-link egziste
+  const sideItems = document.querySelectorAll(".side-links li");
+
+  sideItems.forEach(item => {
+    // asire li aksesib
+    if (!item.hasAttribute('tabindex')) item.setAttribute('tabindex','0');
+    item.addEventListener("click", () => {
+      sideItems.forEach(i => i.classList.remove("selected"));
+      item.classList.add("selected");
+
+      // Si ou gen data-link pou navige:
+      const page = item.dataset.link;
+      if (page) window.location.href = page;
+    });
+
+    // pèmèt Enter / Space pou aktive li (accessibility)
+    item.addEventListener("keydown", (e) => {
+      if (e.key === "Enter" || e.key === " ") {
+        e.preventDefault();
+        item.click();
+      }
+    });
+  });
 </script>
 </body>
 </html>
