@@ -12,6 +12,7 @@ const admin = require("firebase-admin");
 const cron = require("node-cron");
 const path = require('path');
 const mongoose = require('mongoose');
+const paypal = require('@paypal/checkout-server-sdk');
 const jwt = require('jsonwebtoken');
 const multer = require('multer');
 const fs = require('fs');
@@ -82,6 +83,58 @@ function adminAuth(req,res,next){
   }
 }
 
+/* -------------------------
+   Stripe Setup & Route
+   ------------------------- */
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, { apiVersion: '2023-08-16' });
+
+app.post('/api/checkout/stripe', async (req, res) => {
+  try {
+    const { planId, price, metadata } = req.body;
+    // Validate planId & price server-side!
+    const session = await stripe.checkout.sessions.create({
+      payment_method_types: ['card'],
+      line_items: [
+        {
+          price_data: {
+            currency: 'usd',
+            product_data: { name: `Plan ${planId}` },
+            unit_amount: Math.round(parseFloat(price) * 100)
+          },
+          quantity: 1
+        }
+      ],
+      mode: 'payment',
+      success_url: `${req.headers.origin}/success.html?session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${req.headers.origin}/cancel.html`,
+      metadata: metadata || {}
+    });
+
+    return res.json({ sessionId: session.id, publishableKey: process.env.STRIPE_PUBLISHABLE_KEY });
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ message: err.message });
+  }
+});
+
+// Stripe webhook (verify signature)
+app.post('/webhook/stripe', express.raw({type: 'application/json'}), (req,res) => {
+  const sig = req.headers['stripe-signature'];
+  let event;
+  try {
+    event = stripe.webhooks.constructEvent(req.body, sig, process.env.WEBHOOK_SECRET_STRIPE);
+  } catch (err) {
+    console.error('Webhook signature error', err.message);
+    return res.status(400).send(`Webhook Error: ${err.message}`);
+  }
+
+  if (event.type === 'checkout.session.completed') {
+    const session = event.data.object;
+    // TODO: mark order paid in DB using session.metadata or session.id
+    console.log('Stripe paid session', session.id);
+  }
+  res.json({received:true});
+});
 // ============ ROUTES ============
 
 // Home
@@ -298,5 +351,183 @@ cron.schedule("0 10 */2 * *", async () => {
 
 });
 
+// --- MonCash Payment ---
+async function getAccessToken(){
+  const formData = new URLSearchParams();
+  formData.append('client_id', process.env.CLIENT_ID);
+  formData.append('client_secret', process.env.CLIENT_SECRET);
+  formData.append('grant_type', 'client_credentials');
+
+  const res = await fetch("https://api.moncash.natcash.com/oauth/token",{ 
+    method:"POST", 
+    body:formData 
+  });
+
+  if(!res.ok) throw new Error("Erreur obtention token OAuth");
+
+  return (await res.json()).access_token;
+}
+
+async function verifyPayment(token,orderId){
+  const res = await fetch(
+    `https://api.moncash.natcash.com/V1/RetrieveTransactionPayment?reference=${orderId}`, 
+    { method:"GET", headers:{ "Authorization":`Bearer ${token}` }}
+  );
+
+  if(!res.ok) throw new Error("Erreur récupération transaction");
+
+  return await res.json();
+}
+
+app.post('/api/payment', upload.single('proof'), async (req,res)=>{
+  try{
+    const { orderId } = req.body;
+    if(!req.file) return res.status(400).json({ status:"error", message:"Pas de preuve uploadée" });
+
+    const token = await getAccessToken();
+    const result = await verifyPayment(token, orderId);
+
+    if(result.status==="success"){
+      const newPath = path.join('uploads',`${orderId}_${req.file.originalname}`);
+      fs.renameSync(req.file.path,newPath);
+      return res.json({ status:"success", message:"Paiement vérifié" });
+    } else {
+      fs.unlinkSync(req.file.path);
+      return res.json({ status:"error", message:result.message });
+    }
+  }catch(err){ 
+    res.status(500).json({ status:"error", message:err.message });
+  }
+});
+
+/* -------------------------
+   PayPal Setup & Route
+   ------------------------- */
+const environment = new paypal.core.SandboxEnvironment(process.env.PAYPAL_CLIENT_ID, process.env.PAYPAL_CLIENT_SECRET);
+const paypalClient = new paypal.core.PayPalHttpClient(environment);
+
+app.post('/api/checkout/paypal', async (req, res) => {
+  const { planId, price } = req.body;
+  try {
+    // Create order
+    const request = new paypal.orders.OrdersCreateRequest();
+    request.prefer("return=representation");
+    request.requestBody({
+      intent: "CAPTURE",
+      purchase_units: [{
+        amount: { currency_code: "USD", value: String(price) },
+        description: `Plan ${planId}`
+      }],
+      application_context: {
+        return_url: `${req.headers.origin}/paypal-success.html`,
+        cancel_url: `${req.headers.origin}/paypal-cancel.html`
+      }
+    });
+
+    const order = await paypalClient.execute(request);
+    const approve = order.result.links.find(l => l.rel === 'approve');
+    res.json({ approveUrl: approve.href, orderId: order.result.id });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: err.message });
+  }
+});
+
+// PayPal webhook route (example)
+app.post('/webhook/paypal', bodyParser.json(), (req, res) => {
+  // Validate webhook with PayPal (requires verifying transmission id & signature)
+  console.log('PayPal webhook received', req.body);
+  res.json({received:true});
+});
+
+/* -------------------------
+   Binance Pay route
+   ------------------------- */
+/*
+  Binance Pay requires you to sign the payload and POST to their create order endpoint.
+  See Binance Pay merchant docs for exact payload & signing method. Use merchant id/key/secret from dashboard.
+  Docs: https://developers.binance.com/docs/binance-pay
+*/
+app.post('/api/checkout/binance', upload.single('proof'), async (req, res) => {
+  try {
+    const { planId, price } = req.body;
+    // Save proof file path if needed
+    const proofPath = req.file ? req.file.path : null;
+
+    // Example: build payload
+    const payload = {
+      merchantTradeNo: `mtrade_${Date.now()}`,
+      totalAmount: String(Math.round(parseFloat(price) * 100) / 100),
+      currency: "USD",
+      productName: `Plan ${planId}`,
+      // callback URLs you configure in Binance dashboard
+      notifyUrl: `${req.protocol}://${req.get('host')}/webhook/binance`
+    };
+
+    // Sign & call Binance Pay endpoint (pseudocode - adapt per docs)
+    const timestamp = Date.now().toString();
+    const bodyStr = JSON.stringify(payload);
+    const preHash = `${process.env.BINANCE_PAY_MERCHANT_ID}\n${timestamp}\n${process.env.BINANCE_PAY_API_KEY}\n${bodyStr}`;
+    const signature = crypto.createHmac('sha512', process.env.BINANCE_PAY_API_SECRET).update(preHash).digest('hex');
+
+    const headers = {
+      'BinancePay-Timestamp': timestamp,
+      'BinancePay-Nonce': crypto.randomBytes(16).toString('hex'),
+      'BinancePay-Certificate-SN': process.env.BINANCE_PAY_API_KEY,
+      'Content-Type': 'application/json',
+      'BinancePay-Signature': signature
+    };
+
+    // Actual URL and payload structure depend on Binance docs (merchant create order endpoint).
+    const binanceResp = await axios.post('https://bpay.binanceapi.com/binancepay/openapi/v2/order', bodyStr, { headers });
+    // Save binanceResp.data to DB (pending)
+    return res.json({ success: true, data: binanceResp.data });
+  } catch (err) {
+    console.error(err.response?.data || err.message);
+    return res.status(500).json({ message: err.message });
+  }
+});
+
+app.post('/webhook/binance', bodyParser.json(), (req,res) => {
+  // Verify signature per Binance webhook docs, then mark order as paid.
+  console.log('Binance webhook', req.body);
+  res.json({received:true});
+});
+
+/* -------------------------
+   Cash App Pay route
+   ------------------------- */
+/*
+  Cash App Pay is a server-side integration. Use their Network API & Pay Kit.
+  See Cash App Pay docs for required request signing and flows. This is the skeleton.
+*/
+app.post('/api/checkout/cashapp', upload.single('proof'), async (req, res) => {
+  try {
+    const { planId, price } = req.body;
+    // Save proof file
+    const proofPath = req.file ? req.file.path : null;
+
+    // Build Cash App payment request using their Network API - pseudocode:
+    const body = {
+      amount: { currency: "USD", amount: String(price) },
+      merchantReferenceId: `mref_${Date.now()}`,
+      // other required fields...
+    };
+
+    // Sign & call Cash App endpoint using your client credentials
+    // Example: axios.post('https://api.cash.app/payments', body, { headers: signedHeaders })
+    // For this skeleton we return a placeholder
+    return res.json({ success: true, message: "Submitted to Cash App for verification (skeleton)." });
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ message: err.message });
+  }
+});
+
+app.post('/webhook/cashapp', bodyParser.json(), (req,res) => {
+  // Validate webhook signature, then mark order paid.
+  console.log('CashApp webhook', req.body);
+  res.json({received:true});
+});
 // ====== EXPORT FOR VERCEL ======
 module.exports = app;
