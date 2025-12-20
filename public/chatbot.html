@@ -42,6 +42,7 @@ header h1 {font-size:20px;margin:0;}
   color:var(--text-light);
   border-radius:15px;padding:10px;
   box-shadow:0 2px 6px rgba(0,0,0,0.3);
+  z-index:100;
 }
 #menu a {
   display:block;
@@ -49,6 +50,7 @@ header h1 {font-size:20px;margin:0;}
   text-decoration:none;
   color:inherit;
   border-radius:10px;
+  cursor:pointer;
 }
 #menu a:hover {background:rgba(99,102,241,0.1);}
 #chat-container {display:flex;flex-direction:column;height:calc(100vh - 60px);}
@@ -106,6 +108,104 @@ header h1 {font-size:20px;margin:0;}
   padding:5px;
 }
 
+/* API Settings Modal */
+.modal {
+  display:none;
+  position:fixed;
+  top:0;left:0;
+  width:100%;height:100%;
+  background:rgba(0,0,0,0.7);
+  z-index:1000;
+  justify-content:center;
+  align-items:center;
+}
+.modal-content {
+  background:var(--bg-dark);
+  padding:30px;
+  border-radius:15px;
+  width:90%;
+  max-width:500px;
+  box-shadow:0 4px 20px rgba(0,0,0,0.5);
+}
+.modal-content h2 {
+  margin-top:0;
+  color:var(--primary);
+  font-size:24px;
+}
+.modal-content label {
+  display:block;
+  margin-top:15px;
+  margin-bottom:5px;
+  color:var(--text-dark);
+  font-weight:500;
+}
+.modal-content input, .modal-content select {
+  width:100%;
+  padding:12px;
+  border:2px solid #1e293b;
+  border-radius:10px;
+  background:#1e293b;
+  color:#fff;
+  font-size:14px;
+  box-sizing:border-box;
+}
+.modal-content input:focus {
+  outline:none;
+  border-color:var(--primary);
+}
+.modal-actions {
+  display:flex;
+  gap:10px;
+  margin-top:20px;
+  justify-content:flex-end;
+}
+.modal-actions button {
+  padding:10px 20px;
+  border:none;
+  border-radius:10px;
+  cursor:pointer;
+  font-size:14px;
+  font-weight:600;
+  transition:0.3s;
+}
+.save-btn {
+  background:var(--primary);
+  color:#fff;
+}
+.save-btn:hover {
+  background:var(--secondary);
+  color:#000;
+}
+.cancel-btn {
+  background:#334155;
+  color:#fff;
+}
+.cancel-btn:hover {
+  background:#475569;
+}
+.api-status {
+  margin-top:10px;
+  padding:10px;
+  border-radius:8px;
+  font-size:13px;
+}
+.api-status.success {
+  background:#10b981;
+  color:#fff;
+}
+.api-status.error {
+  background:#ef4444;
+  color:#fff;
+}
+.api-info {
+  background:#1e293b;
+  padding:10px;
+  border-radius:8px;
+  margin-top:10px;
+  font-size:12px;
+  color:#94a3b8;
+}
+
 @keyframes bannerBounce {
   0% { bottom: -150px; opacity: 0; }
   60% { bottom: 40px; opacity: 1; }
@@ -118,7 +218,7 @@ header h1 {font-size:20px;margin:0;}
 <!-- Cookie Banner -->
 <div id="cookieBanner" style="
   position:fixed;
-  bottom:-150px; /* kòmanse anba paj la pou animasyon */
+  bottom:-150px;
   left:50%;
   transform:translateX(-50%);
   width:90%;
@@ -147,6 +247,36 @@ header h1 {font-size:20px;margin:0;}
   </div>
 </div>
 
+<!-- API Settings Modal -->
+<div id="apiModal" class="modal">
+  <div class="modal-content">
+    <h2><i class="fa fa-key"></i> API Settings</h2>
+    
+    <label>Select AI Provider:</label>
+    <select id="aiProvider">
+      <option value="anthropic">Anthropic (Claude)</option>
+      <option value="openai">OpenAI (GPT)</option>
+      <option value="gemini">Google (Gemini)</option>
+    </select>
+    
+    <label>API Key:</label>
+    <input type="password" id="apiKeyInput" placeholder="Enter your API key...">
+    
+    <div class="api-info">
+      <strong>How to get API keys:</strong><br>
+      • <b>Anthropic:</b> console.anthropic.com<br>
+      • <b>OpenAI:</b> platform.openai.com<br>
+      • <b>Gemini:</b> makersuite.google.com
+    </div>
+    
+    <div id="apiStatus"></div>
+    
+    <div class="modal-actions">
+      <button class="cancel-btn" onclick="closeApiModal()">Cancel</button>
+      <button class="save-btn" onclick="saveApiSettings()">Save</button>
+    </div>
+  </div>
+</div>
 
 <header>
   <h1><i class="fa-solid fa-robot"></i> Dawens Chatbot</h1>
@@ -166,11 +296,11 @@ header h1 {font-size:20px;margin:0;}
   <option value="kr">🇰🇷 KR</option>
 </select>
 
-<!-- menu snippet -->
 <div id="menu">
-  <a href="bot/library.html">library</a>
-  <a id="reportBugLink" href="Report-bug.html">Report bug</a>
-  <a href="bot/setting.html">Setting</a>
+  <a onclick="openApiModal()"><i class="fa fa-key"></i> API Settings</a>
+  <a href="bot/library.html"><i class="fa fa-book"></i> Library</a>
+  <a href="Report-bug.html"><i class="fa fa-bug"></i> Report bug</a>
+  <a href="bot/setting.html"><i class="fa fa-gear"></i> Settings</a>
 </div>
 
 <div id="chat-container">
@@ -178,7 +308,7 @@ header h1 {font-size:20px;margin:0;}
 
   <div id="input-container">
     <button id="mic-btn"><i class="fa fa-microphone"></i></button>
-    <button id="upload-btn"><i class="fa fa-image"></i></button>
+    <button id="upload-btn" onclick="document.getElementById('upload-photo').click()"><i class="fa fa-image"></i></button>
     <input type="file" id="upload-photo" accept="image/*" style="display:none;">
     <input type="text" id="user-input" placeholder="Écrivez un message...">
     <button id="send-btn"><i class="fa fa-paper-plane"></i></button>
@@ -194,6 +324,55 @@ const themeBtn=document.getElementById('theme-btn');
 let darkMode=localStorage.getItem('theme')!=='light';
 let messageCount=0;
 let lastTime=parseInt(localStorage.getItem('lastTime')||'0',10);
+
+// API Settings
+let apiProvider = localStorage.getItem('apiProvider') || 'anthropic';
+let apiKey = localStorage.getItem('apiKey') || '';
+
+// Modal Functions
+function openApiModal() {
+  document.getElementById('apiModal').style.display = 'flex';
+  document.getElementById('aiProvider').value = apiProvider;
+  document.getElementById('apiKeyInput').value = apiKey;
+  document.getElementById('menu').style.display = 'none';
+}
+
+function closeApiModal() {
+  document.getElementById('apiModal').style.display = 'none';
+}
+
+function saveApiSettings() {
+  const provider = document.getElementById('aiProvider').value;
+  const key = document.getElementById('apiKeyInput').value.trim();
+  const statusDiv = document.getElementById('apiStatus');
+  
+  if (!key) {
+    statusDiv.className = 'api-status error';
+    statusDiv.textContent = '❌ Please enter an API key';
+    return;
+  }
+  
+  apiProvider = provider;
+  apiKey = key;
+  localStorage.setItem('apiProvider', provider);
+  localStorage.setItem('apiKey', key);
+  
+  statusDiv.className = 'api-status success';
+  statusDiv.textContent = '✅ API settings saved successfully!';
+  
+  setTimeout(() => {
+    closeApiModal();
+    statusDiv.textContent = '';
+  }, 2000);
+}
+
+// Close modal on outside click
+window.onclick = function(event) {
+  const modal = document.getElementById('apiModal');
+  if (event.target === modal) {
+    closeApiModal();
+  }
+}
 
 // Initial Theme
 function applyTheme(){
@@ -237,8 +416,14 @@ function addMessage(text,sender='user',photo){
   messages.scrollTop=messages.scrollHeight;
 }
 
-// Gemini/OpenAI fallback
-async function sendMessage(prompt){
+// Send message with API
+async function sendMessage(prompt, imageData = null){
+  if(!apiKey){
+    addMessage("⚠️ Please configure your API key in Settings first!",'bot',botPhoto);
+    setTimeout(() => openApiModal(), 1000);
+    return;
+  }
+  
   if(messageCount>=50){
     const now=Date.now();
     if(now-lastTime<86400000){
@@ -248,60 +433,137 @@ async function sendMessage(prompt){
   }
   messageCount++;
   localStorage.setItem('lastTime',Date.now());
+  
   const lang=document.getElementById('lang').value;
-  addMessage('<i>Le bot réfléchit...</i>','bot',botPhoto);
-
-  // Eseye Gemini si gen kle
-  const GEMINI_API_KEY = "YOUR_GEMINI_KEY"; // mete kle w si ou genyen
+  addMessage('<i class="fa fa-spinner fa-spin"></i> Le bot réfléchit...','bot',botPhoto);
 
   try {
-    if(GEMINI_API_KEY && GEMINI_API_KEY!=="AIzaSyB7URXCSpZtdCdKCjBGkvV27nLURDDn1FM"){
-      const res = await fetch("https://api.gemini.com/v1/complete",{
-        method:"POST",
-        headers:{
-          "Content-Type":"application/json",
-          "Authorization":`Bearer ${GEMINI_API_KEY}`
-        },
-        body:JSON.stringify({prompt,max_tokens:150})
-      });
-      const data = await res.json();
-      const reply = data.reply || data.text || "Erreur.";
-      addMessage(reply,'bot',botPhoto);
-      speakReply(reply,lang);
-      return;
+    let reply = '';
+    
+    if(apiProvider === 'anthropic'){
+      reply = await callAnthropicAPI(prompt, imageData);
+    } else if(apiProvider === 'openai'){
+      reply = await callOpenAIAPI(prompt, imageData);
+    } else if(apiProvider === 'gemini'){
+      reply = await callGeminiAPI(prompt, imageData);
     }
-  } catch(e){
-    console.warn("Gemini API failed, fallback to OpenAI:",e);
-  }
-
-  // Fallback OpenAI
-  const OPENAI_API_KEY = "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"; // mete kle w isit
-  try {
-    const res = await fetch("https://api.openai.com/v1/chat/completions",{
-      method:"POST",
-      headers:{
-        "Content-Type":"application/json",
-        "Authorization":`Bearer ${OPENAI_API_KEY}`
-      },
-      body:JSON.stringify({
-        model:"gpt-4",
-        messages:[
-          {role:"system",content:"Ou se yon AI assistant pou shop bot"},
-          {role:"user",content:prompt}
-        ],
-        max_tokens:200
-      })
-    });
-    const data = await res.json();
-    const reply = data.choices && data.choices[0].message.content
-      ? data.choices[0].message.content
-      : "🤖 Je n'ai pas de réponse pour le moment";
+    
+    // Remove loading message
+    messages.removeChild(messages.lastChild);
     addMessage(reply,'bot',botPhoto);
     speakReply(reply,lang);
+    
   } catch(e){
-    console.error("OpenAI API error:",e);
-    addMessage("❌ Erreur lors de l'appel OpenAI.",'bot',botPhoto);
+    messages.removeChild(messages.lastChild);
+    console.error("API error:",e);
+    addMessage("❌ Error: " + e.message,'bot',botPhoto);
   }
+}
+
+// Anthropic API
+async function callAnthropicAPI(prompt, imageData){
+  const content = [];
+  
+  if(imageData){
+    const base64Data = imageData.split(',')[1];
+    const mediaType = imageData.split(';')[0].split(':')[1];
+    content.push({
+      type: "image",
+      source: {type: "base64", media_type: mediaType, data: base64Data}
+    });
+  }
+  
+  content.push({type: "text", text: prompt});
+  
+  const res = await fetch("https://api.anthropic.com/v1/messages", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "x-api-key": apiKey,
+      "anthropic-version": "2023-06-01"
+    },
+    body: JSON.stringify({
+      model: "claude-sonnet-4-20250514",
+      max_tokens: 1000,
+      messages: [{role: "user", content: content}]
+    })
+  });
+  
+  if(!res.ok){
+    const error = await res.json();
+    throw new Error(error.error?.message || 'API request failed');
+  }
+  
+  const data = await res.json();
+  return data.content[0].text;
+}
+
+// OpenAI API
+async function callOpenAIAPI(prompt, imageData){
+  const messages = [{role: "system", content: "You are a helpful AI assistant"}];
+  
+  if(imageData){
+    messages.push({
+      role: "user",
+      content: [
+        {type: "text", text: prompt},
+        {type: "image_url", image_url: {url: imageData}}
+      ]
+    });
+  } else {
+    messages.push({role: "user", content: prompt});
+  }
+  
+  const res = await fetch("https://api.openai.com/v1/chat/completions", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": `Bearer ${apiKey}`
+    },
+    body: JSON.stringify({
+      model: imageData ? "gpt-4-vision-preview" : "gpt-4",
+      messages: messages,
+      max_tokens: 1000
+    })
+  });
+  
+  if(!res.ok){
+    const error = await res.json();
+    throw new Error(error.error?.message || 'API request failed');
+  }
+  
+  const data = await res.json();
+  return data.choices[0].message.content;
+}
+
+// Gemini API
+async function callGeminiAPI(prompt, imageData){
+  const parts = [{text: prompt}];
+  
+  if(imageData){
+    const base64Data = imageData.split(',')[1];
+    const mimeType = imageData.split(';')[0].split(':')[1];
+    parts.push({
+      inline_data: {
+        mime_type: mimeType,
+        data: base64Data
+      }
+    });
+  }
+  
+  const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-pro-vision:generateContent?key=${apiKey}`, {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({contents: [{parts: parts}]})
+  });
+  
+  if(!res.ok){
+    const error = await res.json();
+    throw new Error(error.error?.message || 'API request failed');
+  }
+  
+  const data = await res.json();
+  return data.candidates[0].content.parts[0].text;
 }
 
 // Bot voice reply
@@ -324,6 +586,13 @@ document.getElementById('send-btn').onclick=()=>{
   }
 };
 
+// Enter key
+input.addEventListener('keypress', e => {
+  if(e.key === 'Enter'){
+    document.getElementById('send-btn').click();
+  }
+});
+
 // Voice recognition
 let recognition;
 if('webkitSpeechRecognition' in window){
@@ -344,7 +613,7 @@ document.getElementById('upload-photo').onchange = async e => {
   const file = e.target.files[0];
   if (!file) return;
 
-  const userMsg = prompt("Ajoute yon mesaj pou foto sa a (oswa kite vid pou seulement foto):");
+  const userMsg = prompt("Add a message for this photo (or leave empty):");
   const reader = new FileReader();
   reader.onload = x => {
     const imgData = x.target.result;
@@ -352,7 +621,7 @@ document.getElementById('upload-photo').onchange = async e => {
     if (userMsg && userMsg.trim() !== '') content += `<br>${userMsg}`;
     addMessage(content,'user');
     saveToLibrary(imgData,userMsg);
-    if(userMsg && userMsg.trim()!=='') sendMessage(userMsg);
+    sendMessage(userMsg || "What's in this image?", imgData);
   };
   reader.readAsDataURL(file);
   e.target.value = '';
@@ -370,7 +639,22 @@ window.addEventListener('load',()=>{
   const browserLang=navigator.language.slice(0,2);
   const langSelect=document.getElementById('lang');
   if([...langSelect.options].some(opt=>opt.value===browserLang)) langSelect.value=browserLang;
-  addMessage("👋 Bienvenue sur <b>Dawens Chatbot Pro+</b> — comment puis-je vous aider aujourd’hui ?",'bot',botPhoto);
+  addMessage("👋 Bienvenue sur <b>Dawens Chatbot Pro+</b> — comment puis-je vous aider aujourd'hui ?",'bot',botPhoto);
+  
+  // Show API settings if not configured
+  if(!apiKey){
+    setTimeout(() => {
+      addMessage("⚙️ Please configure your API key to start chatting!",'bot',botPhoto);
+    }, 1000);
+  }
+});
+
+// Cookie banner (keep original functionality)
+document.getElementById('acceptBtn')?.addEventListener('click', () => {
+  document.getElementById('cookieBanner').style.bottom = '-150px';
+});
+document.getElementById('refuseBtn')?.addEventListener('click', () => {
+  document.getElementById('cookieBanner').style.bottom = '-150px';
 });
 </script>
 </body>
